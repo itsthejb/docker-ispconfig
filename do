@@ -13,6 +13,7 @@ if [ "$1" = "" ] ; then
   echo "usage: `basename $0` <command>"
   echo "          build ............... build image"
   echo "          up .................  create container from image"
+  echo "          rm .................  create container from image"
   echo "          start|stop|restart... start/stop the container"
   echo "          console ............. attach to the container output  (detach with CRTL-C)"
   echo "          supervisor .......... connect to supervisord (help|quit|start|stop|restart)"
@@ -36,11 +37,11 @@ if [ "$1" = "up" ] ; then
   docker-compose up -d
 fi
 
-if [ "$1" = "build" ] ; then
-  docker-compose build
+if [ "$1" = "rm" ] ; then
+  docker-compose rm -f
 fi
 
-if [ "$1" = "start" -o "$1" = "stop" -o "$1" = "restart" ] ; then
+if [ "$1" = "start" -o "$1" = "stop" -o "$1" = "restart" -o "$1" = "build" ] ; then
   docker-compose  $1
   exit 0
 fi
