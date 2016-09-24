@@ -50,13 +50,34 @@ cp docker-compose.yml-template docker-compose.yml
 # or
   sed -i -e "s/myhost/<HOSTNAME>/g" docker-compose.yml
   sed -i -e "s/test.com/<DOMAIN>/g" docker-compose.yml
-docker-compose build
-```
-
-## Run a container from the image.
-```
 ./do build
 ```
+
+## Create and run a container from the image.
+```
+docker-compose up -d ; docker-compose logs -f   # type Ctrl-c for detach
+```
+
+## Post install configuration:
+```
+./do track init                                # initialize tracking for  /etc and /usr/local/ispconfig
+./do ispc config mysql_root_pw pass test       # change mysql root password from pass to test
+./do ispc config panal_admin_pw  test          # set panel admin password to test
+./do ispc config server_name  hname.test.com   # set server name in ispconfig database
+./do restart                                   # restart ispconfig
+./do log                                       # show start up console
+./do track show                                # show ispconfig file modifications
+```
+### Test installation
+```
+FQDN=hname.test.com
+firefox https://${FQDN}:8080 &
+firefox https://${FQDN}:8080/phpmyadmin &
+firefox https://${FQDN}:8080/webmail &
+```
+
+
+
 ## Recreate and run a container
 
 ```
@@ -73,18 +94,6 @@ TBD
 ./do supervisor          # start/stop/restart daemons in the container
 ```
 
-### Post install configuration:
-```
-./do track init
-./do track show
-./do ispc config mysql_root_pw pass <new-pw>
-./do ispc config panal_admin_pw  <new-pw>
-./do ispc config server_name  <fqdn>
-./do restart
-./do log
-./do track show
-```
-
 ### Other useful commands (examples)
 ```
 ./do run bash
@@ -95,10 +104,3 @@ TBD
 ./do run mysql_upgrade
 ```
 
-### Tests
-```
-FQDN=hname.test.com
-firefox https://${FQDN}:8080 &
-firefox https://${FQDN}:8080/phpmyadmin &
-firefox https://${FQDN}:8080/webmail &
-```
