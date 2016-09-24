@@ -15,10 +15,11 @@ But this architecture do not really fit to the docker concept.
   * config will be done in/etc/ /var/log/ispconfig /etc/oasswd /etc/group /usr/local/ispconfig.
 
 ## History/Todo's
-  * initially forked from jerobs repository:  "https://github.com/jerob/docker-ispconfig" - thanks for the excellent work.
+  * initially forked from jerobs repository:  https://github.com/jerob/docker-ispconfig - thanks for the excellent work.
   * implement build/run/start/stop management with docker-compose
   * create a wrapper script to control ispconfig (./do)
   * modfiy supervisord: proper shutdown, supervisorctl (./do supervisor) link /etc/init.d/<services> to suprvisor, proxy scripts for postfix, ... 
+  * enable/disable ispconfig services
   * tracking possibility of ispconfig file modifications (./do track)
   * install config files on every start up (certs, ssh-keys, main.cf, ..) from a service share (./do ovw) 
   * configure ispconfig from host: set server_name, passwords ... (./do ispc config)
@@ -53,17 +54,13 @@ docker-compose build
 ```
 
 ## Run a container from the image.
-
 ```
-docker-compose up -d ; docker-compose logs -f
+./do build
 ```
 ## Recreate and run a container
 
 ```
-# keep volume :
-docker-compose stop ; docker-compose rm -f ; docker-compose up -d ; docker-compose logs -f
-# from scratch :
-docker-compose stop ; docker-compose rm -f ; sudo rm -rvf ./volume ; docker-compose up -d ; docker-compose logs -f
+TBD
 ```
 
 ## Manage ispconfig 
@@ -84,6 +81,7 @@ docker-compose stop ; docker-compose rm -f ; sudo rm -rvf ./volume ; docker-comp
 ./do ispc config panal_admin_pw  <new-pw>
 ./do ispc config server_name  <fqdn>
 ./do restart
+./do log
 ./do track show
 ```
 
