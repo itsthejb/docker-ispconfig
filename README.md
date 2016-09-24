@@ -55,48 +55,69 @@ cp docker-compose.yml-template docker-compose.yml
 
 ## Create and run a container from the image.
 ```
-docker-compose up -d ; docker-compose logs -f   # type Ctrl-c for detach
+docker-compose up -d ; docker-compose logs -f       # type Ctrl-c for detach
 ```
 
 ## Post install configuration:
 ```
-./do track init                                # initialize tracking for  /etc and /usr/local/ispconfig
-./do ispc config mysql_root_pw pass test       # change mysql root password from pass to test
-./do ispc config panal_admin_pw  test          # set panel admin password to test
-./do ispc config server_name  hname.test.com   # set server name in ispconfig database
-./do restart                                   # restart ispconfig
-./do log                                       # show start up console
-./do track show                                # show ispconfig file modifications
+./do track init                                     # initialize tracking for  /etc and /usr/local/ispconfig
+./do ispc config mysql_root_pw pass test            # change mysql root password from pass to test
+./do ispc config panal_admin_pw  test               # set panel admin password to test
+./do ispc config server_name  hname.test.com        # set server name in ispconfig database
+./do restart                                        # restart ispconfig
+./do log                                            # show start up console
+./do track show                                     # show ispconfig file modifications
 ```
 ### Test installation
 ```
-FQDN=hname.test.com
+FQDN=127.0.0.1
 firefox https://${FQDN}:8080 &
 firefox https://${FQDN}:8080/phpmyadmin &
 firefox https://${FQDN}:8080/webmail &
 ```
-
-
-
-## Recreate and run a container
+## Recreate a customized ispconfig
+ This is needed afer modification in the RUN section in docker-compose.yml.
 
 ```
-TBD
+./do  ispc mig  export  my_name                     # export configuration to ./volume/service/mig/my_name/
+find ./volume/service/mig/my_name/                  # check
+./do stop                                           # stop ispconfig
+./do rm                                             # remove the container
+sudo rm -rf ./volume/{etc,ispconfig,log,mysql}      # cleanup
+./do up                                             # create a new container
+./do log                                            # show start up console
+./do ispc mig import my_name                        # import configuration from ./volume/service/mig/my_name/
+./do restart                                        # restart ispconfig
+./do log                                            # show start up console
+./do syslog
+./do maillog
+```
+## Create a new image
+ This is needed after changes in the BUILD section in docker-compose.yml. or for updates.
+ 
+```
+./do  ispc mig  export  a_name                     # export configuration to ./volume/service/mig/a_name/
+./do stop                                           # stop ispconfig
+./do rm                                             # remove the container
+sudo rm -rf ./volume/{etc,ispconfig,log,mysql}      # cleanup
+git pull                                            # update ispconfig-docker
+diff docker-compose.yml-template docker-compose.yml # check for new options docker-compose.yml
+./do build
+./do up                                             # create a new container
+./do log                                            # show start up console
+./do ispc mig import a_name                        # import configuration from ./volume/service/mig/a_name/
+./do restart                                        # restart ispconfig
+./do log                                            # show start up console
 ```
 
-## Manage ispconfig 
+## useful commands (examples):
 
-### 
 ```
 ./do                     # help
 ./do start|stop|restart  # start/stop the container
 ./do console             # attach to the console
-./do supervisor          # start/stop/restart daemons in the container
-```
-
-### Other useful commands (examples)
-```
-./do run bash
+./do supervisor          # attach to supervisord to start/stop/restart daemons in the container
+./do run bash            # run commands in the container
 ./do run freshclam
 ./do run postqueue -p
 ./do run /usr/local/ispconfig/server/server.sh
