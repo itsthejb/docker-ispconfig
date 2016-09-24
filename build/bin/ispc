@@ -1,0 +1,15 @@
+#!/bin/sh
+
+IAM=$(readlink -f $0)
+
+if [ "$1" = "" ] ; then
+  list=$(readlink -f $0)-*
+  for i in $list ; do
+    $i
+  done 
+  exit 0
+else
+  cmd=$1
+  shift
+  ${IAM}-$cmd $*
+fi

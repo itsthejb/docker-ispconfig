@@ -1,0 +1,130 @@
+#!/bin/bash
+
+MUSER="root"
+TDIR=/service/mig
+
+_usage()
+{
+  echo "  # Migration:"
+  echo "  mig export [<name>]     # export data in directory <name> or  default "
+  echo "  mig import [<name>]     # import data from directory <name> or default"
+  exit 0
+}
+if [ "$1" = "" ] ; then 
+  _usage
+fi
+
+if [ "$1" != "export" -a "$1" != "import" ] ; then
+  _usage
+fi
+TARGET=${TDIR}/default
+if [ "$2" != "" ] ; then
+  TARGET=${TDIR}/${2}
+fi
+#############################################################################################
+# magic main
+#############################################################################################
+
+PWFI=/etc/.mysql_root_pw
+
+if [ ! -e "$PWFI" ] ; then
+   echo "mysql root password not set in <$PWFI>. Set it to <pass>!!!"
+   echo "MYSQL_ROOT_PW=\"pass\"" > $PWFI
+fi
+. $PWFI
+
+if [ "$1" = "export" ] ; then
+
+  TMP=/tmp/bootstrap
+  echo "remove existing export directory <$TARGET> ..."
+  rm -Rf $TMP $TARGET
+  mkdir -p $TMP $TARGET
+  echo "extract bootstrap archive ..."
+  tar -C $TMP -xzf /bootstrap.tgz
+  #
+  # passwd, shadow, group
+  #
+  echo "create delta for passwd, shadow and group ..."
+  mkdir $TARGET/etc
+  grep "^web[0-9]*:"  /etc/passwd                     > $TARGET/etc/passwd.ispconfig
+  grep "^web[0-9]*:"  /etc/shadow                     > $TARGET/etc/shadow.ispconfig
+  grep -e "^client[0-9]*:" -e "^sshusers:" /etc/group > $TARGET/etc/group.ispconfig
+  #
+  # databases
+  #
+  DBS="$(mysql -u $MUSER -p${MYSQL_ROOT_PW} -Bse 'show databases')"
+  mkdir -p $TARGET/sql
+  for db in $DBS ; do
+    if [ "$db" != "mysql" -a "$db" != "information_schema" -a "$db" != "performance_schema" ] ; then
+      echo "exporting database <$db> ..." 
+      mysqldump -u root --password=${MYSQL_ROOT_PW} $db --single-transaction > "$TARGET/sql/$db.sql"
+    fi
+  done
+  #
+  # others
+  #
+  echo "create a archive with the remaining configuration files (apache,..):"
+  list="/var/log/ispconfig/httpd  /etc/apache2/sites-available /etc/apache2/sites-enabled /etc/.mysql_root_pw /etc/supervisor/disabled_services"
+  for i in $list ; do
+    echo "   <$i>"
+  done
+  tar  -C / -czpf $TARGET/rootfs.tgz $list 
+  echo ""
+  echo "config data exported to <$TARGET>."
+  echo ""
+  exit 0
+fi
+
+#
+#
+#
+if [ "$1" = "import" ] ; then
+  
+  cd /
+
+  supervisorctl stop apache2
+  supervisorctl stop postfix
+  supervisorctl stop dovecot
+
+  list="passwd shadow group"
+  for i in $list ; do
+    cat  /etc/${i}  ${TARGET}/etc/${i}.ispconfig | uniq > /tmp/.t
+    diff /etc/${i}  /tmp/.t
+    cp /tmp/.t /etc/${i}
+    rm /tmp/.t
+  done
+  
+  tar -C / -xzvf $TARGET/rootfs.tgz
+  . $PWFI
+
+  echo "set mysql $MUSER password to <${MYSQL_ROOT_PW}>. Read from <$PWFI> ..."
+  mysqladmin -u $MUSER -ppass password ${MYSQL_ROOT_PW}
+  list=$(ls -d -1 $TARGET/sql/*)
+  echo $list
+  for i in $list ; do
+    db=`basename $i`
+    db=${db%.sql}
+    echo "restoring database <$db> from <$i> ..."
+    mysql -u $MUSER -p${MYSQL_ROOT_PW} $db < ${i}      
+  done
+
+  echo "set password for ispconfig in mysql database like in /usr/local/ispconfig/interface/lib/config.inc.php"
+  PW_INC=$(grep "^\$conf\['db_password'\]"  /usr/local/ispconfig/interface/lib/config.inc.php | cut -d\' -f4)
+  echo "  password in config.inc.php : <$PW_INC>"
+  echo "update user set Password = PASSWORD(\"${PW_INC}\") WHERE User = 'ispconfig';" | mysql -u $MUSER -p${MYSQL_ROOT_PW} mysql
+ 
+  echo "TODO:"
+  echo " svn stuff: find /var/www -name svn -type d"
+  echo " courier to dovecot: /etc/dovecot/conf.d/????.conf"
+    #  #vi /etc/dovecot/conf.d/15-mok.conf
+    #namespace {
+    #  prefix = INBOX.
+    #  separator = .
+    #  inbox = yes
+    #}
+fi
+
+
+
+
+ 

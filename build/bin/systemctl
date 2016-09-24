@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SVC=${2%.service}
+
+case "$1" in
+        restart | stop | status | start )
+
+                /usr/bin/supervisorctl ${1} ${SVC}
+        ;;
+        *)
+                echo "error: unkown command: $@"
+        exit 1
+esac

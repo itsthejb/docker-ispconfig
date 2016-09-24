@@ -1,0 +1,105 @@
+[supervisorctl]
+serverurl=unix:///dev/shm/supervisor.sock
+
+[unix_http_server]
+file=//dev/shm/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisord]
+logfile=/var/log/supervisor/supervisor.log    ; supervisord log file
+logfile_maxbytes=50MB                           ; maximum size of logfile before rotation
+logfile_backups=10                              ; number of backed up logfiles
+loglevel=info                                   ; info, debug, warn, trace
+pidfile=/var/run/supervisord.pid                ; pidfile location
+nodaemon=true                                   ; (start in foreground if true;default false)
+minfds=1024                                     ; number of startup file descriptors
+minprocs=200                                    ; number of process descriptors
+user=root                                       ; default user
+childlogdir=/var/log/supervisor/               ; where child log files will live
+logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
+pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+
+##################################################
+#
+# use same name for the progrms like in /etc/init.d. (wrapper)
+#
+[program:rsyslog]
+command=/usr/sbin/rsyslogd -n
+process_name=%(program_name)s
+autorestart=true
+user=root
+directory=/
+priority=912
+stdout_logfile=/var/log/%(program_name)s-stdout.log
+stderr_logfile=/var/log/%(program_name)s-stderr.log
+
+[program:ssh]
+directory=/var/run/sshd
+command=/usr/sbin/sshd -D
+autorestart=true
+redirect_stderr=true
+
+[program:mysql]
+command=/usr/bin/pidproxy /var/run/mysqld/mysqld.pid /usr/sbin/mysqld
+autorestart=true
+
+[program:bind9]
+command=/usr/sbin/named -c /etc/bind/named.conf -u bind -f
+
+
+[program:postfix]
+directory=/etc/postfix
+command=/usr/local/bin/postfix.sh
+stdout_logfile	= /var/log/supervisor/%(program_name)s.log
+stderr_logfile	= /var/log/supervisor/%(program_name)s.log
+autorestart=true
+
+[program:cron]
+command = /usr/sbin/cron -f
+stdout_logfile=/var/log/%(program_name)s-stdout.log
+stderr_logfile=/var/log/%(program_name)s-stderr.log
+autorestart = true
+
+
+[program:apache2]
+command=/bin/bash -c "source /etc/apache2/envvars && exec /usr/sbin/apache2 -DFOREGROUND"
+
+[program:fail2ban]
+command=/usr/local/bin/fail2ban.sh
+
+[program:dovecot]
+command=/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf -F
+autorestart=true
+
+[program:mailman]
+command=/usr/lib/mailman/bin/mailmanctl start
+autorestart=true
+
+[program:clamav-daemon]
+command=/usr/sbin/clamd -c /etc/clamav/clamd.conf
+autorestart=true
+priority=20
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+
+[program:amavis]
+command=/usr/sbin/amavisd-new foreground
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+priority=20
+autorestart=true
+
+[program:spamassassin]
+command=/usr/sbin/spamd --create-prefs --max-children 5 --helper-home-dir
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+autorestart=true
+
+[program:pure-ftpd-mysql]
+command=/usr/sbin/pure-ftpd-mysql-virtualchroot -p 30000:30000 -l mysql:/etc/pure-ftpd/db/mysql.conf -l pam -J ALL:!aNULL:!SSLv3 -A -u 1000 -D -H -E -O clf:/var/log/pure-ftpd/transfer.log -8 UTF-8 -b -Y 1
+stdout_logfile=/var/log/ftpserver.log
+stderr_logfile=/var/log/ftpserver.log
+autorestart=true
+

@@ -1,0 +1,13 @@
+backup
+log
+mysql
+vmail
+www
+.gitignore
+*~
+etc/*-
+etc/fstab
+
+
+# git rm --cached  etc/fstab
+

@@ -1,0 +1,106 @@
+# ispconfig-docker
+Attempt to dockerize ispconfig 
+
+         !!! alpha  -  try it, but not use it !!!
+
+## Preface
+ISPConfig is a great framework!
+
+Changes in the ispconfig panel will be stored in a mysql database and the config files of the appropriate daemons (postfix, dovecot, ...) will be written.
+
+Clear, simple and clean.
+
+But this architecture do not really fit to the docker concept.
+  * multipe daemons
+  * config will be done in/etc/ /var/log/ispconfig /etc/oasswd /etc/group /usr/local/ispconfig.
+
+## History/Todo's
+  * initially forked from jerobs repository:  "https://github.com/jerob/docker-ispconfig" - thanks for the excellent work.
+  * implement build/run/start/stop management with docker-compose
+  * create a wrapper script to control ispconfig (./do)
+  * modfiy supervisord: proper shutdown, supervisorctl (./do supervisor) link /etc/init.d/<services> to suprvisor, proxy scripts for postfix, ... 
+  * tracking possibility of ispconfig file modifications (./do track)
+  * install config files on every start up (certs, ssh-keys, main.cf, ..) from a service share (./do ovw) 
+  * configure ispconfig from host: set server_name, passwords ... (./do ispc config)
+  * TBD: migration (./do ispc mig)
+  * TBD: volumes (keep /etc, /usr, /var/lib/mysql in the container)
+
+## Requirements
+ * docker-engine version >= 1.10.0 
+ * system user with sudo access
+ * system user belongs to "docker" group
+
+## Installation
+
+```
+DDIR=./ispc
+git clone https://github.com/unimock/ispconfig-docker.git $DDIR
+cd $DDIR
+```
+
+## Build image
+Customize docker-compose.yml to your needs and create an image. 
+
+```
+cp docker-compose.yml-template docker-compose.yml
+# edit
+  vi docker-compose.yml
+  docker-compose build
+# or
+  sed -i -e "s/myhost/<HOSTNAME>/g" docker-compose.yml
+  sed -i -e "s/test.com/<DOMAIN>/g" docker-compose.yml
+docker-compose build
+```
+
+## Run a container from the image.
+
+```
+docker-compose up -d ; docker-compose logs -f
+```
+## Recreate and run a container
+
+```
+# keep volume :
+docker-compose stop ; docker-compose rm -f ; docker-compose up -d ; docker-compose logs -f
+# from scratch :
+docker-compose stop ; docker-compose rm -f ; sudo rm -rvf ./volume ; docker-compose up -d ; docker-compose logs -f
+```
+
+## Manage ispconfig 
+
+### 
+```
+./do                     # help
+./do start|stop|restart  # start/stop the container
+./do console             # attach to the console
+./do supervisor          # start/stop/restart daemons in the container
+```
+
+### Post install configuration:
+```
+./do track init
+./do track show
+./do ispc config mysql_root_pw pass <new-pw>
+./do ispc config panal_admin_pw  <new-pw>
+./do ispc config server_name  <fqdn>
+./do restart
+./do track show
+```
+
+### Other useful commands (examples)
+```
+./do run bash
+./do run freshclam
+./do run postqueue -p
+./do run /usr/local/ispconfig/server/server.sh
+./do run /usr/local/ispconfig/server/cron_daily.sh
+./do run mysql_upgrade
+```
+
+### Tests
+```
+FQDN=hname.test.com
+firefox https://${FQDN}:8080 &
+firefox https://${FQDN}:8080/phpmyadmin &
+firefox https://${FQDN}:8080/webmail &
+```

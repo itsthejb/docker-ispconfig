@@ -1,0 +1,65 @@
+version: '2'
+services:
+  ispc:
+    #
+    # build section
+    #
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+      args:
+        BUILD_BOOTSTRAP: '/var/www /var/vmail /var/lib/mysql /etc /usr/local/ispconfig /var/log'
+        BUILD_FRESHCLAM_UPDATE: 1        # update virus databases [0..no|1..yes]
+        BUILD_MYSQL_PW: pass
+    #
+    # run section
+    #
+    image: ispconfig-docker:testing
+    container_name: ispc
+    restart: never
+    hostname: myhost
+    domainname: test.com
+    cap_add:
+      - NET_ADMIN                        #  fail2ban (iptables)
+    volumes:
+      - ./volume/service:/service               # service volume for overwrites (ovm) and migration (mig)
+      - ./volume/www:/var/www
+      - ./volume/vmail:/var/vmail
+      - ./volume/mysql:/var/lib/mysql
+      - ./volume/etc:/etc
+      - ./volume/ispconfig:/usr/local/ispconfig
+      - ./volume/log:/var/log
+    environment:
+     - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
+     - LANGUAGE=en                       # see ./build/autoinstall.ini
+     # disable services
+     # postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql
+     - DISABLED_SERVICES=bind9 mailman
+     #- MAILMAN_EMAIL_HOST=test.com
+     #- MAILMAN_EMAIL=email@test.com
+     #- MAILMAN_PASS=pass
+    ports:
+      - "110:110"      # pop3
+      - "995:995"      # pop3s
+      - "143:143"      # imap
+      - "993:993"      # imaps
+      - "25:25"        # smtp
+      - "465:465"      # smtps
+      - "587:587"      # smtps
+      - "20:20"
+      - "21:21"        # pureftpd
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+      #- "53:53"       # bind
+      - "2222:22"      # sshd
+      - "30000:30000"  # pure-ftpd
+      - "30001:30001"
+      - "30002:30002"
+      - "30003:30003"
+      - "30004:30004"
+      - "30005:30005"
+      - "30006:30006"
+      - "30007:30007"
+      - "30008:30008"
+      - "30009:30009"
