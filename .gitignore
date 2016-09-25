@@ -1,5 +1,4 @@
-/volume/
-/service/
+/volumes/
 /backup/
 /docker-compose.yml
 /.do.cfg

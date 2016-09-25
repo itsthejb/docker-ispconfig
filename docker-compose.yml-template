@@ -8,7 +8,7 @@ services:
       context: ./build
       dockerfile: Dockerfile
       args:
-        BUILD_BOOTSTRAP: '/var/www /var/vmail /var/lib/mysql /etc /usr/local/ispconfig /var/log'
+        BUILD_BOOTSTRAP: '/var/www /var/vmail'
         BUILD_FRESHCLAM_UPDATE: 1        # update virus databases [0..no|1..yes]
         BUILD_MYSQL_PW: pass
     #
@@ -22,18 +22,14 @@ services:
     cap_add:
       - NET_ADMIN                        #  fail2ban (iptables)
     volumes:
-      - ./volume/service:/service               # service volume for overwrites (ovm) and migration (mig)
-      - ./volume/www:/var/www
-      - ./volume/vmail:/var/vmail
-      - ./volume/mysql:/var/lib/mysql
-      - ./volume/etc:/etc
-      - ./volume/ispconfig:/usr/local/ispconfig
-      - ./volume/log:/var/log
+      - ./volumes/service:/service               # service volume for overwrites (ovm) and migration (mig)
+      - ./volumes/www:/var/www
+      - ./volumes/vmail:/var/vmail
     environment:
      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
      - LANGUAGE=en                       # see ./build/autoinstall.ini
-     # disable services
-     # postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql
+     # disable services :
+     #   postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql
      - DISABLED_SERVICES=bind9 mailman
      #- MAILMAN_EMAIL_HOST=test.com
      #- MAILMAN_EMAIL=email@test.com

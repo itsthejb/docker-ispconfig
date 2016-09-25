@@ -1,13 +1,13 @@
 #!/bin/bash
 
 MUSER="root"
-TDIR=/service/mig
+TARGET=/service/mig
 
 _usage()
 {
   echo "  # Migration:"
-  echo "  mig export [<name>]     # export data in directory <name> or  default "
-  echo "  mig import [<name>]     # import data from directory <name> or default"
+  echo "  mig export                               # export data"
+  echo "  mig import                               # import data"
   exit 0
 }
 if [ "$1" = "" ] ; then 
@@ -16,10 +16,6 @@ fi
 
 if [ "$1" != "export" -a "$1" != "import" ] ; then
   _usage
-fi
-TARGET=${TDIR}/default
-if [ "$2" != "" ] ; then
-  TARGET=${TDIR}/${2}
 fi
 #############################################################################################
 # magic main
@@ -35,20 +31,16 @@ fi
 
 if [ "$1" = "export" ] ; then
 
-  TMP=/tmp/bootstrap
   echo "remove existing export directory <$TARGET> ..."
-  rm -Rf $TMP $TARGET
-  mkdir -p $TMP $TARGET
-  echo "extract bootstrap archive ..."
-  tar -C $TMP -xzf /bootstrap.tgz
+  rm -Rf $TARGET
+  mkdir -p $TARGET
   #
   # passwd, shadow, group
   #
   echo "create delta for passwd, shadow and group ..."
-  mkdir $TARGET/etc
-  grep "^web[0-9]*:"  /etc/passwd                     > $TARGET/etc/passwd.ispconfig
-  grep "^web[0-9]*:"  /etc/shadow                     > $TARGET/etc/shadow.ispconfig
-  grep -e "^client[0-9]*:" -e "^sshusers:" /etc/group > $TARGET/etc/group.ispconfig
+  grep "^web[0-9]*:"  /etc/passwd.bootstrap                     > $TARGET/passwd.ispconfig
+  grep "^web[0-9]*:"  /etc/shadow.bootstrap                     > $TARGET/shadow.ispconfig
+  grep -e "^client[0-9]*:" -e "^sshusers:" /etc/group.bootstrap > $TARGET/group.ispconfig
   #
   # databases
   #
@@ -82,13 +74,13 @@ if [ "$1" = "import" ] ; then
   
   cd /
 
-  supervisorctl stop apache2
+  supervisorctl stop apache
   supervisorctl stop postfix
   supervisorctl stop dovecot
 
   list="passwd shadow group"
   for i in $list ; do
-    cat  /etc/${i}  ${TARGET}/etc/${i}.ispconfig | uniq > /tmp/.t
+    cat  /etc/${i}  ${TARGET}/${i}.ispconfig | uniq > /tmp/.t
     diff /etc/${i}  /tmp/.t
     cp /tmp/.t /etc/${i}
     rm /tmp/.t

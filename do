@@ -3,7 +3,7 @@
 if [ ! -e ./.do.cfg ] ; then
   echo "DO_CNAME=ispc" > ./.do.cfg
 fi
-SERVICEVOL=./volume/service
+SERVICEVOL=./volumes/service
 . ./.do.cfg
 
 DCN=$DO_CNAME
@@ -30,6 +30,7 @@ if [ "$1" = "" ] ; then
   echo "          ovw restore .....,... restore the local overwrites in <${SERVICEVOL}/ovw>"
   echo "          track init .......... initialize tracking for  /etc and /usr/local/ispconfig."
   echo "          track show .......... show tracking results"
+  echo "          track git <...> ..... git commands"
   exit 0
 fi
 
@@ -119,18 +120,10 @@ if [ "$1" = "ovw" ] ; then
     sudo tar -C ${SERVICEVOL}/ovw -xjvf ./backup/$DCN-ovw.tar.bz2
     exit 0
   fi
-
   exit 0
 fi
 
 if [ "$1" = "track" ] ; then
-  if [ "$2" = "init" ] ; then
-    sudo cp .track.gitignore ./volume/.gitignore
-    (cd ./volume ; sudo git init ; sudo git add --all ; sudo git commit -m"track: initial checkin ")
-    exit 0
-  fi
-  if [ "$2" = "show" ] ; then
-    (cd ./volume ; sudo git status)
-    exit 0
-  fi
+    shift 
+    docker exec -it $DCN /usr/local/bin/track.sh $* 
 fi

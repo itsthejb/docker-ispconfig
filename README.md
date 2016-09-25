@@ -23,8 +23,13 @@ But this architecture do not really fit to the docker concept.
   * tracking possibility of ispconfig file modifications (./do track)
   * install config files on every start up (certs, ssh-keys, main.cf, ..) from a service share (./do ovw) 
   * configure ispconfig from host: set server_name, passwords ... (./do ispc config)
-  * TBD: migration (./do ispc mig)
-  * TBD: volumes (keep /etc, /usr, /var/lib/mysql in the container)
+  * volumes (keep /etc, /usr, /var/lib/mysql,.. in the container)
+  * migration (./do ispc mig)
+  * TBD: bootstrap directories only if the target is a emptydir. remove /etc/bootsp...
+  * TBD: cleanup supervisord start scripts
+  * TBD: enable/disable services with do
+  * TBD: docu for ovw
+  * TBD: bundle /var/www, /var/vmail, /service in one volume
 
 ## Requirements
  * docker-engine version >= 1.10.0 
@@ -61,7 +66,7 @@ docker-compose up -d ; docker-compose logs -f       # type Ctrl-c for detach
 ## Post install configuration:
 ```
 ./do track init                                     # initialize tracking for  /etc and /usr/local/ispconfig
-./do ispc config mysql_root_pw pass test            # change mysql root password from pass to test
+./do ispc config mysql_root_pw  test                # change mysql root password to test
 ./do ispc config panal_admin_pw  test               # set panel admin password to test
 ./do ispc config server_name  hname.test.com        # set server name in ispconfig database
 ./do restart                                        # restart ispconfig
@@ -79,14 +84,13 @@ firefox https://${FQDN}:8080/webmail &
  This is needed afer modification in the RUN section in docker-compose.yml.
 
 ```
-./do  ispc mig  export  my_name                     # export configuration to ./volume/service/mig/my_name/
-find ./volume/service/mig/my_name/                  # check
+./do ispc mig export                                # export configuration to ./volumes/service/mig/
+find ./volumes/service/mig                          # check
 ./do stop                                           # stop ispconfig
 ./do rm                                             # remove the container
-sudo rm -rf ./volume/{etc,ispconfig,log,mysql}      # cleanup
 ./do up                                             # create a new container
 ./do log                                            # show start up console
-./do ispc mig import my_name                        # import configuration from ./volume/service/mig/my_name/
+./do ispc mig import                                # import configuration from ./volumes/service/mig/
 ./do restart                                        # restart ispconfig
 ./do log                                            # show start up console
 ./do syslog
@@ -96,16 +100,15 @@ sudo rm -rf ./volume/{etc,ispconfig,log,mysql}      # cleanup
  This is needed after changes in the BUILD section in docker-compose.yml. or for updates.
  
 ```
-./do  ispc mig  export  a_name                     # export configuration to ./volume/service/mig/a_name/
+./do ispc mig export                                # export configuration to ./volumes/service/mig/
 ./do stop                                           # stop ispconfig
 ./do rm                                             # remove the container
-sudo rm -rf ./volume/{etc,ispconfig,log,mysql}      # cleanup
 git pull                                            # update ispconfig-docker
 diff docker-compose.yml-template docker-compose.yml # check for new options docker-compose.yml
 ./do build
 ./do up                                             # create a new container
 ./do log                                            # show start up console
-./do ispc mig import a_name                        # import configuration from ./volume/service/mig/a_name/
+./do ispc mig import                                # import configuration from ./volume/service/mig/
 ./do restart                                        # restart ispconfig
 ./do log                                            # show start up console
 ```

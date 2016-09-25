@@ -10,9 +10,10 @@
 _bootstrap()
 {
  if [ ! -f /etc/bootstrapped ]; then
-   echo "Bootstrapping"
-   cd /
-   tar xfz /bootstrap.tgz
+   echo "#######################"
+   echo "#      Bootstrap      #"
+   echo "#######################"
+   tar -C / -xzf /bootstrap.tgz
  fi
  touch /etc/bootstrapped
 }

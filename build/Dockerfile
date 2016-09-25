@@ -193,6 +193,9 @@ RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.
 # establisch supervisord
 #
 ADD ./resources/supervisor/supervisord.conf-template  /etc/supervisor/supervisord.conf-template
+ADD ./resources/supervisor/managed_services /etc/supervisor/managed_services
+RUN cat /etc/supervisor/managed_services | while read i; do ln -sf /usr/local/bin/super-init.sh /etc/init.d/$i ; done
+
 RUN mv /bin/systemctl /bin/systemctloriginal
 ADD ./bin/systemctl /bin/systemctl
 RUN chmod a+x /bin/systemctl
@@ -204,34 +207,24 @@ ADD ./bin/super-init.sh   /usr/local/bin/super-init.sh
 ADD ./bin/ispc            /usr/local/bin/ispc
 ADD ./bin/ispc-mig        /usr/local/bin/ispc-mig
 ADD ./bin/ispc-config     /usr/local/bin/ispc-config
+ADD ./bin/track.sh        /usr/local/bin/track.sh
 RUN chmod a+x /usr/local/bin/*
 # 
-RUN echo "MYSQL_ROOT_PW=\"BUILD_MYSQL_PW\"" > /etc/.mysql_root_pw
+RUN echo "MYSQL_ROOT_PW=\"${BUILD_MYSQL_PW}\"" > /etc/.mysql_root_pw
 RUN chown root:root /etc/.mysql_root_pw ; chmod og-rwx /etc/.mysql_root_pw
-
-RUN ln -sf /usr/local/bin/super-init.sh /etc/init.d/postfix ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/ssh ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/mysql ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/postfix ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/rsyslog ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/cron ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/bind9 ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/apache2 ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/fail2ban ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/dovecot ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/mailman ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/clamav-daemon ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/amavis ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/spamassassin ; \
-    ln -sf /usr/local/bin/super-init.sh /etc/init.d/pure-ftpd-mysql
 
 # create directory for service volume
 RUN mkdir -p /service ; chmod a+rwx /service
-
-# Create bootstrap archive
+ADD .track.gitignore /.gitignore
+# Create bootstrap archives
 ARG BUILD_BOOTSTRAP=""
 RUN echo "$BUILD_BOOTSTRAP" > /bootstrap.dat
 RUN tar -czf /bootstrap.tgz `echo $BUILD_BOOTSTRAP`
+# save passwd, shadow, group for migration
+RUN cp /etc/passwd  /etc/passwd.bootstrap
+RUN cp /etc/shadow  /etc/shadow.bootstrap
+RUN cp /etc/group   /etc/group.bootstrap
+
 # Fetch clamav data
 ARG BUILD_FRESHCLAM_UPDATE=1
 RUN bash -c "if [ "$BUILD_FRESHCLAM_UPDATE" = "1" ] ; then  freshclam ; fi"
