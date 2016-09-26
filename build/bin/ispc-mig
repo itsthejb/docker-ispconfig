@@ -74,7 +74,7 @@ if [ "$1" = "import" ] ; then
   
   cd /
 
-  supervisorctl stop apache
+  supervisorctl stop apache2
   supervisorctl stop postfix
   supervisorctl stop dovecot
   
