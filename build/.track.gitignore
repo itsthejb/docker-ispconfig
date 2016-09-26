@@ -1,10 +1,10 @@
 .gitignore
 .dockerenv
 *~
+docker-extensions
 bin
 boot
-bootstrap.dat
-bootstrap.tgz
+bootstrap
 dev
 home
 lib
@@ -41,3 +41,5 @@ etc/rc*.d
 etc/ssl/certs
 etc/dpkg
 etc/emacs
+etc/supervisor
+

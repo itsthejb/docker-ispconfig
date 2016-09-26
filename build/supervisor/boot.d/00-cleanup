@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# global
+find /var/run/   -name "*.pid" -o -name "*.sock" | xargs -r rm -f
+find /var/cache/ -name "*.pid" -o -name "*.sock" | xargs -r rm -f
+

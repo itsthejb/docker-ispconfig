@@ -1,19 +1,19 @@
 version: '2'
 services:
   ispc:
-    #
-    # build section
-    #
+    ##################################################
+    # BUILD section
+    ##################################################
     build:
       context: ./build
       dockerfile: Dockerfile
       args:
-        BUILD_BOOTSTRAP: '/var/www /var/vmail'
-        BUILD_FRESHCLAM_UPDATE: 1        # update virus databases [0..no|1..yes]
+        #BUILD_ISPCONFIG: ISPConfig-3.0.5.4p9
+        BUILD_ISPCONFIG:  ISPConfig-3-stable
         BUILD_MYSQL_PW: pass
-    #
-    # run section
-    #
+    ##################################################
+    # RUN section
+    ##################################################
     image: ispconfig-docker:testing
     container_name: ispc
     restart: never
@@ -22,7 +22,7 @@ services:
     cap_add:
       - NET_ADMIN                        #  fail2ban (iptables)
     volumes:
-      - ./volumes/service:/service               # service volume for overwrites (ovm) and migration (mig)
+      - ./volumes/service:/service       # service volume for overwrites (ovm) and migration (mig)
       - ./volumes/www:/var/www
       - ./volumes/vmail:/var/vmail
     environment:

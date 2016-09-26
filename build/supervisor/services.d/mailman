@@ -1,0 +1,4 @@
+[program:mailman]
+command=/usr/lib/mailman/bin/mailmanctl start
+autorestart=true
+

@@ -17,7 +17,6 @@
 #
 # https://www.howtoforge.com/tutorial/perfect-server-debian-8-jessie-apache-bind-dovecot-ispconfig-3/
 #
-
 FROM debian:jessie
 
 MAINTAINER Uni Mock <unimock@gate-m.de> version: 0.0
@@ -64,6 +63,7 @@ RUN service mysql restart
 # --- 9 Install Amavisd-new, SpamAssassin And Clamav
 RUN apt-get -y install amavisd-new spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl
 ADD ./etc/clamav/clamd.conf /etc/clamav/clamd.conf
+RUN freshclam
 RUN service spamassassin stop
 RUN systemctl disable spamassassin
 
@@ -148,8 +148,9 @@ RUN chown www-data /var/lib/squirrelmail/tmp
 RUN service mysql restart
 
 # --- 20 Install ISPConfig 3
-RUN cd /tmp && cd . && wget http://www.ispconfig.org/downloads/ISPConfig-3-stable.tar.gz
-RUN cd /tmp && tar xfz ISPConfig-3-stable.tar.gz
+ARG BUILD_ISPCONFIG="ISPConfig-3-stable"
+RUN cd /tmp && cd . && wget http://www.ispconfig.org/downloads/${BUILD_ISPCONFIG}.tar.gz
+RUN cd /tmp && tar xfz ${BUILD_ISPCONFIG}.tar.gz
 RUN service mysql restart
 
 # --- 21 Install Let's Encrypt client (certbot)
@@ -164,14 +165,6 @@ ADD ./etc/postfix/master.cf /etc/postfix/master.cf
 RUN echo "export TERM=xterm" >> /root/.bashrc
 
 EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 3306
-###########################################################################################
-#
-# ISPCONFIG Initialization and Startup Script
-#
-ADD ./start.sh /start.sh
-RUN chmod 755 /start.sh
-
-#ADD ./etc/cron.daily/sql_backup.sh /etc/cron.daily/sql_backup.sh
 ##################################################################################################
 # starting ispconfig3_install/install/install.php
 #
@@ -190,45 +183,45 @@ RUN cp -r /tmp/ISPConfig_Clean-3.0.5/interface /usr/local/ispconfig/
 RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.0.5/sql/ispc-clean.sql
 ############################################################################################
 #
-# establisch supervisord
+# docker-extensions
 #
-ADD ./resources/supervisor/supervisord.conf-template  /etc/supervisor/supervisord.conf-template
-ADD ./resources/supervisor/managed_services /etc/supervisor/managed_services
-RUN cat /etc/supervisor/managed_services | while read i; do ln -sf /usr/local/bin/super-init.sh /etc/init.d/$i ; done
-
-RUN mv /bin/systemctl /bin/systemctloriginal
-ADD ./bin/systemctl /bin/systemctl
-RUN chmod a+x /bin/systemctl
-
 RUN mkdir -p /usr/local/bin
-ADD ./bin/postfix.sh      /usr/local/bin/postfix.sh
-ADD ./bin/fail2ban.sh     /usr/local/bin/fail2ban.sh
-ADD ./bin/super-init.sh   /usr/local/bin/super-init.sh
 ADD ./bin/ispc            /usr/local/bin/ispc
 ADD ./bin/ispc-mig        /usr/local/bin/ispc-mig
 ADD ./bin/ispc-config     /usr/local/bin/ispc-config
 ADD ./bin/track.sh        /usr/local/bin/track.sh
 RUN chmod a+x /usr/local/bin/*
-# 
-RUN echo "MYSQL_ROOT_PW=\"${BUILD_MYSQL_PW}\"" > /etc/.mysql_root_pw
-RUN chown root:root /etc/.mysql_root_pw ; chmod og-rwx /etc/.mysql_root_pw
 
+#
+# create mysql password file
+#
+RUN mkdir -p /docker-extensions
+RUN echo "MYSQL_ROOT_PW=\"${BUILD_MYSQL_PW}\"" > /docker-extensions/.mysql_root_pw
+RUN chown root:root /docker-extensions/.mysql_root_pw ; chmod og-rwx /docker-extensions/.mysql_root_pw
+#
+# establisch supervisord
+#
+ADD /supervisor /etc/supervisor
+# link old /etc/init.d/ startup scripts to supervisor
+RUN ls -m1    /etc/supervisor/services.d | while read i; do ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
+RUN ln -sf    /etc/supervisor/systemctl /bin/systemctl
+RUN chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
+
+#
 # create directory for service volume
+#
 RUN mkdir -p /service ; chmod a+rwx /service
 ADD .track.gitignore /.gitignore
-# Create bootstrap archives
-ARG BUILD_BOOTSTRAP=""
-RUN echo "$BUILD_BOOTSTRAP" > /bootstrap.dat
-RUN tar -czf /bootstrap.tgz `echo $BUILD_BOOTSTRAP`
-# save passwd, shadow, group for migration
-RUN cp /etc/passwd  /etc/passwd.bootstrap
-RUN cp /etc/shadow  /etc/shadow.bootstrap
-RUN cp /etc/group   /etc/group.bootstrap
 
-# Fetch clamav data
-ARG BUILD_FRESHCLAM_UPDATE=1
-RUN bash -c "if [ "$BUILD_FRESHCLAM_UPDATE" = "1" ] ; then  freshclam ; fi"
 #
-# start with exec for proper shutdown (signal trapping & pid=1)
+# Create bootstrap archives
 #
+RUN mkdir -p /bootstrap ;  tar -C /var/vmail -czf /bootstrap/vmail.tgz .
+RUN mkdir -p /bootstrap ;  tar -C /var/www   -czf /bootstrap/www.tgz  .
+
+#
+# startup script
+#
+ADD ./start.sh /start.sh
+RUN chmod 755 /start.sh
 CMD ["/start.sh"]

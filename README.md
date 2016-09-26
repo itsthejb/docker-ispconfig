@@ -6,35 +6,25 @@ Attempt to dockerize ispconfig
 ## Preface
 ISPConfig is a great framework!
 
-Changes in the ispconfig panel will be stored in a mysql database and the config files for the appropriate services (postfix, dovecot, ...) will be written.
-
-Clean, simple and clear.
-
-But this architecture do not really fit to the docker concept.
+Changes in the ispconfig panel will be stored in a mysql database and the config files for the appropriate services (postfix, dovecot, ...) will be written. Clean, simple and clear. But this architecture do not really fit to the docker concept.
   * multipe daemons
   * config will be done in/etc/ /var/log/ispconfig /etc/oasswd /etc/group /usr/local/ispconfig.
 
 ## History/Todo's
-  * Initially forked from jerobs repository:  https://github.com/jerob/docker-ispconfig - thanks for the excellent work.
-  * Start new repro: ispconfig-docker (cleanup for my purposes). 
+  * Initially Dockerfile from jerob : https://github.com/jerob/docker-ispconfig - thanks for the excellent work.
+  * Start new repro: ispconfig-docker (cleanups for my purposes). 
   * Implement build/run/start/stop management with docker-compose
   * Wrapper script [./do] to build image, manage container and control ispconfig.
-  * supervisord:
-  
-         - proper shutdown
-         - supervisorctl [./do supervisor]
-         - linking /etc/init.d/<services>, proxy scripts for postfix, ... 
+  * modified supervisord (proper shutdown, supervisorctl, linking /etc/init.d/<services>, proxy scripts for postfix
   * enable/disable ispconfig services
   * tracking possibility of ispconfig file modifications (./do track)
   * install config files on every start up (certs, ssh-keys, main.cf, ..) from a service share (./do ovw) 
   * configure ispconfig from host: set server_name, passwords ... (./do ispc config)
   * volumes (keep /etc, /usr, /var/lib/mysql,.. in the container)
   * migration (./do ispc mig)
-  * TBD: bootstrap directories only if the target is a emptydir. remove /etc/bootsp...
-  * TBD: cleanup supervisord start scripts
-  * TBD: enable/disable services with do
-  * TBD: docu for ovw
-  * TBD: bundle /var/www, /var/vmail, /service in one volume
+  * bootstrap directories only if the target is a emptydir. remove /etc/bootsp...
+  * cleanup supervisord start scripts
+  * TBD: docu for ovw:  examples: certs, disabe/enable services
 
 ## Requirements
  * docker-engine version >= 1.10.0 
@@ -65,7 +55,8 @@ cp docker-compose.yml-template docker-compose.yml
 
 ## Create and run a container from the image.
 ```
-docker-compose up -d ; docker-compose logs -f       # type Ctrl-c for detach
+./do up
+./do log
 ```
 
 ## Post install configuration:

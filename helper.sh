@@ -1,36 +1,79 @@
 #!/bin/bash
 
-run()
+check()
 {
-  cmd="$*"
-  echo "RUN: <$cmd>"
-  $cmd
+  list="110 995 143 993 25 465 587 20 21 80 443 8080 2222"
+  for i in $list ; do
+    netcat -vz 127.0.0.1 $i >/dev/null 2>&1
+    ret=$?
+    echo "checking port: <$i> $ret"
+  done
 }
 
+
+
+
 if [ "$1" = "" ] ; then
-  echo " usage: `basename $0` reset" 
-  exit 0
-fi
-if [ "$1" = "reset" ] ; then
-
-./do ispc mig export
-./do stop
-docker-compose rm -f
-sudo rm -Rvf volume/mysql volume/ispconfig/ volume/etc/
-./do up
-./do track init
-sleep 3
-./do log
-./do ispc mig import
-./do restart
-./do log
-./do track show
-#  run "docker-compose build"
-#  run "docker-compose stop ; docker-compose rm -f"
-#  run "docker-compose up -d"
-#  run "sleep 5"
-#  run "./do track init >/dev/null"
-#  run "docker-compose logs -f"
+  echo " usage: `basename $0` check|build|config|rerun" 
   exit 0
 fi
 
+if [ "$1" = "check" ] ; then
+  check
+  exit 0
+fi
+
+
+
+if [ "$1" = "build" ] ; then
+  sudo /etc/init.d/vmware-workstation-server stop
+  sudo rm -Rvf ./volumes
+  cp -v ./docker-compose.yml-template ./docker-compose.yml
+  ./do stop
+  ./do rm
+  ./do build
+  ./do up
+  sleep 3
+  ./do log
+  check
+fi
+
+if [ "$1" = "config" ] ; then
+  ./do track init                                    # initialize tracking for  /etc and /usr/local/ispconfig
+  ./do ispc config mysql_root_pw  test                # change mysql root password to test
+  ./do ispc config panal_admin_pw  test               # set panel admin password to test
+  ./do ispc config server_name  myhost.test.com       # set server name in ispconfig database
+  ./do restart ; sleep 3 ; ./do log                   # restart ispconfig
+  ./do track show                                     # show ispconfig file modifications
+  ./helper.sh check
+fi
+
+if [ "$1" = "rerun" ] ; then
+  ./do ispc mig export
+  ./do stop
+  ./do rm
+  ./do up
+  sleep 3
+  ./do log
+  ./do ispc mig import
+  ./do restart
+  sleep 3
+  ./do log
+  ./helper.sh check
+  exit 0
+fi
+
+if [ "$1" = "rebuild" ] ; then
+  ./do ispc mig export
+  ./do stop ; ./do rm
+  ./do build
+  ./do up ; sleep 3 ; ./do log
+  ./do ispc mig import
+  ./do restart ; sleep 3 ; ./do log
+    ./helper.sh check
+  exit 0
+fi
+
+
+
+  

@@ -1,0 +1,7 @@
+[program:clamav-daemon]
+command=/usr/sbin/clamd -c /etc/clamav/clamd.conf
+autorestart=true
+priority=20
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PWFI=/etc/.mysql_root_pw
+PWFI=/docker-extensions/.mysql_root_pw
 
 . ${PWFI}
 
@@ -28,13 +28,12 @@ fi
 . $PWFI
 
 if [ "$1" = "panal_admin_pw" ] ; then
-  #echo "UPDATE sys_user SET passwort = md5(\"$2\") WHERE username = 'admin';" 
-  #echo mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
   echo "UPDATE sys_user SET passwort = md5(\"$2\") WHERE username = 'admin';" | mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
   exit 0
-fi   
+fi
+
 if [ "$1" = "server_name" ] ; then
-  echo "update server set server_name=\"$2\" ;"                   | mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
+  echo "update server set server_name=\"$2\" ;"                               | mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
   exit 0
 fi
 

@@ -1,0 +1,7 @@
+[program:amavis]
+command=/usr/sbin/amavisd-new foreground
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+priority=20
+autorestart=true
+

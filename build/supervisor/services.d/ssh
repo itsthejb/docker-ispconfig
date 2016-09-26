@@ -1,0 +1,6 @@
+[program:ssh]
+directory=/var/run/sshd
+command=/usr/sbin/sshd -D
+autorestart=true
+redirect_stderr=true
+

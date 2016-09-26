@@ -1,0 +1,3 @@
+[program:bind9]
+command=/usr/sbin/named -c /etc/bind/named.conf -u bind -f
+

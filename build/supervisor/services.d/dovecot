@@ -1,0 +1,4 @@
+[program:dovecot]
+command=/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf -F
+autorestart=true
+

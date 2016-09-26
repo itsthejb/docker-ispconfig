@@ -1,0 +1,10 @@
+[program:rsyslog]
+command=/usr/sbin/rsyslogd -n
+process_name=%(program_name)s
+autorestart=true
+user=root
+directory=/
+priority=912
+stdout_logfile=/var/log/%(program_name)s-stdout.log
+stderr_logfile=/var/log/%(program_name)s-stderr.log
+
