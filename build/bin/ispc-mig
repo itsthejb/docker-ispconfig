@@ -98,6 +98,7 @@ if [ "$1" = "import" ] ; then
     db=`basename $i`
     db=${db%.sql}
     echo "restoring database <$db> from <$i> ..."
+    echo "CREATE DATABASE IF NOT EXISTS $db ; " |  mysql -u $MUSER -p${MYSQL_ROOT_PW} 
     mysql -u $MUSER -p${MYSQL_ROOT_PW} $db < ${i}      
   done
 
