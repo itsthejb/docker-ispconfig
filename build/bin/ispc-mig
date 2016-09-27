@@ -56,7 +56,10 @@ if [ "$1" = "export" ] ; then
   # others
   #
   echo "create a archive with the remaining configuration files (apache,..):"
-  list="/var/log/ispconfig/httpd  /etc/apache2/sites-available /etc/apache2/sites-enabled /docker-extensions"
+
+  #echo 'SELECT domain FROM web_domain WHERE type="vhost" ;' | mysql -uroot -p${MYSQL_ROOT_PW}  dbispconfig
+  #list="/var/log/ispconfig/httpd  /etc/apache2/sites-available /etc/apache2/sites-enabled /docker-extensions"
+  list="/var/log/ispconfig/httpd  /docker-extensions"
   for i in $list ; do
     echo "   <$i>"
   done
@@ -106,16 +109,7 @@ if [ "$1" = "import" ] ; then
   PW_INC=$(grep "^\$conf\['db_password'\]"  /usr/local/ispconfig/interface/lib/config.inc.php | cut -d\' -f4)
   echo "  password in config.inc.php : <$PW_INC>"
   echo "update user set Password = PASSWORD(\"${PW_INC}\") WHERE User = 'ispconfig';" | mysql -u $MUSER -p${MYSQL_ROOT_PW} mysql
- 
-  echo "TODO:"
-  echo " svn stuff: find /var/www -name svn -type d"
-  echo " courier to dovecot: /etc/dovecot/conf.d/????.conf"
-    #  #vi /etc/dovecot/conf.d/15-mok.conf
-    #namespace {
-    #  prefix = INBOX.
-    #  separator = .
-    #  inbox = yes
-    #}
+  echo "done"
 fi
 
 
