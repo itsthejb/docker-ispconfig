@@ -8,13 +8,13 @@ services:
       context: ./build
       dockerfile: Dockerfile
       args:
-        #BUILD_ISPCONFIG: ISPConfig-3.0.5.4p9
-        BUILD_ISPCONFIG:  ISPConfig-3-stable
+        BUILD_ISPCONFIG: ISPConfig-3.0.5.4p9
+        #BUILD_ISPCONFIG:  ISPConfig-3-stable
         BUILD_MYSQL_PW: pass
     ##################################################
     # RUN section
     ##################################################
-    image: ispconfig-docker:testing
+    image: ispconfig-docker:0.0.1
     container_name: ispc
     restart: never
     hostname: myhost
