@@ -49,9 +49,20 @@ if [ "$1" = "export" ] ; then
   for db in $DBS ; do
     if [ "$db" != "mysql" -a "$db" != "information_schema" -a "$db" != "performance_schema" ] ; then
       echo "exporting database <$db> ..." 
-      mysqldump -u root --password=${MYSQL_ROOT_PW} $db --single-transaction > "$TARGET/sql/$db.sql"
+      mysqldump -u$MUSER --password=${MYSQL_ROOT_PW} $db --single-transaction > "$TARGET/sql/$db.sql"
     fi
   done
+  # privileges
+  FI=$TARGET/sql/privileges.sql
+  rm -f $FI
+  mysql -u$MUSER -p${MYSQL_ROOT_PW} \
+   -e"select concat('show grants for ' , '\'' ,database_user , '\'@\'localhost\'' )from dbispconfig.web_database_user " \
+ | sed '1d' \
+ | while read user; do
+    mysql -u$MUSER -p${MYSQL_ROOT_PW} -e"$user"   |sed '1d' >> $FI
+    echo "flush privileges"                                 >> $FI
+  done
+  sed -i  's/$/;/' $FI
   #
   # others
   #
@@ -104,7 +115,8 @@ if [ "$1" = "import" ] ; then
     echo "CREATE DATABASE IF NOT EXISTS $db ; " |  mysql -u $MUSER -p${MYSQL_ROOT_PW} 
     mysql -u $MUSER -p${MYSQL_ROOT_PW} $db < ${i}      
   done
-
+  echo "restoring privileges ..."
+  mysql -u $MUSER -p${MYSQL_ROOT_PW} < $TARGET/sql/privileges.sql
   echo "set password for ispconfig in mysql database like in /usr/local/ispconfig/interface/lib/config.inc.php"
   PW_INC=$(grep "^\$conf\['db_password'\]"  /usr/local/ispconfig/interface/lib/config.inc.php | cut -d\' -f4)
   echo "  password in config.inc.php : <$PW_INC>"
