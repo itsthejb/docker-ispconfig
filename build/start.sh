@@ -13,12 +13,7 @@ echo "#################################################"
 echo "# check for disabled services"
 echo "#"
 
-FI=/docker-extensions/disabled_services
-if [ ! -e ${FI} ] ; then
-  echo "$DISABLED_SERVICES" > ${FI}
-fi
-list=`cat ${FI}`
-for task in $list ; do
+for task in $DISABLED_SERVICES ; do
   echo "disable : $task"
   sed  -i "/program:$task/a autostart=false"  /etc/supervisor/services.d/$task
 done

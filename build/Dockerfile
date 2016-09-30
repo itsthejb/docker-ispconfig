@@ -24,8 +24,13 @@ MAINTAINER Uni Mock <unimock@gate-m.de> version: 0.0
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
 
+ARG BUILD_TZ="Europe/Berlin"
+RUN echo "$BUILD_TZ" > /etc/timezone && \
+    dpkg-reconfigure -f noninteractive tzdata
+
+
 # --- 1 Preliminary
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install rsyslog rsyslog-relp logrotate supervisor git
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install rsyslog rsyslog-relp logrotate supervisor git sendemail
 RUN touch /var/log/cron.log
 # Create the log file to be able to run tail
 RUN touch /var/log/auth.log
@@ -186,18 +191,11 @@ RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.
 # docker-extensions
 #
 RUN mkdir -p /usr/local/bin
-ADD ./bin/ispc            /usr/local/bin/ispc
-ADD ./bin/ispc-mig        /usr/local/bin/ispc-mig
-ADD ./bin/ispc-config     /usr/local/bin/ispc-config
-ADD ./bin/track.sh        /usr/local/bin/track.sh
+ADD ./bin/migrate       /usr/local/bin/migrate
+ADD ./bin/config        /usr/local/bin/config
+ADD ./bin/track         /usr/local/bin/track
 RUN chmod a+x /usr/local/bin/*
 
-#
-# create mysql password file
-#
-RUN mkdir -p /docker-extensions
-RUN echo "MYSQL_ROOT_PW=\"${BUILD_MYSQL_PW}\"" > /docker-extensions/.mysql_root_pw
-RUN chown root:root /docker-extensions/.mysql_root_pw ; chmod og-rwx /docker-extensions/.mysql_root_pw
 #
 # establisch supervisord
 #

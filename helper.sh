@@ -39,23 +39,23 @@ if [ "$1" = "build" ] ; then
 fi
 
 if [ "$1" = "config" ] ; then
-  ./do track init                                    # initialize tracking for  /etc and /usr/local/ispconfig
-  ./do ispc config mysql_root_pw  test                # change mysql root password to test
-  ./do ispc config panal_admin_pw  test               # set panel admin password to test
-  ./do ispc config server_name  myhost.test.com       # set server name in ispconfig database
+  ./do track init                                     # initialize tracking for  /etc and /usr/local/ispconfig
+  ./do config mysql_root_pw  test                     # change mysql root password to test
+  ./do config panal_admin_pw  test                    # set panel admin password to test
+  ./do config server_name  myhost.test.com            # set server name in ispconfig database
   ./do restart ; sleep 3 ; ./do log                   # restart ispconfig
   ./do track show                                     # show ispconfig file modifications
   ./helper.sh check
 fi
 
 if [ "$1" = "rerun" ] ; then
-  ./do ispc mig export
+  ./do migrate export
   ./do stop
   ./do rm
   ./do up
   sleep 3
   ./do log
-  ./do ispc mig import
+  ./do migrate import
   ./do restart
   sleep 3
   ./do log
@@ -64,11 +64,11 @@ if [ "$1" = "rerun" ] ; then
 fi
 
 if [ "$1" = "rebuild" ] ; then
-  ./do ispc mig export
+  ./do migrate export
   ./do stop ; ./do rm
   ./do build
   ./do up ; sleep 3 ; ./do log
-  ./do ispc mig import
+  ./do migrate import
   ./do restart ; sleep 3 ; ./do log
     ./helper.sh check
   exit 0

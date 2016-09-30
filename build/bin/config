@@ -1,0 +1,30 @@
+#!/bin/bash
+
+FI=/usr/local/ispconfig/server/lib/mysql_clientdb.conf
+
+MYSQL_ROOT_PW=$(grep "clientdb_password"  $FI | awk -F\' '{ print $2 }')
+
+if [ "$1" = "" ] ; then
+  echo "  # Configuration :"
+  echo "  config mysql_root_pw  <password>       # change mysql root password"
+  echo "  config panal_admin_pw <password>       # set panel admin password"
+  echo "  config server_name <FQDN>              # set server name in database"
+  exit 0
+fi
+
+if [ "$1" = "mysql_root_pw" ] ; then
+  mysqladmin -uroot -p${MYSQL_ROOT_PW} password ${2}
+  sed -i -e "/clientdb_password/ s/'"${MYSQL_ROOT_PW}"'/'"${2}"'/" $FI
+  exit 0
+fi
+
+if [ "$1" = "panal_admin_pw" ] ; then
+  echo "UPDATE sys_user SET passwort = md5(\"$2\") WHERE username = 'admin';" | mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
+  exit 0
+fi
+
+if [ "$1" = "server_name" ] ; then
+  echo "update server set server_name=\"$2\" ;"                               | mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
+  exit 0
+fi
+
