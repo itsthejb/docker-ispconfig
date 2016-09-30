@@ -28,8 +28,8 @@ Changes in the ispconfig panel will be stored in a mysql database and the config
 
 ## Requirements
  * docker-engine version >= 1.10.0 
- * system user with sudo access
- * system user belongs to "docker" group
+ * user with sudo access
+ * user belongs to "docker" group
 
 ## Installation
 
@@ -112,11 +112,11 @@ diff docker-compose.yml-template docker-compose.yml # check for new options dock
 ## useful commands (examples):
 
 ```
-./do                     # help
-./do start|stop|restart  # start/stop the container
-./do console             # attach to the console
-./do supervisor          # attach to supervisord to start/stop/restart daemons in the container
-./do login bash          # login and run commands in the container
+./do                                                # help
+./do start|stop|restart                             # start/stop the container
+./do console                                        # attach to the console
+./do supervisor                                     # attach to supervisord to start/stop/restart daemons in the container
+./do login bash                                     # login and run commands in the container
 ./do login freshclam
 ./do login postqueue -p
 ./do login /usr/local/ispconfig/server/server.sh
