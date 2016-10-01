@@ -38,6 +38,8 @@ if [ "$1" = "export" ] ; then
   #
   # databases
   #
+  echo "ORIG_MYSQL_ROOT_PW=${MYSQL_ROOT_PW}" > $TARGET/config
+
   DBS="$(mysql -u $MUSER -p${MYSQL_ROOT_PW} -Bse 'show databases')"
   mkdir -p $TARGET/sql
   for db in $DBS ; do
@@ -57,8 +59,6 @@ if [ "$1" = "import" ] ; then
   cd /
   supervisorctl stop cron
   supervisorctl stop apache2
-  supervisorctl stop postfix
-  supervisorctl stop dovecot
 
   #  list="passwd shadow group"
   #  for i in $list ; do
@@ -80,13 +80,28 @@ if [ "$1" = "import" ] ; then
       mysql -u $MUSER -p${MYSQL_ROOT_PW} $db < ${i}
     fi    
   done
+  . ${TARGET}/config
+  echo "change mysql root password to ${ORIG_MYSQL_ROOT_PW}"
+  mysqladmin -uroot -p${MYSQL_ROOT_PW} password ${ORIG_MYSQL_ROOT_PW}
+  FI=/usr/local/ispconfig/server/lib/mysql_clientdb.conf
+  sed -i -e "/clientdb_password/ s/'"${MYSQL_ROOT_PW}"'/'"${ORIG_MYSQL_ROOT_PW}"'/" $FI
+  supervisorctl start apache2
+  supervisorctl start cron
 
   #echo "set password for ispconfig in mysql database like in /usr/local/ispconfig/interface/lib/config.inc.php"
   #PW_INC=$(grep "^\$conf\['db_password'\]"  /usr/local/ispconfig/interface/lib/config.inc.php | cut -d\' -f4)
   #echo "  password in config.inc.php : <$PW_INC>"
   #echo "update user set Password = PASSWORD(\"${PW_INC}\") WHERE User = 'ispconfig';" | mysql -u $MUSER -p${MYSQL_ROOT_PW} mysql
+  echo ""
   echo "migration import from <$TARGET> done."
   echo ""
+  echo "Login to the IPSConfig-Control-Panel with the credentials from the imported system."
+  echo "Go to Einstellungen an do a resync for all services."
+  echo "ISPConfig store this resync as a request."
+  echo "Next /usr/local/ispconfig/server/server.sh task starts the resync (every minute)."
+  echo "/usr/local/ispconfig/server/server.sh needs another minute for the resync."
+  echo "You can chek this with: ./do login ps | grep server.sh"
+  
 fi
 
 

@@ -98,7 +98,6 @@ RUN service postfix restart
 RUN ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf
 
 # --- 14 Install PureFTPd And Quota
-
 # install package building helpers
 RUN apt-get -y --force-yes install dpkg-dev debhelper openbsd-inetd
 # install dependancies
@@ -174,9 +173,10 @@ EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 3000
 # starting ispconfig3_install/install/install.php
 #
 ADD ./autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
-ARG BUILD_HOSTNAME="mhost.test.com"
-RUN sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
-RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
+ARG BUILD_HOSTNAME="myhost.test.com"
+RUN sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g"                         /tmp/ispconfig3_install/install/autoinstall.ini
+RUN sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
+RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
 #

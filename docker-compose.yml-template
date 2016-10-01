@@ -8,10 +8,11 @@ services:
       context: ./build
       dockerfile: Dockerfile
       args:
+        BUILD_TZ: Europe/Berlin
+        BUILD_HOSTNAME: myhost.test.com
         BUILD_ISPCONFIG: ISPConfig-3.0.5.4p9
         #BUILD_ISPCONFIG:  ISPConfig-3-stable
         BUILD_MYSQL_PW: pass
-        BUILD_TZ: Europe/Berlin
     ##################################################
     # RUN section
     ##################################################
