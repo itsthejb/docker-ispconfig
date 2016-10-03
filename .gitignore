@@ -1,6 +1,6 @@
-/volumes/
 /backup/
 /docker-compose.yml
 /.do.cfg
 .directory
-
+/service
+/ispc

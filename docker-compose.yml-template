@@ -24,9 +24,9 @@ services:
     cap_add:
       - NET_ADMIN                        #  fail2ban (iptables)
     volumes:
-      - ./volumes/service:/service       # service volume for overwrites (ovm) and migration (mig)
-      - ./volumes/www:/var/www
-      - ./volumes/vmail:/var/vmail
+      - ./service:/service               # service volume for overwrites (ovm) and migration (mig)
+      - ./ispc/www:/var/www
+      - ./ispc/vmail:/var/vmail
     environment:
      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
      - LANGUAGE=en                       # see ./build/autoinstall.ini

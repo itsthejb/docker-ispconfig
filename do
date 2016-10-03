@@ -3,7 +3,7 @@
 if [ ! -e ./.do.cfg ] ; then
   echo "DO_CNAME=ispc" > ./.do.cfg
 fi
-SERVICEVOL=./volumes/service
+SERVICEVOL=./service
 . ./.do.cfg
 
 DCN=$DO_CNAME
