@@ -2,4 +2,5 @@
 /backup/
 /docker-compose.yml
 /.do.cfg
+.directory
 

@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 list="vmail www"
 echo "# Bootstrap check for ($list)"

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+list="$*"
+
+for i in $list ; do
+  com=$(readlink -f $i)
+  echo "rsync -avR ${com} /service/ovw${com}"
+  rsync -avR ${com} /service/ovw/
+done
+
+
