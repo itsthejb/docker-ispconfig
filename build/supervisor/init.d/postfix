@@ -1,6 +1,10 @@
 #!/bin/bash
-cd /var/spool/postfix
 
+echo " - calling newaliases" 
+newaliases
+
+cd /var/spool/postfix
+echo " - appling hosts, localtime, resolv.conf from /etc to /var/spool/postfix/etc"
 FILES="etc/localtime etc/services etc/resolv.conf etc/hosts \
       etc/nsswitch.conf etc/nss_mdns.config"
 for file in $FILES; do

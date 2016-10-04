@@ -194,6 +194,7 @@ RUN mkdir -p /usr/local/bin
 ADD ./bin/migrate       /usr/local/bin/migrate
 ADD ./bin/config        /usr/local/bin/config
 ADD ./bin/track         /usr/local/bin/track
+ADD ./bin/ovw           /usr/local/bin/ovw
 RUN chmod a+x /usr/local/bin/*
 
 #

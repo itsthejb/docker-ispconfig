@@ -123,4 +123,13 @@ if [ "$1" = "cp" ] ; then
     docker cp $2 $3
     exit 0
 fi
+if [ "$1" = "encrypt" ] ; then
+    mkdir -p ./utils
+    tar cjv private | openssl aes-256-cbc -salt -out ./utils/.private.enc
+    exit 0
+fi
+if [ "$1" = "decrypt" ] ; then
+    openssl aes-256-cbc -d -salt -in ./utils/.private.enc | tar xjv
+    exit 0
+fi
 
