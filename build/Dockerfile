@@ -191,10 +191,7 @@ RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.
 # docker-extensions
 #
 RUN mkdir -p /usr/local/bin
-ADD ./bin/migrate       /usr/local/bin/migrate
-ADD ./bin/config        /usr/local/bin/config
-ADD ./bin/track         /usr/local/bin/track
-ADD ./bin/ovw           /usr/local/bin/ovw
+COPY ./bin/*             /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*
 
 #

@@ -92,15 +92,10 @@ if [ "$1" = "import" ] ; then
   #PW_INC=$(grep "^\$conf\['db_password'\]"  /usr/local/ispconfig/interface/lib/config.inc.php | cut -d\' -f4)
   #echo "  password in config.inc.php : <$PW_INC>"
   #echo "update user set Password = PASSWORD(\"${PW_INC}\") WHERE User = 'ispconfig';" | mysql -u $MUSER -p${MYSQL_ROOT_PW} mysql
-  echo ""
+
+  /usr/local/bin/wait_for_resync.sh
+
   echo "migration import from <$TARGET> done."
-  echo ""
-  echo "Login to the IPSConfig-Control-Panel with the credentials from the imported system."
-  echo "Go to Einstellungen an do a resync for all services."
-  echo "ISPConfig store this resync as a request."
-  echo "Next /usr/local/ispconfig/server/server.sh task starts the resync (every minute)."
-  echo "/usr/local/ispconfig/server/server.sh needs another minute for the resync."
-  echo "You can chek this with: ./do login ps | grep server.sh"
   
 fi
 

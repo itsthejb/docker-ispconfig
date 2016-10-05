@@ -111,6 +111,7 @@ fi
 if [ "$1" = "backup" ] ; then
     mkdir -p backup
     sudo tar -cjvf ./backup/$DCN.tar.bz2 -C ${SERVICEVOL} .
+    echo "backup stored as <./backup/$DCN.tar.bz2>"
     exit 0
 fi
 if [ "$2" = "restore" ] ; then
