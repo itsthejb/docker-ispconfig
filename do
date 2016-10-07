@@ -35,6 +35,11 @@ if [ "$1" = "" ] ; then
   exit 0
 fi
 
+if [ "$1" = "ps" ] ; then
+  docker-compose ps
+fi
+
+
 if [ "$1" = "up" ] ; then
   docker-compose up -d
 fi
@@ -126,7 +131,8 @@ if [ "$1" = "cp" ] ; then
 fi
 if [ "$1" = "encrypt" ] ; then
     mkdir -p ./utils
-    tar cjv private | openssl aes-256-cbc -salt -out ./utils/.private.enc
+    tar cjv ./private | openssl aes-256-cbc -salt -out ./utils/.private.enc
+    rm -Rvf ./private
     exit 0
 fi
 if [ "$1" = "decrypt" ] ; then
