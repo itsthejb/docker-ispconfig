@@ -1,9 +1,9 @@
 #!/bin/bash
+cd /var/spool/postfix
 
 echo " - calling newaliases" 
 newaliases
 
-cd /var/spool/postfix
 echo " - appling hosts, localtime, resolv.conf from /etc to /var/spool/postfix/etc"
 FILES="etc/localtime etc/services etc/resolv.conf etc/hosts \
       etc/nsswitch.conf etc/nss_mdns.config"
@@ -13,4 +13,12 @@ for file in $FILES; do
      if [ -f  ${file} ]; then chmod a+rX ${file}; fi
 done
 
+echo " - creating /etc/mailname with <$(hostname -f)>"
+echo $(hostname -f) > /etc/mailname
 
+
+list=`cd /etc/postfix && ls *.db`
+for i in $list ; do
+   echo " - running postmap for </etc/postfix/${i%.db}>"
+   postmap /etc/postfix/${i%.db}
+done

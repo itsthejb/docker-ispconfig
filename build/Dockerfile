@@ -24,6 +24,7 @@ MAINTAINER Uni Mock <unimock@gate-m.de> version: 0.0
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
 
+# --- set timezone
 ARG BUILD_TZ="Europe/Berlin"
 RUN echo "$BUILD_TZ" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata
@@ -52,7 +53,6 @@ RUN dpkg-reconfigure dash
 # --- 7 Synchronize the System Clock
 RUN apt-get -y install ntp ntpdate
 
-RUN echo "kann wieder raus"
 
 # --- 8 Install Postfix, Dovecot, MySQL, phpMyAdmin, rkhunter, binutils
 ARG BUILD_MYSQL_PW="pass"
@@ -194,27 +194,28 @@ RUN mkdir -p /usr/local/bin
 COPY ./bin/*             /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*
 
+
 #
 # establisch supervisord
 #
 ADD /supervisor /etc/supervisor
 # link old /etc/init.d/ startup scripts to supervisor
-RUN ls -m1    /etc/supervisor/services.d | while read i; do ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
+RUN ls -m1    /etc/supervisor/services.d | while read i; do mv /etc/init.d/$i /etc/init.d/$i-orig ;  ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
 RUN ln -sf    /etc/supervisor/systemctl /bin/systemctl
 RUN chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
-
+copy /supervisor/invoke-rc.d /usr/sbin/invoke-rc.d 
 #
 # create directory for service volume
 #
 RUN mkdir -p /service ; chmod a+rwx /service
-ADD .track.gitignore /.gitignore
+ADD track.gitignore /.gitignore
 
 #
 # Create bootstrap archives
 #
 RUN mkdir -p /bootstrap ;  tar -C /var/vmail -czf /bootstrap/vmail.tgz .
 RUN mkdir -p /bootstrap ;  tar -C /var/www   -czf /bootstrap/www.tgz  .
-
+ENV TERM xterm
 #
 # startup script
 #
