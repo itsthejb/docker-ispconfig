@@ -4,7 +4,8 @@ CFG=./.do.cfg
 DMC=./.do-machine.cfg
 
 if [ ! -e $CFG ] ; then
-  echo "DO_CNAME=ispc" > $CFG
+  echo "DO_CNAME=ispc" >  $CFG
+  echo "DO_MNAME="     >> $CFG
 fi
 
 SERVICEVOL=./service
@@ -13,7 +14,7 @@ SERVICEVOL=./service
 DCN=$DO_CNAME
 
 if [ -f $DMC ] ; then
-. $DMC
+ . $DMC
 fi
 
 
@@ -32,11 +33,13 @@ if [ "$1" = "" ] ; then
   echo "          maillog ............. show last lines from mail.log"
   echo "          config .............. configure ispconfig (set server_name, passwords ...)"
   echo "          migrate ............. migration tool (import and export data)"
-  echo "          ovw push ............ push the content of <${SERVICEVOL}/ovw/> to the containers </>."
-  echo "          ovw fetch ........... copy a file or directory from the containers </> in to <${SERVICEVOL}/ovw/>"
+  echo "          ovw push ............ push the content of </service/ovw> to </> within the container."
+  echo "          ovw fetch ........... copy a file or directory from </> to </service/ovw/> within the container."
   echo "          ovw diff <file> ..... compare a overwrite file"
-  echo "          backup .............. backup service volume to <./backup/>"
-  echo "          restore ............. restore service volume from <./backup/>"
+  echo "          service pull [real] . pull content of remote service folder and store it local <./service>."
+  echo "          service push [real] . push content from local <./service> to the remote service folder."
+  echo "          service backup ...... backup service volume to <./backup/>"
+  echo "          service restore ..... restore service volume from <./backup/>"
   echo "          track init .......... initialize file tracking for /etc and /usr/local/ispconfig."
   echo "          track show .......... show file tracking results"
   echo "          track git <...> ..... git commands"
@@ -62,6 +65,7 @@ if [ "$1" = "setup" ] ; then
   fi
   . $CFG
   if [ "$3" != "" ] ; then
+    sed -i -e "s/^DO_MNAME=.*/DO_MNAME=$3/"       $CFG
     docker-machine env $3
     docker-machine env $3 > $DMC
     . $DMC
@@ -146,16 +150,32 @@ if [ "$1" = "ovw" ] ; then
     exit 0
   fi
 fi
-if [ "$1" = "backup" ] ; then
+if [ "$1" = "service" ] ; then
+  DRY=" --dry-run "
+  if [ "$3" = "real" ] ; then
+    DRY=""
+  fi
+  if [ "$2" = "push" ] ; then
+     ssh root@$(docker-machine ip $DO_MNAME) mkdir -p /Docker/service 
+     sudo rsync  ${DRY} -avzS --numeric-ids --delete -e ssh ${SERVICEVOL}/ root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service 
+     echo "push $DRY folder from <${SERVICEVOL}> to <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME>"
+  fi
+  if [ "$2" = "pull" ] ; then
+    sudo rsync   ${DRY} -avzS --numeric-ids --delete -e ssh root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service/ ${SERVICEVOL} 
+    echo "pull $DRY folder from <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME> to <${SERVICEVOL}> done." 
+  fi
+
+  if [ "$2" = "backup" ] ; then
     mkdir -p backup
     sudo tar -cjvf ./backup/$DCN.tar.bz2 -C ${SERVICEVOL} .
     echo "backup stored as <./backup/$DCN.tar.bz2>"
     exit 0
-fi
-if [ "$2" = "restore" ] ; then
+  fi
+  if [ "$2" = "restore" ] ; then
     rm -Rvf ./service/ovw/*
     sudo tar -C ${SERVICEVOL} -xjvf ./backup/$DCN.tar.bz2
     exit 0
+  fi
 fi
 
 if [ "$1" = "cp" ] ; then
