@@ -156,12 +156,12 @@ if [ "$1" = "service" ] ; then
     DRY=""
   fi
   if [ "$2" = "push" ] ; then
-     ssh root@$(docker-machine ip $DO_MNAME) mkdir -p /Docker/service 
-     sudo rsync  ${DRY} -avzS --numeric-ids --delete -e ssh ${SERVICEVOL}/ root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service 
+     ssh root@$(docker-machine ip $DO_MNAME) mkdir -p /Docker/$DO_CNAME 
+     sudo rsync  ${DRY} -arvzS --numeric-ids --delete -e ssh ${SERVICEVOL}/ root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service 
      echo "push $DRY folder from <${SERVICEVOL}> to <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME>"
   fi
   if [ "$2" = "pull" ] ; then
-    sudo rsync   ${DRY} -avzS --numeric-ids --delete -e ssh root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service/ ${SERVICEVOL} 
+    sudo rsync   ${DRY} -arvzS --numeric-ids --delete -e ssh root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service/ ${SERVICEVOL} 
     echo "pull $DRY folder from <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME> to <${SERVICEVOL}> done." 
   fi
 
