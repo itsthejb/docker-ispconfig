@@ -1,8 +1,6 @@
 # ispconfig-docker
 Attempt to dockerize ispconfig 
 
-         !!! alpha  -  try it, but not use it !!!
-
 ## Preface
 ISPConfig is a great framework!
 
