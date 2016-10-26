@@ -19,7 +19,7 @@
 #
 FROM debian:jessie
 
-MAINTAINER Uni Mock <unimock@gate-m.de> version: 0.0
+MAINTAINER Uni Mock <unimock@gate-m.de>
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
@@ -31,7 +31,7 @@ RUN echo "$BUILD_TZ" > /etc/timezone && \
 
 
 # --- 1 Preliminary
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install rsyslog rsyslog-relp logrotate supervisor git sendemail
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot
 RUN touch /var/log/cron.log
 # Create the log file to be able to run tail
 RUN touch /var/log/auth.log

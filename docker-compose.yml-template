@@ -16,7 +16,7 @@ services:
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/ispconfig-docker:0.1.0
+    image: unimock/ispconfig-docker:0.1.1
     container_name: ispc
     restart: never
     hostname: myhost
@@ -27,6 +27,7 @@ services:
       - ./service:/service               # service volume for overwrites (ovm) and migration (mig)
       - ./ispc/www:/var/www
       - ./ispc/vmail:/var/vmail
+     # - ./ispc/rsnapshot:/rsnapshot
     environment:
      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
      - LANGUAGE=en                       # see ./build/autoinstall.ini

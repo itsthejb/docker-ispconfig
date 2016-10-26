@@ -7,7 +7,7 @@ _usage()
 {
   echo "  # Migration:"
   echo "  migrate export                               # export data"
-  echo "  migrate import                               # import data"
+  echo "  migrate import [without_wait_for_resync]     # import data with [or without] resync"
   exit 0
 }
 if [ "$1" = "" ] ; then 
@@ -93,7 +93,9 @@ if [ "$1" = "import" ] ; then
   #echo "  password in config.inc.php : <$PW_INC>"
   #echo "update user set Password = PASSWORD(\"${PW_INC}\") WHERE User = 'ispconfig';" | mysql -u $MUSER -p${MYSQL_ROOT_PW} mysql
 
-  /usr/local/bin/wait_for_resync.sh
+  if [ "$2" != "without_wait_for_resync" ] ; then
+    /usr/local/bin/wait_for_resync.sh
+  fi
 
   echo "migration import from <$TARGET> done."
   
