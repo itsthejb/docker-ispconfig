@@ -16,6 +16,9 @@ echo "#"
 for task in $DISABLED_SERVICES ; do
   echo "disable : $task"
   sed  -i "/program:$task/a autostart=false"  /etc/supervisor/services.d/$task
+  if [ -e /etc/logrotate.d/$task ] ; then
+    rm -v /etc/logrotate.d/$task
+  fi 
 done
 
 echo "#################################################"
