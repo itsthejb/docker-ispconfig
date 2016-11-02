@@ -213,6 +213,9 @@ ADD track.gitignore /.gitignore
 #
 # Create bootstrap archives
 #
+RUN cp -v /etc/passwd /etc/passwd.bootstrap
+RUN cp -v /etc/shadow /etc/shadow.bootstrap
+RUN cp -v /etc/group  /etc/group.bootstrap
 RUN mkdir -p /bootstrap ;  tar -C /var/vmail -czf /bootstrap/vmail.tgz .
 RUN mkdir -p /bootstrap ;  tar -C /var/www   -czf /bootstrap/www.tgz  .
 ENV TERM xterm

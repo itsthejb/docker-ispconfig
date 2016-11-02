@@ -60,14 +60,31 @@ if [ "$1" = "import" ] ; then
   supervisorctl stop cron
   supervisorctl stop apache2
 
-  #  list="passwd shadow group"
-  #  for i in $list ; do
-  #    cat  /etc/${i} ${TARGET}/${i}.ispconfig | uniq > /tmp/.t
-  #    diff /etc/${i}  /tmp/.t
-  #    cp /tmp/.t /etc/${i}
-  #    rm /tmp/.t
-  #  done
-  
+  list="passwd shadow group"
+  for i in $list ; do
+    cp -f /etc/${i} /etc/${i}.new
+    while read line ; do
+      STRING=$(echo $line | cut -d":" -f1 )
+      if grep -q "^${STRING}:" /etc/${i}.new ; then
+        #echo "/etc/${i}.new replace line with <$line>"
+        #sed -i 's/^"$STRING":.*/"$line"/'                        /etc/${i}.new
+        sed -i "s#^${STRING}:.*#${line}#"                        /etc/${i}.new
+      else
+        #echo "/etc/${i}.new append line: <$line>" 
+        echo "$line" >> /etc/${i}.new
+      fi          
+      #echo -e "<$i> :  <$line> : <$STRING>"
+    done < ${TARGET}/${i}.ispconfig
+    echo "#######################################################"
+    echo "# diff between </etc/${i}.new> </etc/${i}> :"
+    diff /etc/${i}.new /etc/${i}
+    ret=$?
+    if [ "$ret" = "1" ] ; then
+      cp -v /etc/${i}.new /etc/${i}
+    fi
+  done
+  echo "#######################################################"
+ 
   MYSQL_ROOT_PW=$(grep "clientdb_password" /usr/local/ispconfig/server/lib/mysql_clientdb.conf | awk -F\' '{ print $2 }')
 
   list=$(ls -d -1 $TARGET/sql/*)
