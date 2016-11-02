@@ -10,13 +10,13 @@ services:
       args:
         BUILD_TZ: Europe/Berlin
         BUILD_HOSTNAME: myhost.test.com
-        BUILD_ISPCONFIG: ISPConfig-3.0.5.4p9
+        BUILD_ISPCONFIG: ISPConfig-3.1.1p1
         #BUILD_ISPCONFIG:  ISPConfig-3-stable
         BUILD_MYSQL_PW: pass
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/ispconfig-docker:0.1.2
+    image: unimock/ispconfig-docker:0.2.0
     container_name: ispc
     restart: never
     hostname: myhost

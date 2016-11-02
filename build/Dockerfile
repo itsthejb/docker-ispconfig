@@ -183,9 +183,9 @@ RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php 
 RUN cd /usr/local/ispconfig/interface/ssl ; cat ispserver.key ispserver.crt > ispserver.pem
 RUN cd /etc/ssl/private ; ln -sf /usr/local/ispconfig/interface/ssl/ispserver.pem pure-ftpd.pem
 ################################################################################################
-ADD ./ISPConfig_Clean-3.0.5 /tmp/ISPConfig_Clean-3.0.5
-RUN cp -r /tmp/ISPConfig_Clean-3.0.5/interface /usr/local/ispconfig/
-RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.0.5/sql/ispc-clean.sql
+#ADD ./ISPConfig_Clean-3.0.5 /tmp/ISPConfig_Clean-3.0.5
+#RUN cp -r /tmp/ISPConfig_Clean-3.0.5/interface /usr/local/ispconfig/
+#RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.0.5/sql/ispc-clean.sql
 ############################################################################################
 #
 # docker-extensions
