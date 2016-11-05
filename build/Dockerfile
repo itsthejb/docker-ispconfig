@@ -163,6 +163,11 @@ RUN apt-get -y install python-certbot-apache -t jessie-backports
 # --- 22 Install inotify-tools, less, apache-svn 
 RUN apt-get -y install inotify-tools less subversion libapache2-svn
 
+
+# --- 23 Install printing stuff
+ARG BUILD_PRINTING="no"
+RUN if [ "$BUILD_PRINTING" = "yes" ] ; then  apt-get install --fix-missing  -y libdmtx-utils dblatex latex-make cups-client lpr ; fi ;
+
 # ADD ./etc/mysql/my.cnf /etc/mysql/my.cnf
 ADD ./etc/postfix/master.cf /etc/postfix/master.cf
 
