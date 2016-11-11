@@ -11,13 +11,13 @@ services:
         BUILD_TZ: Europe/Berlin
         BUILD_HOSTNAME: myhost.test.com
         BUILD_ISPCONFIG: ISPConfig-3.1.1p1
-        #BUILD_ISPCONFIG:  ISPConfig-3-stable
         BUILD_MYSQL_PW: pass
+        BUILD_ROUNDCUBE: 1.1.6
         BUILD_PRINTING: "no"
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/ispconfig-docker:0.2.1
+    image: unimock/ispconfig-docker:0.2.2
     container_name: ispc
     restart: never
     hostname: myhost
@@ -52,7 +52,7 @@ services:
       - "443:443"
       - "8080:8080"
       #- "53:53"       # bind
-      - "2222:22"      # sshd
+      #- "2222:22"     # sshd
       - "30000:30000"  # pure-ftpd
       - "30001:30001"
       - "30002:30002"

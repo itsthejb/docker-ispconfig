@@ -143,22 +143,43 @@ RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 RUN service fail2ban restart
 
 # --- 19 Install squirrelmail
-RUN apt-get -y install squirrelmail
-ADD ./etc/apache2/conf-enabled/squirrelmail.conf /etc/apache2/conf-enabled/squirrelmail.conf
-ADD ./etc/squirrelmail/config.php /etc/squirrelmail/config.php
-RUN chown root:www-data /etc/squirrelmail/config.php && chmod g+r /etc/squirrelmail/config.php
-RUN mkdir /var/lib/squirrelmail/tmp
-RUN chown www-data /var/lib/squirrelmail/tmp
-RUN service mysql restart
+#RUN apt-get -y install squirrelmail
+#ADD ./etc/apache2/conf-enabled/squirrelmail.conf /etc/apache2/conf-enabled/squirrelmail.conf
+#ADD ./etc/squirrelmail/config.php /etc/squirrelmail/config.php
+#RUN chown root:www-data /etc/squirrelmail/config.php && chmod g+r /etc/squirrelmail/config.php
+#RUN mkdir /var/lib/squirrelmail/tmp
+#RUN chown www-data /var/lib/squirrelmail/tmp
+#RUN service mysql restart
 
+# --- 19 Install roundcube
+ARG BUILD_ROUNDCUBE="1.1.6"
+RUN mkdir /opt/roundcube && cd /opt/roundcube && \
+    wget https://github.com/roundcube/roundcubemail/releases/download/1.1.6/roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
+    tar xfz roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && mv roundcubemail-${BUILD_ROUNDCUBE}/* . && \
+    mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess . && rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
+    chown -R www-data:www-data /opt/roundcube
+RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail;"
+# RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail; GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY 'secretpassword' ; flush privileges;"
+RUN service mysql restart && mysql -h localhost -uroot -p${BUILD_MYSQL_PW} roundcubemail < /opt/roundcube/SQL/mysql.initial.sql
+RUN cd /opt/roundcube/config && cp -pf config.inc.php.sample config.inc.php
+#RUN sed -i "s/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:pass@localhost\/roundcubemail';/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:secretpassword@localhost\/roundcubemail\';/g" /opt/roundcube/config/config.inc.php
+ADD ./etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
+RUN service apache2 restart
+RUN service mysql restart
+#
+# --- 20 Install ispconfig plugins for roundcube
+RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_roundcube/ && mv /tmp/ispconfig3_roundcube/ispconfig3_* /opt/roundcube/plugins && rm -Rvf /tmp/ispconfig3_roundcube
+run echo "\$rcmail_config['plugins'] = array(\"jqueryui\", \"ispconfig3_account\", \"ispconfig3_autoreply\", \"ispconfig3_pass\", \"ispconfig3_spam\", \"ispconfig3_fetchmail\", \"ispconfig3_filter\");" >> opt/roundcube/config/config.inc.php
+RUN cd /opt/roundcube/plugins && mv ispconfig3_account/config/config.inc.php.dist ispconfig3_account/config/config.inc.php
 # --- 20 Install ISPConfig 3
 ARG BUILD_ISPCONFIG="ISPConfig-3-stable"
 RUN cd /tmp && cd . && wget http://www.ispconfig.org/downloads/${BUILD_ISPCONFIG}.tar.gz
 RUN cd /tmp && tar xfz ${BUILD_ISPCONFIG}.tar.gz
 RUN service mysql restart
 
-# --- 21 Install Let's Encrypt client (certbot)
-RUN apt-get -y install python-certbot-apache -t jessie-backports
+# --- 7 Free SSL RUN mkdir /opt/certbot
+RUN mkdir -p /opt/certbot && cd /opt/certbot && wget https://dl.eff.org/certbot-auto && chmod a+x ./certbot-auto
+#RUN ./certbot-auto 
 
 # --- 22 Install inotify-tools, less, apache-svn 
 RUN apt-get -y install inotify-tools less subversion libapache2-svn

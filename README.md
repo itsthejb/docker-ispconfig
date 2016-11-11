@@ -63,6 +63,7 @@ cp docker-compose.yml-template docker-compose.yml
 ./do config mysql_root_pw  test                     # change mysql root password to test
 ./do config panal_admin_pw  test                    # set panel admin password to test
 ./do config server_name  hname.test.com             # set server name in ispconfig database
+./do config roundcube MySecret localhost.test.com roundcube
 ./do restart                                        # restart ispconfig
 ./do log                                            # show start up console
 ./do track show                                     # show ispconfig file modifications
