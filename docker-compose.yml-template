@@ -17,7 +17,7 @@ services:
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/ispconfig-docker:0.2.2
+    image: unimock/ispconfig-docker:0.2.3
     container_name: ispc
     restart: never
     hostname: myhost
