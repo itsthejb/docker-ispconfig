@@ -154,7 +154,7 @@ RUN service fail2ban restart
 # --- 19 Install roundcube
 ARG BUILD_ROUNDCUBE="1.1.6"
 RUN mkdir /opt/roundcube && cd /opt/roundcube && \
-    wget https://github.com/roundcube/roundcubemail/releases/download/1.1.6/roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
+    wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE}/roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
     tar xfz roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && mv roundcubemail-${BUILD_ROUNDCUBE}/* . && \
     mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess . && rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
     chown -R www-data:www-data /opt/roundcube
