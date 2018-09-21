@@ -5,7 +5,7 @@ services:
     # BUILD section
     ##################################################
     build:
-      context: ./build
+      context: .
       dockerfile: Dockerfile
       args:
         BUILD_TZ: Europe/Berlin

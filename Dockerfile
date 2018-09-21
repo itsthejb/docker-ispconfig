@@ -43,7 +43,7 @@ RUN apt-get -y install ssh openssh-server rsync
 RUN apt-get -y install nano vim-nox
 
 # --- 5 Update Your Debian Installation
-ADD ./etc/apt/sources.list /etc/apt/sources.list
+ADD ./build/etc/apt/sources.list /etc/apt/sources.list
 RUN apt-get -y update && apt-get -y upgrade
 
 # --- 6 Change The Default Shell
@@ -61,13 +61,13 @@ RUN echo "mysql-server mysql-server/root_password_again password ${BUILD_MYSQL_P
 RUN echo "mariadb-server mariadb-server/root_password password ${BUILD_MYSQL_PW}"       | debconf-set-selections
 RUN echo "mariadb-server mariadb-server/root_password_again password ${BUILD_MYSQL_PW}" | debconf-set-selections
 RUN apt-get -y install postfix postfix-mysql postfix-doc mariadb-client mariadb-server openssl getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd sudo
-ADD ./etc/postfix/master.cf /etc/postfix/master.cf
+ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 RUN service postfix restart
 RUN service mysql restart
 
 # --- 9 Install Amavisd-new, SpamAssassin And Clamav
 RUN apt-get -y install amavisd-new spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl
-ADD ./etc/clamav/clamd.conf /etc/clamav/clamd.conf
+ADD ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN freshclam
 RUN service spamassassin stop
 RUN systemctl disable spamassassin
@@ -92,7 +92,7 @@ RUN apt-get -y install php5-xcache
 RUN echo 'mailman mailman/default_server_language en' | debconf-set-selections
 RUN apt-get -y install mailman
 # RUN ["/usr/lib/mailman/bin/newlist", "-q", "mailman", "mail@mail.com", "pass"]
-ADD ./etc/aliases /etc/aliases
+ADD ./build/etc/aliases /etc/aliases
 RUN newaliases
 RUN service postfix restart
 RUN ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf
@@ -118,7 +118,7 @@ RUN apt-mark hold pure-ftpd-common pure-ftpd-mysql
 RUN groupadd ftpgroup
 RUN useradd -g ftpgroup -d /dev/null -s /etc ftpuser
 RUN apt-get -y install quota quotatool
-ADD ./etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
+ADD ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
 RUN echo 1 > /etc/pure-ftpd/conf/TLS
 RUN mkdir -p /etc/ssl/private/
 
@@ -127,7 +127,7 @@ RUN apt-get -y install bind9 dnsutils
 
 # --- 16 Install Vlogger, Webalizer, And AWStats
 RUN apt-get -y install vlogger webalizer awstats geoip-database libclass-dbi-mysql-perl
-ADD etc/cron.d/awstats /etc/cron.d/
+ADD ./build/etc/cron.d/awstats /etc/cron.d/
 
 # --- 17 Install Jailkit
 RUN apt-get -y install build-essential autoconf automake libtool flex bison debhelper binutils
@@ -136,16 +136,16 @@ RUN cd /tmp && dpkg -i jailkit_2.17-1_*.deb && rm -rf jailkit-2.17*
 
 # --- 18 Install fail2ban
 RUN apt-get -y install fail2ban
-ADD ./etc/fail2ban/jail.local /etc/fail2ban/jail.local
-ADD ./etc/fail2ban/filter.d/pureftpd.conf /etc/fail2ban/filter.d/pureftpd.conf
-ADD ./etc/fail2ban/filter.d/dovecot-pop3imap.conf /etc/fail2ban/filter.d/dovecot-pop3imap.conf
+ADD ./build/etc/fail2ban/jail.local /etc/fail2ban/jail.local
+ADD ./build/etc/fail2ban/filter.d/pureftpd.conf /etc/fail2ban/filter.d/pureftpd.conf
+ADD ./build/etc/fail2ban/filter.d/dovecot-pop3imap.conf /etc/fail2ban/filter.d/dovecot-pop3imap.conf
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 RUN service fail2ban restart
 
 # --- 19 Install squirrelmail
 #RUN apt-get -y install squirrelmail
-#ADD ./etc/apache2/conf-enabled/squirrelmail.conf /etc/apache2/conf-enabled/squirrelmail.conf
-#ADD ./etc/squirrelmail/config.php /etc/squirrelmail/config.php
+#ADD ./build/etc/apache2/conf-enabled/squirrelmail.conf /etc/apache2/conf-enabled/squirrelmail.conf
+#ADD ./build/etc/squirrelmail/config.php /etc/squirrelmail/config.php
 #RUN chown root:www-data /etc/squirrelmail/config.php && chmod g+r /etc/squirrelmail/config.php
 #RUN mkdir /var/lib/squirrelmail/tmp
 #RUN chown www-data /var/lib/squirrelmail/tmp
@@ -163,7 +163,7 @@ RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABAS
 RUN service mysql restart && mysql -h localhost -uroot -p${BUILD_MYSQL_PW} roundcubemail < /opt/roundcube/SQL/mysql.initial.sql
 RUN cd /opt/roundcube/config && cp -pf config.inc.php.sample config.inc.php
 #RUN sed -i "s/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:pass@localhost\/roundcubemail';/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:secretpassword@localhost\/roundcubemail\';/g" /opt/roundcube/config/config.inc.php
-ADD ./etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
+ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 RUN service apache2 restart
 RUN service mysql restart
 #
@@ -189,8 +189,8 @@ RUN apt-get -y install inotify-tools less subversion libapache2-svn
 ARG BUILD_PRINTING="no"
 RUN if [ "$BUILD_PRINTING" = "yes" ] ; then  apt-get install --fix-missing  -y libdmtx-utils dblatex latex-make cups-client lpr ; fi ;
 
-# ADD ./etc/mysql/my.cnf /etc/mysql/my.cnf
-ADD ./etc/postfix/master.cf /etc/postfix/master.cf
+# ADD ./build/etc/mysql/my.cnf /etc/mysql/my.cnf
+ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN echo "export TERM=xterm" >> /root/.bashrc
 
@@ -198,7 +198,7 @@ EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 3000
 ##################################################################################################
 # starting ispconfig3_install/install/install.php
 #
-ADD ./autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
+ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
 ARG BUILD_HOSTNAME="myhost.test.com"
 RUN sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g"                         /tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
@@ -209,7 +209,7 @@ RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php 
 RUN cd /usr/local/ispconfig/interface/ssl ; cat ispserver.key ispserver.crt > ispserver.pem
 RUN cd /etc/ssl/private ; ln -sf /usr/local/ispconfig/interface/ssl/ispserver.pem pure-ftpd.pem
 ################################################################################################
-#ADD ./ISPConfig_Clean-3.0.5 /tmp/ISPConfig_Clean-3.0.5
+#ADD ./build/ISPConfig_Clean-3.0.5 /tmp/ISPConfig_Clean-3.0.5
 #RUN cp -r /tmp/ISPConfig_Clean-3.0.5/interface /usr/local/ispconfig/
 #RUN service mysql restart && mysql -p${BUILD_MYSQL_PW} < /tmp/ISPConfig_Clean-3.0.5/sql/ispc-clean.sql
 ############################################################################################
@@ -217,24 +217,24 @@ RUN cd /etc/ssl/private ; ln -sf /usr/local/ispconfig/interface/ssl/ispserver.pe
 # docker-extensions
 #
 RUN mkdir -p /usr/local/bin
-COPY ./bin/*             /usr/local/bin/
+COPY ./build/bin/*             /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*
 
 
 #
 # establisch supervisord
 #
-ADD /supervisor /etc/supervisor
+ADD ./build/supervisor /etc/supervisor
 # link old /etc/init.d/ startup scripts to supervisor
 RUN ls -m1    /etc/supervisor/services.d | while read i; do mv /etc/init.d/$i /etc/init.d/$i-orig ;  ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
 RUN ln -sf    /etc/supervisor/systemctl /bin/systemctl
 RUN chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
-copy /supervisor/invoke-rc.d /usr/sbin/invoke-rc.d 
+COPY ./build/supervisor/invoke-rc.d /usr/sbin/invoke-rc.d
 #
 # create directory for service volume
 #
 RUN mkdir -p /service ; chmod a+rwx /service
-ADD track.gitignore /.gitignore
+ADD ./build/track.gitignore /.gitignore
 
 #
 # Create bootstrap archives
@@ -248,6 +248,6 @@ ENV TERM xterm
 #
 # startup script
 #
-ADD ./start.sh /start.sh
+ADD ./build/start.sh /start.sh
 RUN chmod 755 /start.sh
 CMD ["/start.sh"]
