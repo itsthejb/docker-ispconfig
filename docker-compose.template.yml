@@ -10,23 +10,24 @@ services:
       args:
         BUILD_TZ: Europe/Berlin
         BUILD_HOSTNAME: myhost.test.com
-        BUILD_ISPCONFIG: ISPConfig-3.1.11
+        BUILD_ISPCONFIG: "3.1.11"
         BUILD_MYSQL_PW: pass
-        BUILD_ROUNDCUBE: 1.1.10
         BUILD_PRINTING: "no"
     ##################################################
     # RUN section
     ##################################################
-    image: itsthejb/ispconfig-docker:0.3.1
+    image: itsthejb/ispconfig-docker:0.4.0
     container_name: ispconfig
     hostname: myhost
     domainname: test.com
     cap_add:
-      - NET_ADMIN                        #  fail2ban (iptables)
+      - DAC_READ_SEARCH                  # Pure-ftpd-mysql
+      - SYS_NICE                         # Pure-ftpd-mysql
     volumes:
       - ./service:/service               # service volume for overwrites (ovm) and migration (mig)
       - ./ispc/www:/var/www
       - ./ispc/vmail:/var/vmail
+      #- /etc/localtime:/etc/localtime:ro
      # - ./ispc/rsnapshot:/rsnapshot
     environment:
      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
@@ -43,7 +44,6 @@ services:
       - "143:143"      # imap
       - "993:993"      # imaps
       - "25:25"        # smtp
-      - "465:465"      # smtps
       - "587:587"      # smtps
       - "20:20"
       - "21:21"        # pureftpd

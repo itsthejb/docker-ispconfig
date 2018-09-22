@@ -10,7 +10,7 @@ services:
     cap_add:
       - SYS_ADMIN
     volumes:
-      - './test/integration:/app/test'
+      - './test/integration:/app/test:ro'
 
   ispconfig:
     extends:

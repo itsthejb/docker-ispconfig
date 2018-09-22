@@ -8,7 +8,7 @@ services:
     depends_on:
       - ispconfig
     volumes:
-      - ./test:/app
+      - ./test:/app:ro
       - ./test/ssl:/ssl:ro
       - ./test/dkim:/var/lib/dkim
       - /var/run/docker.sock:/var/run/docker.sock
