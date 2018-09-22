@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  sut:
+    build:
+      context: test
+      dockerfile: Dockerfile
+    depends_on:
+      - ispconfig
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - './test/integration:/app/test'
+
+  ispconfig:
+    extends:
+      file: docker-compose.template.yml
+      service: ispconfig

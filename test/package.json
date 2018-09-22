@@ -1,0 +1,22 @@
+{
+  "main": "puppeteer.js",
+  "description": "Puppeteer tests for ispconfig",
+  "repository": "https://github.com/itsthejb/ispconfig-docker",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "jest-puppeteer": "^3.3.1",
+    "puppeteer": "^1.8.0"
+  },
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "preset": "jest-puppeteer"
+  },
+  "name": "test",
+  "version": "1.0.0",
+  "directories": {
+    "test": "test"
+  }
+}
