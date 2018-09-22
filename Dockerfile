@@ -1,16 +1,16 @@
 #
-#                    ##        .            
-#              ## ## ##       ==            
-#           ## ## ## ##      ===            
-#       /""""""""""""""""\___/ ===        
-#  ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~   
-#       \______ o          __/            
-#         \    \        __/             
-#          \____\______/                
-# 
+#                    ##        .
+#              ## ## ##       ==
+#           ## ## ## ##      ===
+#       /""""""""""""""""\___/ ===
+#  ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
+#       \______ o          __/
+#         \    \        __/
+#          \____\______/
+#
 #          |          |
 #       __ |  __   __ | _  __   _
-#      /  \| /  \ /   |/  / _\ | 
+#      /  \| /  \ /   |/  / _\ |
 #      \__/| \__/ \__ |\_ \__  |
 #
 # Dockerfile for ISPConfig with MariaDB database
@@ -153,16 +153,15 @@ RUN service fail2ban restart
 
 # --- 19 Install roundcube
 ARG BUILD_ROUNDCUBE="1.1.6"
+ARG BUILD_ROUNDCUBE_PW="secretpassword"
 RUN mkdir /opt/roundcube && cd /opt/roundcube && \
     wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE}/roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
     tar xfz roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && mv roundcubemail-${BUILD_ROUNDCUBE}/* . && \
     mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess . && rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
     chown -R www-data:www-data /opt/roundcube
-RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail;"
-# RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail; GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY 'secretpassword' ; flush privileges;"
-RUN service mysql restart && mysql -h localhost -uroot -p${BUILD_MYSQL_PW} roundcubemail < /opt/roundcube/SQL/mysql.initial.sql
+RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail; GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY '${BUILD_ROUNDCUBE_PW}'; flush privileges;"; mysql -h localhost -uroot -p${BUILD_MYSQL_PW} roundcubemail < /opt/roundcube/SQL/mysql.initial.sql
 RUN cd /opt/roundcube/config && cp -pf config.inc.php.sample config.inc.php
-#RUN sed -i "s/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:pass@localhost\/roundcubemail';/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:secretpassword@localhost\/roundcubemail\';/g" /opt/roundcube/config/config.inc.php
+RUN sed -i "s/mysql:\/\/roundcube:pass@localhost\/roundcubemail/mysql:\/\/roundcube:${BUILD_ROUNDCUBE_PW}@localhost\/roundcubemail/" /opt/roundcube/config/config.inc.php
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 RUN service apache2 restart
 RUN service mysql restart
@@ -179,9 +178,9 @@ RUN service mysql restart
 
 # --- 7 Free SSL RUN mkdir /opt/certbot
 RUN mkdir -p /opt/certbot && cd /opt/certbot && wget https://dl.eff.org/certbot-auto && chmod a+x ./certbot-auto
-#RUN ./certbot-auto 
+#RUN ./certbot-auto
 
-# --- 22 Install inotify-tools, less, apache-svn 
+# --- 22 Install inotify-tools, less, apache-svn
 RUN apt-get -y install inotify-tools less subversion libapache2-svn
 
 
