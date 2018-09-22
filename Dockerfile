@@ -159,10 +159,10 @@ RUN mkdir /opt/roundcube && cd /opt/roundcube && \
     mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess . && rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
     chown -R www-data:www-data /opt/roundcube
 RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail;"
-# RUN service mysql restart && mysql -h localhost -uroot -ppass -e "CREATE DATABASE roundcubemail; GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY 'secretpassword' ; flush privileges;"
+RUN service mysql restart && mysql -h localhost -uroot -ppass -e "GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY 'secretpassword' ; flush privileges;"
 RUN service mysql restart && mysql -h localhost -uroot -p${BUILD_MYSQL_PW} roundcubemail < /opt/roundcube/SQL/mysql.initial.sql
 RUN cd /opt/roundcube/config && cp -pf config.inc.php.sample config.inc.php
-#RUN sed -i "s/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:pass@localhost\/roundcubemail';/\$config[\'db_dsnw\'] = \'mysql:\/\/roundcube:secretpassword@localhost\/roundcubemail\';/g" /opt/roundcube/config/config.inc.php
+RUN sed -i "s/mysql:\/\/roundcube:pass@localhost\/roundcubemail/mysql:\/\/roundcube:secretpassword@localhost\/roundcubemail/" /opt/roundcube/config/config.inc.phpbu
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 RUN service apache2 restart
 RUN service mysql restart
