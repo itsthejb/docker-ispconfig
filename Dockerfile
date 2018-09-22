@@ -1,16 +1,16 @@
 #
-#                    ##        .            
-#              ## ## ##       ==            
-#           ## ## ## ##      ===            
-#       /""""""""""""""""\___/ ===        
-#  ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~   
-#       \______ o          __/            
-#         \    \        __/             
-#          \____\______/                
-# 
+#                    ##        .
+#              ## ## ##       ==
+#           ## ## ## ##      ===
+#       /""""""""""""""""\___/ ===
+#  ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
+#       \______ o          __/
+#         \    \        __/
+#          \____\______/
+#
 #          |          |
 #       __ |  __   __ | _  __   _
-#      /  \| /  \ /   |/  / _\ | 
+#      /  \| /  \ /   |/  / _\ |
 #      \__/| \__/ \__ |\_ \__  |
 #
 # Dockerfile for ISPConfig with MariaDB database
@@ -179,9 +179,9 @@ RUN service mysql restart
 
 # --- 7 Free SSL RUN mkdir /opt/certbot
 RUN mkdir -p /opt/certbot && cd /opt/certbot && wget https://dl.eff.org/certbot-auto && chmod a+x ./certbot-auto
-#RUN ./certbot-auto 
+#RUN ./certbot-auto
 
-# --- 22 Install inotify-tools, less, apache-svn 
+# --- 22 Install inotify-tools, less, apache-svn
 RUN apt-get -y install inotify-tools less subversion libapache2-svn
 
 
