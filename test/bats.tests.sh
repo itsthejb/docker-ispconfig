@@ -13,7 +13,7 @@ setup() {
     apk update && apk add openssl netcat-openbsd mariadb-client
   }
   function waitForUp() {
-    testPort 80
+    timeout -t 30 sh -c "until nc -z $CONTAINER 443; do sleep 0.5; done"
   }
   installDependencies &> /dev/null
   waitForUp
