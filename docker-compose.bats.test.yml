@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+
+  sut:
+    image: graze/bats
+    command: /app/bats.tests.sh
+    depends_on:
+      - ispconfig
+    volumes:
+      - ./test:/app
+      - ./test/ssl:/ssl:ro
+      - ./test/dkim:/var/lib/dkim
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SSL=/ssl
+      - MYSQL_PW=pass
+    depends_on:
+      - ispconfig
+
+  ispconfig:
+    extends:
+      file: docker-compose.template.yml
+      service: ispconfig
