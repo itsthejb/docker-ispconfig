@@ -17,8 +17,8 @@ services:
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/ispconfig-docker:0.3.0
-    container_name: ispc
+    image: itsthejb/ispconfig-docker:0.3.1
+    container_name: ispconfig
     hostname: myhost
     domainname: test.com
     cap_add:
