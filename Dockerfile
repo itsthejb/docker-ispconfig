@@ -19,7 +19,7 @@
 #
 FROM debian:jessie
 
-MAINTAINER Uni Mock <unimock@gate-m.de>
+MAINTAINER Jonathan Crooke <jon.crooke@gmail.com>
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
