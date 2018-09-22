@@ -1,11 +1,14 @@
 #!/usr/bin/env bats
 
 export CONTAINER="ispconfig"
-export TIMEOUT=1
-if [ -n "CI" ]; then TIMEOUT=30; fi
+export TIMEOUT=30
 
-function testPort() {
-  nc -vz -w $TIMEOUT $CONTAINER $1
+function waitForPort() {
+  timeout -t $TIMEOUT sh -c "until nc -vz $CONTAINER $1; do sleep 0.1; done"
+}
+
+function closedPort() {
+  ! nc -vz $CONTAINER $1
 }
 
 setup() {
@@ -13,7 +16,7 @@ setup() {
     apk update && apk add openssl netcat-openbsd mariadb-client
   }
   function waitForUp() {
-    timeout -t 30 sh -c "until nc -z $CONTAINER 443; do sleep 0.5; done"
+    waitForPort 443
   }
   installDependencies &> /dev/null
   waitForUp
@@ -24,19 +27,19 @@ setup() {
 }
 
 @test "Verify Web server" {
-  testPort 80
-  testPort 443
-  ! testport 8080
+  waitForPort 80
+  waitForPort 443
+  waitForPort 8080
 }
 
 @test "Verify Mail server" {
-  testPort 110
-  testPort 995
-  testPort 143
-  testPort 993
-  testPort 25
-  testPort 465
-  testPort 587
+  waitForPort 110
+  waitForPort 995
+  waitForPort 143
+  waitForPort 993
+  waitForPort 25
+  waitForPort 465
+  waitForPort 587
 }
 
 @test "Verify Database" {
@@ -44,10 +47,10 @@ setup() {
 }
 
 @test "Verify SSH server" {
-  ! testPort 2222
+  closedPort 2222
 }
 
 @test "Verify FTP server" {
-  testPort 21
-  ! testPort 20
+  waitForPort 21
+  closedPort 20
 }
