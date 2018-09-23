@@ -17,6 +17,8 @@ services:
       - MYSQL_PW=pass
 
   ispconfig:
+    environment:
+      - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
     extends:
       file: docker-compose.template.yml
       service: ispconfig

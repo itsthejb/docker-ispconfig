@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -n "$ENABLE_APACHE_MODS" ]; then
+  echo " - enabling requested mods '$ENABLE_APACHE_MODS'"
+  for MOD in $(echo "$ENABLE_APACHE_MODS" | tr ',' ' '); do 
+    a2enmod $MOD
+  done
+fi
