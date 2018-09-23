@@ -10,7 +10,7 @@ services:
       args:
         BUILD_TZ: Europe/Berlin
         BUILD_HOSTNAME: myhost.test.com
-        BUILD_ISPCONFIG: "3.1.11"
+        BUILD_ISPCONFIG: "3.1.13"
         BUILD_MYSQL_PW: pass
         BUILD_PRINTING: "no"
     ##################################################
