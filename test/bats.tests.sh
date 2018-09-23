@@ -22,17 +22,17 @@ setup() {
   waitForUp
 }
 
-@test "Verify Container startup" {
+@test "no errors on container startup" {
   ! docker logs $CONTAINER | egrep '(FATAL)|(exited)'
 }
 
-@test "Verify Web server" {
+@test "web server ports are responding" {
   waitForPort 80
   waitForPort 443
   waitForPort 8080
 }
 
-@test "Verify Mail server" {
+@test "mail server ports are responding" {
   waitForPort 110
   waitForPort 995
   waitForPort 143
@@ -42,15 +42,15 @@ setup() {
   waitForPort 587
 }
 
-@test "Verify Database" {
-  run bash -c "docker exec $CONTAINER mysql -uroot -p$MYSQL_PW"
+@test "database can be accessed using expected password" {
+  run docker exec $CONTAINER mysql -uroot -p$MYSQL_PW
 }
 
-@test "Verify SSH server" {
-  closedPort 2222
+@test "ssh server port is responding" {
+  waitForPort 22
 }
 
-@test "Verify FTP server" {
+@test "FTP ports are responding" {
   waitForPort 21
   closedPort 20
 }

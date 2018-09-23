@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for YML in $(ls *.test.yml); do
+  docker-compose -f $YML up --build --remove-orphans sut
+done
