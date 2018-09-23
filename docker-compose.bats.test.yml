@@ -15,8 +15,6 @@ services:
     environment:
       - SSL=/ssl
       - MYSQL_PW=pass
-    depends_on:
-      - ispconfig
 
   ispconfig:
     extends:
