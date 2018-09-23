@@ -33,7 +33,7 @@ setup() {
 }
 
 @test "supplementary vhost is enabled" {
-  run docker exec $CONTAINER apache2ctl -S 2> /dev/null || true
+  run docker exec $CONTAINER apache2ctl -S
   [ $(echo "$output" | grep "webmail.test.com") ]
 }
 

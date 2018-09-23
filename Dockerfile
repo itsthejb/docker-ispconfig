@@ -184,6 +184,8 @@ RUN sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g"   
 RUN sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
 
 RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
+RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.conf
+RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.vhost
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
 RUN mkdir -p /etc/ssl/private/
