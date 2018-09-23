@@ -1,13 +1,13 @@
 const puppeteer = require('puppeteer');
-const host = "ispconfig:8080";
+const host = "ispconfig:" + process.env.PORT;
 
 const timeout = 30 * 1000;
 jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
 page.setDefaultNavigationTimeout(timeout);
 
 describe('ISPConfig Admin Interface', () => {
-  beforeAll(async () => {
-    await page.goto("https://ispconfig:8080");
+beforeAll(async () => {
+    await page.goto("https://" + host);
   })
 
   it('should be possible to login with the default credentials', async () => {
@@ -23,7 +23,7 @@ describe('ISPConfig Admin Interface', () => {
 
 describe('phpMyAdmin Web Interface', () => {
   beforeAll(async () => {
-    await page.goto("https://ispconfig:8080/phpmyadmin");
+    await page.goto("https://" + host + "/phpmyadmin");
   })
 
   it('should be possible to login with the default credentials', async () => {
@@ -43,7 +43,7 @@ describe('phpMyAdmin Web Interface', () => {
 
 describe('Roundcube Webmail', () => {
   beforeAll(async () => {
-    await page.goto("https://ispconfig:8080/webmail/");
+    await page.goto("https://" + host + "/webmail/");
   })
 
   test('login page is available', async () => {

@@ -9,10 +9,15 @@ services:
       - ispconfig
     cap_add:
       - SYS_ADMIN
+    environment:
+      - PORT=443
     volumes:
       - './test/integration:/app/test:ro'
 
   ispconfig:
+    build:
+      args:
+        BUILD_ISPCONFIG_PORT: "443"
     extends:
       file: docker-compose.template.yml
       service: ispconfig

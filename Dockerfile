@@ -26,6 +26,7 @@ LABEL description="ISPConfig 3.1 on Debian Stretch, with Roundcube mail, phpMyAd
 ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
 ARG BUILD_ISPCONFIG="3-stable"
+ARG BUILD_ISPCONFIG_PORT="8080"
 ARG BUILD_MYSQL_PW="pass"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PRINTING="no"
@@ -179,7 +180,9 @@ RUN cd /tmp && cd . && wget https://ispconfig.org/downloads/ISPConfig-${BUILD_IS
 RUN cd /tmp && tar xfz ISPConfig-${BUILD_ISPCONFIG}.tar.gz
 ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g"                         /tmp/ispconfig3_install/install/autoinstall.ini
+RUN sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g"                      /tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
+
 RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
