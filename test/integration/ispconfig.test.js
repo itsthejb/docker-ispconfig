@@ -34,6 +34,7 @@ describe('phpMyAdmin Web Interface', () => {
     await expect(page).toClick('input[type="submit"]')
     await page.waitForNavigation()
     await expect(page).toMatch('General Settings')
+    await expect(page).toMatch(/(?!Connection for controluser as defined in your configuration failed)/)
     await expect(page).toMatch('Appearance Settings')
     await expect(page).toMatch('Database server')
     await expect(page).toMatch('Web server')
