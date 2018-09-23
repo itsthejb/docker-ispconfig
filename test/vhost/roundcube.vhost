@@ -1,0 +1,6 @@
+<VirtualHost *:443>
+    ProxyPreserveHost On
+    ProxyPass        "/" "https://localhost:8080/webmail/"
+    ProxyPassReverse "/" "https://localhost:8080/webmail/"
+    ServerName webmail.test.com
+</VirtualHost>

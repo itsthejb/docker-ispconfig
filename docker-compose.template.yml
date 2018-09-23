@@ -32,6 +32,7 @@ services:
     environment:
      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
      - LANGUAGE=en                       # see ./build/autoinstall.ini
+     #- SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
      # disable services :
      #   postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql
      - DISABLED_SERVICES=bind9 mailman

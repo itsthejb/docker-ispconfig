@@ -32,6 +32,11 @@ setup() {
   waitForPort 8080
 }
 
+@test "supplementary vhost is enabled" {
+  run docker exec $CONTAINER apache2ctl -S 2> /dev/null || true
+  [ $(echo "$output" | grep "webmail.test.com") ]
+}
+
 @test "mail server ports are responding" {
   waitForPort 110
   waitForPort 995
