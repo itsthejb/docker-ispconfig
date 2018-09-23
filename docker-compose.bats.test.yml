@@ -4,7 +4,7 @@ services:
 
   sut:
     image: graze/bats
-    command: /app/bats.tests.sh
+    command: /app/bats/tests.sh
     depends_on:
       - ispconfig
     volumes:

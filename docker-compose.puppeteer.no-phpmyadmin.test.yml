@@ -1,23 +1,23 @@
 version: '2'
 
 services:
+
   sut:
     build:
       context: test
       dockerfile: Dockerfile
     depends_on:
-      - ispconfig
+      - ispconfig-no-phpmyadmin
     cap_add:
       - SYS_ADMIN
-    environment:
-      - PORT=443
     volumes:
-      - './test/default:/app/test:ro'
+      - './test/no-phpmyadmin:/app/test:ro'
 
-  ispconfig:
+  ispconfig-no-phpmyadmin:
     build:
       args:
-        BUILD_ISPCONFIG_PORT: "443"
+        - BUILD_PHPMYADMIN="no"
+    container_name: ispconfig-no-phpmyadmin
     extends:
       file: docker-compose.template.yml
       service: ispconfig
