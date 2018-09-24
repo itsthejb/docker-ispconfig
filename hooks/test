@@ -3,5 +3,8 @@
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
 for YML in $(ls *.test.yml); do
-  docker-compose -f $YML up --build --remove-orphans sut
+  if ! docker-compose -f $YML up --build --remove-orphans sut; then
+    echo "Build for $YML failed!"
+    exit 1
+  fi
 done
