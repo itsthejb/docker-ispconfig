@@ -6,3 +6,8 @@ if [ -n "$ENABLE_APACHE_MODS" ]; then
     a2enmod $MOD
   done
 fi
+
+if [ -d "$SUPPLEMENTARY_VHOSTS" ]; then
+  echo " - configuring supplementary vhost include path"  
+  echo "IncludeOptional $SUPPLEMENTARY_VHOSTS/" >> /etc/apache2/apache2.conf
+fi
