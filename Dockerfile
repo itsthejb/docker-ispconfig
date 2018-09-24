@@ -26,11 +26,13 @@ LABEL description="ISPConfig 3.1 on Debian Stretch, with Roundcube mail, phpMyAd
 ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
 ARG BUILD_ISPCONFIG="3-stable"
+ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_PORT="8080"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
 ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
+ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PRINTING="no"
 ARG BUILD_ROUNDCUBE_CONFIG="/etc/roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/etc/roundcube"
@@ -67,22 +69,33 @@ RUN dpkg-reconfigure dash
 # --- 7 Synchronize the System Clock
 RUN apt-get -y install ntp ntpdate
 
-# --- 8 Install Postfix, Dovecot, MySQL, phpMyAdmin, rkhunter, binutils
-RUN echo "mysql-server mysql-server/root_password password ${BUILD_MYSQL_PW}"           | debconf-set-selections
-RUN echo "mysql-server mysql-server/root_password_again password ${BUILD_MYSQL_PW}"     | debconf-set-selections
-RUN echo "mariadb-server mariadb-server/root_password password ${BUILD_MYSQL_PW}"       | debconf-set-selections
-RUN echo "mariadb-server mariadb-server/root_password_again password ${BUILD_MYSQL_PW}" | debconf-set-selections
-RUN apt-get -y install postfix postfix-mysql postfix-doc mariadb-client mariadb-server openssl getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd sudo
-ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
+# --- 8 Install MySQL (optional)
+RUN apt-get -y install mariadb-client 
+RUN \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
+        echo "mariadb-server mariadb-server/root_password password ${BUILD_MYSQL_PW}"       | debconf-set-selections; \
+        echo "mariadb-server mariadb-server/root_password_again password ${BUILD_MYSQL_PW}" | debconf-set-selections; \
+        apt-get -y install mariadb-server; \
+    fi
 ADD ./build/etc/mysql/debian.cnf /etc/mysql
 ADD ./build/etc/mysql/50-server.cnf /etc/mysql/mariadb.conf.d/
-RUN sed -i "s|password =|password = ${BUILD_MYSQL_PW}|" /etc/mysql/debian.cnf
-RUN echo "mysql soft nofile 65535\nmysql hard nofile 65535\n" >> /etc/security/limits.conf
-RUN mkdir -p /etc/systemd/system/mysql.service.d/; echo "[Service]\nLimitNOFILE=infinity\n" >> /etc/systemd/system/mysql.service.d/limits.conf
-RUN service mysql restart; echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}
+RUN \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
+        sed -i "s|password =|password = ${BUILD_MYSQL_PW}|" /etc/mysql/debian.cnf; \
+        echo "mysql soft nofile 65535\nmysql hard nofile 65535\n" >> /etc/security/limits.conf; \
+        mkdir -p /etc/systemd/system/mysql.service.d/; \
+        echo "[Service]\nLimitNOFILE=infinity\n" >> /etc/systemd/system/mysql.service.d/limits.conf; \
+    fi
+RUN \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
+    echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}
+
+# --- 8 Install Postfix, Dovecot, phpMyAdmin, rkhunter, binutils
+RUN apt-get -y install postfix postfix-mysql postfix-doc openssl getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd sudo
+ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN service postfix restart
-RUN service mysql restart
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi
 
 # --- 9 Install Amavisd-new, SpamAssassin And Clamav
 RUN apt-get -y install amavisd-new spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey
@@ -92,7 +105,8 @@ RUN service spamassassin stop
 RUN systemctl disable spamassassin
 
 # --- 10 Install Apache2, PHP5, FCGI, suExec, Pear, And mcrypt
-RUN service mysql restart && apt-get -y install apache2 apache2-doc apache2-utils libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear php7.0-mcrypt mcrypt imagemagick libruby libapache2-mod-python php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy php7.0-xmlrpc php7.0-xsl memcached php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring memcached libapache2-mod-passenger php7.0-soap
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
+    apt-get -y install apache2 apache2-doc apache2-utils libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear php7.0-mcrypt mcrypt imagemagick libruby libapache2-mod-python php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy php7.0-xmlrpc php7.0-xsl memcached php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring memcached libapache2-mod-passenger php7.0-soap
 RUN a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers
 ADD ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
 RUN echo "ServerName ${BUILD_HOSTNAME}" | tee /etc/apache2/conf-available/fqdn.conf && a2enconf fqdn
@@ -101,18 +115,17 @@ RUN a2enconf httpoxy
 # --- 10.1 Install phpMyAdmin (optional)
 # TODO change phpmyadmin password with debconf?
 ADD ./build/etc/phpmyadmin/config.inc.php /var/lib/phpmyadmin
-ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 RUN \
     if [ "${BUILD_PHPMYADMIN}" = "yes" ]; then \
-        service mysql restart; \
+        if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
         echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections; \
         echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections; \
         echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections; \
         echo "phpmyadmin phpmyadmin/db/app-user string ${BUILD_PHPMYADMIN_USER}" | debconf-set-selections; \
-        echo "phpmyadmin phpmyadmin/remote/host select localhost" | debconf-set-selections; \
+        echo "phpmyadmin phpmyadmin/remote/host select ${BUILD_MYSQL_HOST}" | debconf-set-selections; \
         apt-get -y install phpmyadmin; \
         mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "SET PASSWORD FOR '${BUILD_PHPMYADMIN_USER}'@'localhost' = PASSWORD('${BUILD_PHPMYADMIN_PW}');"; \
-        sed -i "s|['controlhost'] = '';|['controlhost'] = 'localhost';|" /var/lib/phpmyadmin/config.inc.php; \
+        sed -i "s|['controlhost'] = '';|['controlhost'] = '${BUILD_MYSQL_HOST}';|" /var/lib/phpmyadmin/config.inc.php; \
         sed -i "s|['controluser'] = '';|['controluser'] = '${BUILD_PHPMYADMIN_USER}';|" /var/lib/phpmyadmin/config.inc.php; \
         sed -i "s|['controlpass'] = '';|['controlpass'] = '${BUILD_PHPMYADMIN_PW}';|" /var/lib/phpmyadmin/config.inc.php; \
         sed -i "s|\$dbuser='.*';|\$dbuser='${BUILD_PHPMYADMIN_USER}';|" /etc/phpmyadmin/config-db.php; \
@@ -166,26 +179,18 @@ ADD ./build/etc/fail2ban/filter.d/dovecot-pop3imap.conf /etc/fail2ban/filter.d/d
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 RUN service fail2ban restart
 
-# --- 19 Install squirrelmail
-#RUN apt-get -y install squirrelmail
-#ADD ./build/etc/apache2/conf-enabled/squirrelmail.conf /etc/apache2/conf-enabled/squirrelmail.conf
-#ADD ./build/etc/squirrelmail/config.php /etc/squirrelmail/config.php
-#RUN chown root:www-data /etc/squirrelmail/config.php && chmod g+r /etc/squirrelmail/config.php
-#RUN mkdir /var/lib/squirrelmail/tmp
-#RUN chown www-data /var/lib/squirrelmail/tmp
-#RUN service mysql restart
-
 # --- 19 Install roundcube
 RUN echo "roundcube-core roundcube/dbconfig-install boolean true" | debconf-set-selections
 RUN echo "roundcube-core roundcube/database-type select mysql" | debconf-set-selections
 RUN echo "roundcube-core roundcube/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections
 RUN echo "roundcube-core roundcube/remote/newhost string ${BUILD_MYSQL_HOST}" | debconf-set-selections
-RUN service mysql restart; apt-get -y install roundcube roundcube-core roundcube-mysql roundcube-plugins
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
+    apt-get -y install roundcube roundcube-core roundcube-mysql roundcube-plugins
 RUN sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
 RUN sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 RUN service apache2 restart
-RUN service mysql restart
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi
 
 # --- 19 Install ispconfig plugins for roundcube
 RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_roundcube/ && mv /tmp/ispconfig3_roundcube/ispconfig3_* ${BUILD_ROUNDCUBE_DIR}/plugins && rm -Rvf /tmp/ispconfig3_roundcube
@@ -199,6 +204,26 @@ ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g"                         /tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g"                      /tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
+RUN \
+    export DATABASE="dbispconfig"; \
+    export USER="ispconfig"; \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
+    if echo "USE ${DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
+        if [ "${BUILD_ISPCONFIG_DROP_EXISTING}" = "yes" ]; then \
+            echo "DROP DATABASE ${DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
+        else \
+            echo "\e[31mERROR: ISPConfig database \"${DATABASE}\" already exists and build argument \"BUILD_ISPCONFIG_DROP_EXISTING\" = \"no\". Move the existing database aside before continuing\e[0m" && exit 1; \
+        fi; \
+    fi; \
+    if [ $(echo "SELECT EXISTS(SELECT * FROM mysql.user WHERE User = 'ispconfig')" | mysql --skip-column-names -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" || true) = 1 ]; then \
+        if [ "${BUILD_ISPCONFIG_DROP_EXISTING}" = "yes" ]; then \
+            echo "DELETE FROM mysql.user WHERE User = \"${USER}\"; FLUSH PRIVILEGES;" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
+        else \
+            echo "\e[31mERROR: ISPConfig user \"${USER}\" already exists and build argument \"BUILD_ISPCONFIG_DROP_EXISTING\" = \"no\". Move the existing user aside before continuing\e[0m" && exit 1; \
+        fi; \
+    fi
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
+    php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
 
 RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.conf
