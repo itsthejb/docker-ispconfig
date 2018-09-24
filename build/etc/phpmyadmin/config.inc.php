@@ -32,9 +32,9 @@ $cfg['SaveDir'] = '';
  */
 
 /* User used to manipulate with storage */
-$cfg['Servers'][$i]['controlhost'] = 'localhost';
-$cfg['Servers'][$i]['controluser'] = 'phpmyadmin';
-$cfg['Servers'][$i]['controlpass'] = '<control-pass>';
+$cfg['Servers'][$i]['controlhost'] = '';
+$cfg['Servers'][$i]['controluser'] = '';
+$cfg['Servers'][$i]['controlpass'] = '';
 
 /* Storage database and tables */
 $cfg['Servers'][$i]['pmadb'] = 'phpmyadmin';

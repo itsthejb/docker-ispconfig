@@ -27,7 +27,9 @@ ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
 ARG BUILD_ISPCONFIG="3-stable"
 ARG BUILD_ISPCONFIG_PORT="8080"
+ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
+ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PRINTING="no"
 ARG BUILD_ROUNDCUBE_CONFIG="/etc/roundcube"
@@ -77,7 +79,7 @@ ADD ./build/etc/mysql/50-server.cnf /etc/mysql/mariadb.conf.d/
 RUN sed -i "s|password =|password = ${BUILD_MYSQL_PW}|" /etc/mysql/debian.cnf
 RUN echo "mysql soft nofile 65535\nmysql hard nofile 65535\n" >> /etc/security/limits.conf
 RUN mkdir -p /etc/systemd/system/mysql.service.d/; echo "[Service]\nLimitNOFILE=infinity\n" >> /etc/systemd/system/mysql.service.d/limits.conf
-RUN service mysql restart; echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -u root -p${BUILD_MYSQL_PW}
+RUN service mysql restart; echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}
 
 RUN service postfix restart
 RUN service mysql restart
@@ -89,20 +91,35 @@ RUN freshclam
 RUN service spamassassin stop
 RUN systemctl disable spamassassin
 
-# --- 10 Install Apache2, PHP5, phpMyAdmin, FCGI, suExec, Pear, And mcrypt
-RUN echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | debconf-set-selections
-RUN echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections
-RUN echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections
-RUN service mysql restart && apt-get -y install apache2 apache2-doc apache2-utils libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap phpmyadmin php7.0-cli php7.0-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear php7.0-mcrypt mcrypt  imagemagick libruby libapache2-mod-python php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy php7.0-xmlrpc php7.0-xsl memcached php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring memcached libapache2-mod-passenger php7.0-soap
+# --- 10 Install Apache2, PHP5, FCGI, suExec, Pear, And mcrypt
+RUN service mysql restart && apt-get -y install apache2 apache2-doc apache2-utils libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear php7.0-mcrypt mcrypt imagemagick libruby libapache2-mod-python php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy php7.0-xmlrpc php7.0-xsl memcached php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring memcached libapache2-mod-passenger php7.0-soap
 RUN a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers
 ADD ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
 RUN echo "ServerName ${BUILD_HOSTNAME}" | tee /etc/apache2/conf-available/fqdn.conf && a2enconf fqdn
+RUN a2enconf httpoxy
+
+# --- 10.1 Install phpMyAdmin (optional)
 # TODO change phpmyadmin password with debconf?
-RUN service mysql restart; mysql -uroot -p${BUILD_MYSQL_PW} -e "SET PASSWORD FOR 'phpmyadmin'@'localhost' = PASSWORD('${BUILD_PHPMYADMIN_PW}');"
 ADD ./build/etc/phpmyadmin/config.inc.php /var/lib/phpmyadmin
-RUN sed -i "s|<control-pass>|${BUILD_PHPMYADMIN_PW}|" /var/lib/phpmyadmin/config.inc.php
-RUN sed -i "s|\$dbpass='.*';|\$dbpass='${BUILD_PHPMYADMIN_PW}';|" /etc/phpmyadmin/config-db.php
-RUN a2enconf httpoxy && service apache2 restart
+ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
+RUN \
+    if [ "${BUILD_PHPMYADMIN}" = "yes" ]; then \
+        service mysql restart; \
+        echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections; \
+        echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections; \
+        echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections; \
+        echo "phpmyadmin phpmyadmin/db/app-user string ${BUILD_PHPMYADMIN_USER}" | debconf-set-selections; \
+        echo "phpmyadmin phpmyadmin/remote/host select localhost" | debconf-set-selections; \
+        apt-get -y install phpmyadmin; \
+        mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "SET PASSWORD FOR '${BUILD_PHPMYADMIN_USER}'@'localhost' = PASSWORD('${BUILD_PHPMYADMIN_PW}');"; \
+        sed -i "s|['controlhost'] = '';|['controlhost'] = 'localhost';|" /var/lib/phpmyadmin/config.inc.php; \
+        sed -i "s|['controluser'] = '';|['controluser'] = '${BUILD_PHPMYADMIN_USER}';|" /var/lib/phpmyadmin/config.inc.php; \
+        sed -i "s|['controlpass'] = '';|['controlpass'] = '${BUILD_PHPMYADMIN_PW}';|" /var/lib/phpmyadmin/config.inc.php; \
+        sed -i "s|\$dbuser='.*';|\$dbuser='${BUILD_PHPMYADMIN_USER}';|" /etc/phpmyadmin/config-db.php; \
+        sed -i "s|\$dbpass='.*';|\$dbpass='${BUILD_PHPMYADMIN_PW}';|" /etc/phpmyadmin/config-db.php; \
+    fi
+
+RUN service apache2 restart
 
 # --- 11 Free SSL RUN mkdir /opt/certbot
 RUN if [ "${BUILD_CERTBOT}" = "yes" ]; then apt-get -y install certbot; fi
@@ -162,8 +179,8 @@ RUN service fail2ban restart
 RUN echo "roundcube-core roundcube/dbconfig-install boolean true" | debconf-set-selections
 RUN echo "roundcube-core roundcube/database-type select mysql" | debconf-set-selections
 RUN echo "roundcube-core roundcube/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections
+RUN echo "roundcube-core roundcube/remote/newhost string ${BUILD_MYSQL_HOST}" | debconf-set-selections
 RUN service mysql restart; apt-get -y install roundcube roundcube-core roundcube-mysql roundcube-plugins
-#RUN sed -i "s/mysql:\/\/roundcube:pass@localhost\/roundcubemail/mysql:\/\/roundcube:${BUILD_ROUNDCUBE_PW}@localhost\/roundcubemail/" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
 RUN sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
 RUN sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
