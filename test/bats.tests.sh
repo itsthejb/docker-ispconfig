@@ -37,6 +37,11 @@ setup() {
   [ $(echo "$output" | grep "webmail.test.com") ]
 }
 
+@test "all selected apache mods should be loaded" {
+  run docker exec $CONTAINER apache2ctl -M 2> /dev/null || true
+  [ $(echo "$output" | grep -E "macro|proxy_balancer|proxy_http" | wc -l) -eq 3 ]
+}
+
 @test "mail server ports are responding" {
   waitForPort 110
   waitForPort 995
