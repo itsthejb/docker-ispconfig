@@ -9,11 +9,8 @@ services:
       - ispconfig
     volumes:
       - ./test:/app:ro
-      - ./test/ssl:/ssl:ro
-      - ./test/dkim:/var/lib/dkim
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - SSL=/ssl
       - MYSQL_PW=pass
 
   ispconfig:

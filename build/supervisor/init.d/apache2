@@ -3,11 +3,38 @@
 if [ -n "$ENABLE_APACHE_MODS" ]; then
   echo " - enabling requested mods '$ENABLE_APACHE_MODS'"
   for MOD in $(echo "$ENABLE_APACHE_MODS" | tr ',' ' '); do 
-    a2enmod $MOD
+    a2enmod $MOD > /dev/null
   done
 fi
 
 if [ -d "$SUPPLEMENTARY_VHOSTS" ]; then
   echo " - configuring supplementary vhost include path"  
   echo "IncludeOptional $SUPPLEMENTARY_VHOSTS/" >> /etc/apache2/apache2.conf
+fi
+
+if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
+  echo " - configuring custom ssl certificate for apache and other services"
+
+  # Paths cannot contain /etc/ssl
+  function checkSafeSslPath() {
+    if echo "/etc/ssl" | grep "$1" > /dev/null; then
+      echo "   - Path $1 is relative to /etc/ssl. This breaks PureFTP! Mount a different path"
+      exit 1
+    fi
+  }
+  checkSafeSslPath "$SSL_CERT"
+  checkSafeSslPath "$SSL_KEY"
+
+  CERT="/usr/local/ispconfig/interface/ssl/ispserver.crt"
+  KEY="/usr/local/ispconfig/interface/ssl/ispserver.key"
+  CHAIN="/usr/local/ispconfig/interface/ssl/ispserver.chain"
+  ln -fs "$SSL_CERT" "$CERT"
+  ln -fs "$SSL_KEY" "$KEY"
+  cat "$KEY" "$CERT" > "$CHAIN"
+
+  APACHE_SSL="/etc/apache2/sites-available/default-ssl.conf"
+  sed -i "s|/etc/ssl/certs/ssl-cert-snakeoil.pem|$CERT|" "$APACHE_SSL"
+  sed -i "s|/etc/ssl/private/ssl-cert-snakeoil.key|$KEY|" "$APACHE_SSL"
+  sed -i "s|/etc/apache2/ssl.crt/server-ca.crt|$CHAIN|" "$APACHE_SSL"
+  sed -i "s|#SSLCertificateChainFile|SSLCertificateChainFile|" "$APACHE_SSL"
 fi

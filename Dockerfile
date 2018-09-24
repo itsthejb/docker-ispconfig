@@ -224,15 +224,14 @@ RUN \
     fi
 RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
     php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
-
 RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.conf
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.vhost
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
 RUN mkdir -p /etc/ssl/private/
-RUN cd /usr/local/ispconfig/interface/ssl ; cat ispserver.key ispserver.crt > ispserver.pem
-RUN cd /etc/ssl/private ; ln -sf /usr/local/ispconfig/interface/ssl/ispserver.pem pure-ftpd.pem
+RUN cd /usr/local/ispconfig/interface/ssl; cat ispserver.key ispserver.crt > ispserver.chain
+RUN ln -sf /usr/local/ispconfig/interface/ssl/ispserver.chain /etc/ssl/private/pure-ftpd.pem
 RUN echo 1 > /etc/pure-ftpd/conf/TLS
 
 # --- 23 Install printing stuff
