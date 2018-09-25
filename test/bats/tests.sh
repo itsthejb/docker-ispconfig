@@ -1,24 +1,10 @@
 #!/usr/bin/env bats
 
-export CONTAINER="ispconfig"
-export TIMEOUT=30
-
-function waitForPort() {
-  timeout -t $TIMEOUT sh -c "until nc -vz $CONTAINER $1; do sleep 0.1; done"
-}
-
-function closedPort() {
-  ! nc -vz $CONTAINER $1
-}
+load helpers
 
 setup() {
-  function installDependencies() {
-    apk update && apk add openssl netcat-openbsd mariadb-client
-  }
-  function waitForUp() {
-    waitForPort 443
-  }
   installDependencies &> /dev/null
+  apk add mariadb-client
   waitForUp
 }
 
