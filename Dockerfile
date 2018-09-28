@@ -27,6 +27,7 @@ ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
 ARG BUILD_ISPCONFIG="3-stable"
 ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
+ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
@@ -34,9 +35,11 @@ ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PRINTING="no"
-ARG BUILD_ROUNDCUBE_CONFIG="/etc/roundcube"
-ARG BUILD_ROUNDCUBE_DIR="/etc/roundcube"
+ARG BUILD_ROUNDCUBE="1.3.7"
+ARG BUILD_ROUNDCUBE_DB="roundcube"
+ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
 ARG BUILD_ROUNDCUBE_PW="secretpassword"
+ARG BUILD_ROUNDCUBE_USER="roundcube"
 ARG BUILD_TZ="Europe/Berlin"
 
 # Let the container know that there is no tty
@@ -86,9 +89,10 @@ RUN \
         mkdir -p /etc/systemd/system/mysql.service.d/; \
         echo "[Service]\nLimitNOFILE=infinity\n" >> /etc/systemd/system/mysql.service.d/limits.conf; \
     fi
-RUN \
-    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-    echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
+        service mysql restart; \
+        echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
+    fi
 
 # --- 8 Install Postfix, Dovecot, phpMyAdmin, rkhunter, binutils
 RUN apt-get -y install postfix postfix-mysql postfix-doc openssl getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd sudo
@@ -117,19 +121,26 @@ RUN a2enconf httpoxy
 ADD ./build/etc/phpmyadmin/config.inc.php /var/lib/phpmyadmin
 RUN \
     if [ "${BUILD_PHPMYADMIN}" = "yes" ]; then \
-        if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-        echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections; \
-        echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections; \
-        echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections; \
-        echo "phpmyadmin phpmyadmin/db/app-user string ${BUILD_PHPMYADMIN_USER}" | debconf-set-selections; \
-        echo "phpmyadmin phpmyadmin/remote/host select ${BUILD_MYSQL_HOST}" | debconf-set-selections; \
-        apt-get -y install phpmyadmin; \
-        mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "SET PASSWORD FOR '${BUILD_PHPMYADMIN_USER}'@'localhost' = PASSWORD('${BUILD_PHPMYADMIN_PW}');"; \
-        sed -i "s|['controlhost'] = '';|['controlhost'] = '${BUILD_MYSQL_HOST}';|" /var/lib/phpmyadmin/config.inc.php; \
-        sed -i "s|['controluser'] = '';|['controluser'] = '${BUILD_PHPMYADMIN_USER}';|" /var/lib/phpmyadmin/config.inc.php; \
-        sed -i "s|['controlpass'] = '';|['controlpass'] = '${BUILD_PHPMYADMIN_PW}';|" /var/lib/phpmyadmin/config.inc.php; \
-        sed -i "s|\$dbuser='.*';|\$dbuser='${BUILD_PHPMYADMIN_USER}';|" /etc/phpmyadmin/config-db.php; \
-        sed -i "s|\$dbpass='.*';|\$dbpass='${BUILD_PHPMYADMIN_PW}';|" /etc/phpmyadmin/config-db.php; \
+        if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
+            service mysql restart; \
+            echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections; \
+            echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections; \
+            echo "phpmyadmin phpmyadmin/db/app-user string ${BUILD_PHPMYADMIN_USER}" | debconf-set-selections; \
+            echo "phpmyadmin phpmyadmin/mysql/app-pass password ${BUILD_PHPMYADMIN_PW}" | debconf-set-selections; \
+            echo "phpmyadmin phpmyadmin/app-password-confirm password ${BUILD_PHPMYADMIN_PW}" | debconf-set-selections; \
+            echo "phpmyadmin phpmyadmin/password-confirm password ${BUILD_PHPMYADMIN_PW}" | debconf-set-selections; \
+            echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections; \
+            apt-get -y install phpmyadmin; \
+            mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "SET PASSWORD FOR '${BUILD_PHPMYADMIN_USER}'@'localhost' = PASSWORD('${BUILD_PHPMYADMIN_PW}');"; \
+            sed -i "s|['controlhost'] = '';|['controlhost'] = '${BUILD_MYSQL_HOST}';|" /var/lib/phpmyadmin/config.inc.php; \
+            sed -i "s|['controluser'] = '';|['controluser'] = '${BUILD_PHPMYADMIN_USER}';|" /var/lib/phpmyadmin/config.inc.php; \
+            sed -i "s|['controlpass'] = '';|['controlpass'] = '${BUILD_PHPMYADMIN_PW}';|" /var/lib/phpmyadmin/config.inc.php; \
+            sed -i "s|\$dbuser='.*';|\$dbuser='${BUILD_PHPMYADMIN_USER}';|" /etc/phpmyadmin/config-db.php; \
+            sed -i "s|\$dbpass='.*';|\$dbpass='${BUILD_PHPMYADMIN_PW}';|" /etc/phpmyadmin/config-db.php; \
+        else \
+            echo "\e[31m'BUILD_PHPMYADMIN' = 'yes', but 'BUILD_MYSQL_HOST' is not 'localhost' ('${BUILD_MYSQL_HOST}')\e[0m"; \
+            echo "\e[31mCan't currently install phpMyAdmin with a remote server connection. Sorry!\e[0m"; \
+        fi; \
     fi
 
 RUN service apache2 restart
@@ -180,17 +191,31 @@ RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 RUN service fail2ban restart
 
 # --- 19 Install roundcube
-RUN echo "roundcube-core roundcube/dbconfig-install boolean true" | debconf-set-selections
-RUN echo "roundcube-core roundcube/database-type select mysql" | debconf-set-selections
-RUN echo "roundcube-core roundcube/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections
-RUN echo "roundcube-core roundcube/remote/newhost string ${BUILD_MYSQL_HOST}" | debconf-set-selections
-RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-    apt-get -y install roundcube roundcube-core roundcube-mysql roundcube-plugins
-RUN sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
-RUN sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" ${BUILD_ROUNDCUBE_CONFIG}/config.inc.php
+RUN mkdir ${BUILD_ROUNDCUBE_DIR} && cd ${BUILD_ROUNDCUBE_DIR} && \
+    wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE}/roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
+    tar xfz roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && mv roundcubemail-${BUILD_ROUNDCUBE}/* . && \
+    mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess . && \
+    rm roundcubemail-${BUILD_ROUNDCUBE}/.travis.yml && \
+    rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
+    chown -R www-data:www-data ${BUILD_ROUNDCUBE_DIR}
+RUN \
+    ROUNDCUBE_ACCESS="172.%.%.%"; \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
+        service mysql restart; \
+        ROUNDCUBE_ACCESS="localhost"; \
+    fi; \
+    if ! echo "USE ${BUILD_ROUNDCUBE_DB};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
+        echo "CREATE DATABASE ${BUILD_ROUNDCUBE_DB};" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
+        mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} ${BUILD_ROUNDCUBE_DB} < ${BUILD_ROUNDCUBE_DIR}/SQL/mysql.initial.sql; \
+    fi; \
+    mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "\
+    GRANT ALL PRIVILEGES ON ${BUILD_ROUNDCUBE_DB}.* TO ${BUILD_ROUNDCUBE_USER}@'${ROUNDCUBE_ACCESS}' IDENTIFIED BY '${BUILD_ROUNDCUBE_PW}'; \
+    FLUSH PRIVILEGES;"
+RUN cd ${BUILD_ROUNDCUBE_DIR}/config && cp -pf config.inc.php.sample config.inc.php
+RUN sed -i "s|mysql://roundcube:pass@localhost/roundcubemail|mysql://${BUILD_ROUNDCUBE_USER}:${BUILD_ROUNDCUBE_PW}@${BUILD_MYSQL_HOST}/${BUILD_ROUNDCUBE_DB}|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
+RUN sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
+RUN sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
-RUN service apache2 restart
-RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi
 
 # --- 19 Install ispconfig plugins for roundcube
 RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_roundcube/ && mv /tmp/ispconfig3_roundcube/ispconfig3_* ${BUILD_ROUNDCUBE_DIR}/plugins && rm -Rvf /tmp/ispconfig3_roundcube
@@ -201,30 +226,38 @@ RUN cd ${BUILD_ROUNDCUBE_DIR}/plugins && mv ispconfig3_account/config/config.inc
 RUN cd /tmp && cd . && wget https://ispconfig.org/downloads/ISPConfig-${BUILD_ISPCONFIG}.tar.gz
 RUN cd /tmp && tar xfz ISPConfig-${BUILD_ISPCONFIG}.tar.gz
 ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
-RUN sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g"                         /tmp/ispconfig3_install/install/autoinstall.ini
-RUN sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g"                      /tmp/ispconfig3_install/install/autoinstall.ini
-RUN sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
 RUN \
-    export DATABASE="dbispconfig"; \
-    export USER="ispconfig"; \
+    sed -i "s|mysql_hostname=localhost|mysql_hostname=${BUILD_MYSQL_HOST}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s|mysql_root_password=pass|mysql_root_password=${BUILD_MYSQL_PW}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s|mysql_database=dbispconfig|mysql_database=${BUILD_ISPCONFIG_MYSQL_DATABASE}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s/^hostname=server1.example.com$/hostname=localhost/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
+RUN \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-    if echo "USE ${DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
+    if echo "USE ${BUILD_ISPCONFIG_MYSQL_DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
         if [ "${BUILD_ISPCONFIG_DROP_EXISTING}" = "yes" ]; then \
-            echo "DROP DATABASE ${DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
+            echo "DROP DATABASE ${BUILD_ISPCONFIG_MYSQL_DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
         else \
-            echo "\e[31mERROR: ISPConfig database \"${DATABASE}\" already exists and build argument \"BUILD_ISPCONFIG_DROP_EXISTING\" = \"no\". Move the existing database aside before continuing\e[0m" && exit 1; \
+            echo "\e[31mERROR: ISPConfig database '${BUILD_ISPCONFIG_MYSQL_DATABASE}' already exists and build argument 'BUILD_ISPCONFIG_DROP_EXISTING' = 'no'. Move the existing database aside before continuing\e[0m" && exit 1; \
         fi; \
     fi; \
-    if [ $(echo "SELECT EXISTS(SELECT * FROM mysql.user WHERE User = 'ispconfig')" | mysql --skip-column-names -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" || true) = 1 ]; then \
+    if [ $(echo "SELECT EXISTS(SELECT * FROM mysql.user WHERE User = '${BUILD_ISPCONFIG_MYSQL_USER}')" | mysql --skip-column-names -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" || true) = 1 ]; then \
         if [ "${BUILD_ISPCONFIG_DROP_EXISTING}" = "yes" ]; then \
-            echo "DELETE FROM mysql.user WHERE User = \"${USER}\"; FLUSH PRIVILEGES;" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
+            echo "DELETE FROM mysql.user WHERE User = \"${BUILD_ISPCONFIG_MYSQL_USER}\"; FLUSH PRIVILEGES;" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
         else \
-            echo "\e[31mERROR: ISPConfig user \"${USER}\" already exists and build argument \"BUILD_ISPCONFIG_DROP_EXISTING\" = \"no\". Move the existing user aside before continuing\e[0m" && exit 1; \
+            echo "\e[31mERROR: ISPConfig user '${BUILD_ISPCONFIG_MYSQL_USER}' already exists and build argument 'BUILD_ISPCONFIG_DROP_EXISTING' = 'no'. Move the existing user aside before continuing\e[0m" && exit 1; \
         fi; \
     fi
 RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-    php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
-RUN service mysql restart && php -q /tmp/ispconfig3_install/install/install.php      --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
+    php -q /tmp/ispconfig3_install/install/install.php --autoinstall=/tmp/ispconfig3_install/install/autoinstall.ini
+RUN if [ "${BUILD_MYSQL_HOST}" != "localhost" ]; then \
+    ISP_ADMIN_PASS=$(grep "\$conf\['db_password'\] = '\(.*\)'" /usr/local/ispconfig/interface/lib/config.inc.php | \
+      sed "s|\$conf\['db_password'\] = '\(.*\)';|\1|"); \
+    echo $ISP_ADMIN_PASS; \
+    mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" \
+      -e "GRANT ALL PRIVILEGES ON dbispconfig.* TO 'ispconfig'@'172.%.%.%' IDENTIFIED BY '$ISP_ADMIN_PASS';"; \
+    fi
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.conf
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.vhost
 ################################################################################################
