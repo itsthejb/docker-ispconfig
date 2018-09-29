@@ -18,7 +18,7 @@ services:
     ##################################################
     image: itsthejb/ispconfig-docker:0.4.1
     container_name: ispconfig
-    hostname: myhost
+    hostname: ispconfig
     domainname: test.com
     cap_add:
       - DAC_READ_SEARCH                  # Pure-ftpd-mysql
@@ -33,7 +33,7 @@ services:
      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
      - LANGUAGE=en                       # see ./build/autoinstall.ini
      #- SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
-     - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
+    #  - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
     #  - SSL_CERT=
     #  - SSL_KEY=
      # disable services :

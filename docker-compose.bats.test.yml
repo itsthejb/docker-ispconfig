@@ -14,8 +14,6 @@ services:
       - MYSQL_PW=pass
 
   ispconfig:
-    environment:
-      - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
     extends:
       file: docker-compose.template.yml
       service: ispconfig
@@ -23,4 +21,5 @@ services:
       - './test/vhost:/etc/apache2/supplementary:ro'
     environment:
       - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
+      - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
 
