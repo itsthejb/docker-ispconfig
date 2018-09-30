@@ -2,9 +2,41 @@
 
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
-for YML in $(ls *.test.yml); do
-  if ! docker-compose -f $YML up --build --remove-orphans sut; then
-    echo "Build for $YML failed!"
+function build() {
+  YML=$1
+  ARG=$2
+  CMD="docker-compose -f $YML build $ARG"
+  if ! $CMD; then
+    echo "Failed: \"$CMD\""
     exit 1
   fi
-done
+
+  DOWN="docker-compose -f $YML down -v"
+  CMD="docker-compose -f $YML up --no-build --abort-on-container-exit sut"
+  if ! $CMD; then
+    echo "Failed: \"$CMD\""
+    $DOWN &> /dev/null || true
+    exit 1
+  fi
+  $DOWN &> /dev/null || true
+}
+
+function testNormal() {
+  build docker-compose.bats.test.yml
+  build docker-compose.bats.custom-ssl.test.yml
+  build docker-compose.puppeteer.test.yml
+  build docker-compose.puppeteer.no-phpmyadmin.test.yml
+}
+
+function testLiveDB() {
+  if command -v gsed; then SED="gsed"; else SED="sed"; fi
+  NO_MARIA="docker-compose.puppeteer.no-mariadb.test.yml"
+  docker-compose -f "$NO_MARIA" up -d -V --force-recreate --remove-orphans mariadb
+  IP_ADDR=$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')
+  $SED -i'' "s/database: .*$/database: $IP_ADDR/" "$NO_MARIA"
+  build "$NO_MARIA" --no-cache
+  docker-compose -f "$NO_MARIA" down -v
+}
+
+testNormal
+testLiveDB
