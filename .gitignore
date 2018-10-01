@@ -6,3 +6,5 @@
 /service
 /ispc
 /private
+docker-compose.puppeteer.no-mariadb.test.yml
+
