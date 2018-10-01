@@ -5,7 +5,7 @@ services:
   sut:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.puppeteer
     depends_on:
       - ispconfig
     cap_add:
