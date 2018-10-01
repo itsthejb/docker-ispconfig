@@ -1,0 +1,2 @@
+#!/bin/bash -xe
+docker-compose -f docker-compose.puppeteer.no-mariadb.test.yml down -v
