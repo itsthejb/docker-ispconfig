@@ -4,19 +4,19 @@ services:
 
   sut:
     build:
-      context: test
+      context: .
       dockerfile: Dockerfile
     depends_on:
       - ispconfig
     cap_add:
       - SYS_ADMIN
     volumes:
-      - './test/no-phpmyadmin:/app/test:ro'
+      - './no-phpmyadmin:/app/test:ro'
 
   ispconfig:
     build:
       args:
         BUILD_PHPMYADMIN: "no"
     extends:
-      file: docker-compose.template.yml
+      file: ../docker-compose.template.yml
       service: ispconfig
