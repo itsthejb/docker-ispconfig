@@ -92,6 +92,9 @@ RUN \
 RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         service mysql restart; \
         echo "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('${BUILD_MYSQL_PW}') WHERE User = 'root';" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
+    elif ! mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; then \
+        echo "\e[31mConnection to mysql host \"${BUILD_MYSQL_HOST}\" failed!\e[0m"; \
+        exit 1; \
     fi
 
 # --- 8 Install Postfix, Dovecot, phpMyAdmin, rkhunter, binutils

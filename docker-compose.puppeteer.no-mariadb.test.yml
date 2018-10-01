@@ -1,0 +1,74 @@
+version: '2.3'
+
+services:
+  sut:
+    build:
+      context: test
+      dockerfile: Dockerfile
+    depends_on:
+      - ispconfig
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - './test/no-mariadb:/app/test:ro'
+
+  ispconfig:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_MYSQL_HOST: database
+        BUILD_MYSQL_PW: mariadb
+        BUILD_PHPMYADMIN: "no"
+      extra_hosts:
+        database: 1.2.3.4
+    container_name: ispconfig
+    hostname: ispconfig
+    domainname: test.com
+    depends_on:
+      - mariadb
+    links:
+      - mariadb:database
+    cap_add:
+      - DAC_READ_SEARCH                  # Pure-ftpd-mysql
+      - SYS_NICE                         # Pure-ftpd-mysql
+    environment:
+     - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
+     - LANGUAGE=en                       # see ./build/autoinstall.ini
+     - DISABLED_SERVICES=bind9 mailman mysql
+    ports:
+      - "110:110"      # pop3
+      - "995:995"      # pop3s
+      - "143:143"      # imap
+      - "993:993"      # imaps
+      - "25:25"        # smtp
+      - "587:587"      # smtps
+      - "20:20"
+      - "21:21"        # pureftpd
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+      #- "53:53"       # bind
+      - "2222:22"     # sshd
+      - "30000:30000"  # pure-ftpd
+      - "30001:30001"
+      - "30002:30002"
+      - "30003:30003"
+      - "30004:30004"
+      - "30005:30005"
+      - "30006:30006"
+      - "30007:30007"
+      - "30008:30008"
+      - "30009:30009"
+
+  mariadb:
+    container_name: mariadb
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mariadb
+    volumes:
+      - ./test/sql:/docker-entrypoint-initdb.d:ro
+      - ./test/sql:/etc/mysql/conf.d:ro
+    ports:
+      - 3306:3306
