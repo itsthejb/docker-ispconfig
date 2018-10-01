@@ -3,7 +3,7 @@ version: '2'
 services:
   sut:
     build:
-      context: test
+      context: .
       dockerfile: Dockerfile
     depends_on:
       - ispconfig
@@ -12,12 +12,12 @@ services:
     environment:
       - PORT=443
     volumes:
-      - './test/default:/app/test:ro'
+      - './default:/app/test:ro'
 
   ispconfig:
     build:
       args:
         BUILD_ISPCONFIG_PORT: "443"
     extends:
-      file: docker-compose.template.yml
+      file: ../docker-compose.template.yml
       service: ispconfig

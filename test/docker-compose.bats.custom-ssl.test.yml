@@ -12,17 +12,17 @@ services:
       - SSL_CERT=/etc/ssl/local/test.com.crt
       - SSL_KEY=/etc/ssl/local/test.com.key
     volumes:
-      - ./test:/app:ro
-      - ./test/ssl:/etc/ssl/local:ro
+      - ./:/app:ro
+      - ./ssl:/etc/ssl/local:ro
       - /var/run/docker.sock:/var/run/docker.sock
 
   ispconfig:
     extends:
-      file: docker-compose.template.yml
+      file: ../docker-compose.template.yml
       service: ispconfig
     environment:
       - SSL_CERT=/etc/ssl/local/test.com.crt
       - SSL_KEY=/etc/ssl/local/test.com.key
     volumes:
-      - ./test/ssl:/etc/ssl/local:ro
+      - ./ssl:/etc/ssl/local:ro
 

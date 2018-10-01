@@ -8,17 +8,17 @@ services:
     depends_on:
       - ispconfig
     volumes:
-      - ./test:/app:ro
+      - ./:/app:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - MYSQL_PW=pass
 
   ispconfig:
     extends:
-      file: docker-compose.template.yml
+      file: ../docker-compose.template.yml
       service: ispconfig
     volumes:
-      - './test/vhost:/etc/apache2/supplementary:ro'
+      - './vhost:/etc/apache2/supplementary:ro'
     environment:
       - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
       - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http

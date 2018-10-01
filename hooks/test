@@ -5,14 +5,14 @@ trap "echo Exited!; exit;" SIGINT SIGTERM
 function build() {
   YML=$1
   ARG=$2
-  CMD="docker-compose -f $YML build $ARG"
+  CMD="docker-compose -f test/$YML build $ARG"
   if ! $CMD; then
     echo "Failed: \"$CMD\""
     exit 1
   fi
 
-  DOWN="docker-compose -f $YML down -v"
-  CMD="docker-compose -f $YML up --no-build --abort-on-container-exit sut"
+  DOWN="docker-compose -f test/$YML down -v"
+  CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit sut"
   if ! $CMD; then
     echo "Failed: \"$CMD\""
     $DOWN &> /dev/null || true
@@ -31,11 +31,11 @@ function testNormal() {
 function testLiveDB() {
   if command -v gsed; then SED="gsed"; else SED="sed"; fi
   NO_MARIA="docker-compose.puppeteer.no-mariadb.test.yml"
-  docker-compose -f "$NO_MARIA" up -d -V --force-recreate --remove-orphans mariadb
+  docker-compose -f "test/$NO_MARIA" up -d -V --force-recreate --remove-orphans mariadb
   IP_ADDR=$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')
-  $SED -i'' "s/database: .*$/database: $IP_ADDR/" "$NO_MARIA"
+  $SED -i'' "s/database: .*$/database: $IP_ADDR/" "test/$NO_MARIA"
   build "$NO_MARIA" --no-cache
-  docker-compose -f "$NO_MARIA" down -v
+  docker-compose -f "test/$NO_MARIA" down -v
 }
 
 testNormal

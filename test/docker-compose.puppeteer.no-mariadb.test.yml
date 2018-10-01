@@ -3,18 +3,18 @@ version: '2.3'
 services:
   sut:
     build:
-      context: test
+      context: .
       dockerfile: Dockerfile
     depends_on:
       - ispconfig
     cap_add:
       - SYS_ADMIN
     volumes:
-      - './test/no-mariadb:/app/test:ro'
+      - './no-mariadb:/app/test:ro'
 
   ispconfig:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
       args:
         BUILD_MYSQL_HOST: database
@@ -68,7 +68,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mariadb
     volumes:
-      - ./test/sql:/docker-entrypoint-initdb.d:ro
-      - ./test/sql:/etc/mysql/conf.d:ro
+      - ./sql:/docker-entrypoint-initdb.d:ro
+      - ./sql:/etc/mysql/conf.d:ro
     ports:
       - 3306:3306
