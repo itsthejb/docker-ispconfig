@@ -1,0 +1,8 @@
+#!/bin/bash -xe
+
+if command -v gsed > /dev/null; then SED="gsed"; else SED="sed"; fi
+
+NO_MARIA="docker-compose.puppeteer.no-mariadb.test.yml"
+docker-compose -f "$NO_MARIA" up -d -V --force-recreate --remove-orphans mariadb
+IP_ADDR=$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')
+$SED -i'' "s/database: .*$/database: $IP_ADDR/" "$NO_MARIA"

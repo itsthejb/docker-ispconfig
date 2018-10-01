@@ -21,7 +21,7 @@ services:
         BUILD_MYSQL_PW: mariadb
         BUILD_PHPMYADMIN: "no"
       extra_hosts:
-        database: 1.2.3.4
+        database: 172.22.0.1
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
