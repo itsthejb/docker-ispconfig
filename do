@@ -4,7 +4,7 @@ CFG=./.do.cfg
 DMC=./.do-machine.cfg
 
 if [ ! -e $CFG ] ; then
-  echo "DO_CNAME=ispc" >  $CFG
+  echo "DO_CNAME=ispconfig" >  $CFG
   echo "DO_MNAME="     >> $CFG
 fi
 
