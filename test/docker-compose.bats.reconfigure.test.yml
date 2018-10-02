@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+
+  sut:
+    image: graze/bats
+    command: /app/bats/reconfigure.sh
+    depends_on:
+      - ispconfig
+    environment:
+      - MYSQL_HOST=0.0.0.0
+    volumes:
+      - ./:/app:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  ispconfig:
+    environment:
+      - MYSQL_HOST=0.0.0.0
+      - DISABLED_SERVICES=bind9 mailman
+    extends:
+      file: ../docker-compose.template.yml
+      service: ispconfig
