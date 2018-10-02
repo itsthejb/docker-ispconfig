@@ -48,6 +48,7 @@ describe('Roundcube Webmail', () => {
 
   test('login page is available', async () => {
     await expect(page).toMatch('Roundcube Webmail')
+    await expect(page).toMatch(/(?!DATABASE ERROR: CONNECTION FAILED!)/)
     await expect(page).toMatch('Username')
     await expect(page).toMatch('Password')
     await expect(page).toMatch('Login')
