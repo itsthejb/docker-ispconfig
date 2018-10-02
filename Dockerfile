@@ -257,7 +257,6 @@ RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; 
 RUN if [ "${BUILD_MYSQL_HOST}" != "localhost" ]; then \
     ISP_ADMIN_PASS=$(grep "\$conf\['db_password'\] = '\(.*\)'" /usr/local/ispconfig/interface/lib/config.inc.php | \
       sed "s|\$conf\['db_password'\] = '\(.*\)';|\1|"); \
-    echo $ISP_ADMIN_PASS; \
     mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" \
       -e "GRANT ALL PRIVILEGES ON dbispconfig.* TO 'ispconfig'@'172.%.%.%' IDENTIFIED BY '$ISP_ADMIN_PASS';"; \
     fi

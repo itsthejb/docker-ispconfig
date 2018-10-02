@@ -1,8 +1,9 @@
 #!/bin/bash -xe
 
 trap "echo Exited!; exit;" SIGINT SIGTERM
+if command -v gsed; then SED="gsed"; else SED="sed"; fi
 
-function build() {
+function buildAndTest() {
   YML=$1
   ARG=$2
   CMD="docker-compose -f test/$YML build $ARG"
@@ -22,20 +23,30 @@ function build() {
 }
 
 function testNormal() {
-  build docker-compose.bats.test.yml
-  build docker-compose.bats.custom-ssl.test.yml
-  build docker-compose.puppeteer.test.yml
-  build docker-compose.puppeteer.no-phpmyadmin.test.yml
+  buildAndTest docker-compose.bats.test.yml
+  buildAndTest docker-compose.bats.custom-ssl.test.yml
+  buildAndTest docker-compose.puppeteer.test.yml
+  buildAndTest docker-compose.puppeteer.no-phpmyadmin.test.yml
 }
 
 function testLiveDB() {
-  if command -v gsed; then SED="gsed"; else SED="sed"; fi
-  NO_MARIA="docker-compose.puppeteer.no-mariadb.test.yml"
-  docker-compose -f "test/$NO_MARIA" up -d -V --force-recreate --remove-orphans mariadb
-  IP_ADDR=$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')
-  $SED -i'' "s/database: .*$/database: $IP_ADDR/" "test/$NO_MARIA"
-  build "$NO_MARIA" --no-cache
-  docker-compose -f "test/$NO_MARIA" down -v
+  NO_MARIA_DB="docker-compose.puppeteer.no-mariadb.test.yml"
+
+  function databaseUp() {
+    docker-compose -f "test/$NO_MARIA_DB" up -d -V --force-recreate --remove-orphans mariadb
+  }
+  function databaseDown() {
+    docker-compose -f "test/$NO_MARIA_DB" down -v
+  }
+  function insertDatabaseGatewayIP() {
+    IP_ADDR="$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')"
+    $SED -i'' "s/database: .*$/database: $IP_ADDR/" "test/$NO_MARIA_DB"
+  }
+
+  databaseUp
+  insertDatabaseGatewayIP
+  buildAndTest "$NO_MARIA_DB" --no-cache
+  databaseDown
 }
 
 testNormal
