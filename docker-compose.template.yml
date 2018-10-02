@@ -23,10 +23,10 @@ services:
     cap_add:
       - DAC_READ_SEARCH                  # Pure-ftpd-mysql
       - SYS_NICE                         # Pure-ftpd-mysql
-    #volumes:
+    # volumes:
+    #   - ./volumes/www:/var/www
+    #   - ./volumes/vmail:/var/vmail
       #- ./service:/service               # service volume for overwrites (ovm) and migration (mig)
-      #- ./ispc/www:/var/www
-      #- ./ispc/vmail:/var/vmail
       #- /etc/localtime:/etc/localtime:ro
      # - ./ispc/rsnapshot:/rsnapshot
     environment:

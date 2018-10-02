@@ -33,9 +33,9 @@ services:
       - DAC_READ_SEARCH                  # Pure-ftpd-mysql
       - SYS_NICE                         # Pure-ftpd-mysql
     environment:
-     - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
-     - LANGUAGE=en                       # see ./build/autoinstall.ini
-     - DISABLED_SERVICES=bind9 mailman mysql
+      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
+      - LANGUAGE=en                       # see ./build/autoinstall.ini
+      - DISABLED_SERVICES=bind9 mailman mysql
     ports:
       - "110:110"      # pop3
       - "995:995"      # pop3s

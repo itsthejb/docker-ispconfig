@@ -3,6 +3,6 @@
 /.do.cfg
 /.do-machine.cfg
 /service
-/ispc
+/volumes
 /private
 test/docker-compose.puppeteer.no-mariadb.test.yml
