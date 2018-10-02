@@ -31,6 +31,7 @@ ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
+ARG BUILD_MYSQL_REMOTE_ACCESS_HOST="172.%.%.%"
 ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
@@ -202,17 +203,16 @@ RUN mkdir ${BUILD_ROUNDCUBE_DIR} && cd ${BUILD_ROUNDCUBE_DIR} && \
     rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
     chown -R www-data:www-data ${BUILD_ROUNDCUBE_DIR}
 RUN \
-    ROUNDCUBE_ACCESS="172.%.%.%"; \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         service mysql restart; \
-        ROUNDCUBE_ACCESS="localhost"; \
+        BUILD_MYSQL_REMOTE_ACCESS_HOST="localhost"; \
     fi; \
     if ! echo "USE ${BUILD_ROUNDCUBE_DB};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
         echo "CREATE DATABASE ${BUILD_ROUNDCUBE_DB};" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
         mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} ${BUILD_ROUNDCUBE_DB} < ${BUILD_ROUNDCUBE_DIR}/SQL/mysql.initial.sql; \
     fi; \
     mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "\
-    GRANT ALL PRIVILEGES ON ${BUILD_ROUNDCUBE_DB}.* TO ${BUILD_ROUNDCUBE_USER}@'${ROUNDCUBE_ACCESS}' IDENTIFIED BY '${BUILD_ROUNDCUBE_PW}'; \
+    GRANT ALL PRIVILEGES ON ${BUILD_ROUNDCUBE_DB}.* TO ${BUILD_ROUNDCUBE_USER}@'${BUILD_MYSQL_REMOTE_ACCESS_HOST}' IDENTIFIED BY '${BUILD_ROUNDCUBE_PW}'; \
     FLUSH PRIVILEGES;"
 RUN cd ${BUILD_ROUNDCUBE_DIR}/config && cp -pf config.inc.php.sample config.inc.php
 RUN sed -i "s|mysql://roundcube:pass@localhost/roundcubemail|mysql://${BUILD_ROUNDCUBE_USER}:${BUILD_ROUNDCUBE_PW}@${BUILD_MYSQL_HOST}/${BUILD_ROUNDCUBE_DB}|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
@@ -258,7 +258,7 @@ RUN if [ "${BUILD_MYSQL_HOST}" != "localhost" ]; then \
     ISP_ADMIN_PASS=$(grep "\$conf\['db_password'\] = '\(.*\)'" /usr/local/ispconfig/interface/lib/config.inc.php | \
       sed "s|\$conf\['db_password'\] = '\(.*\)';|\1|"); \
     mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" \
-      -e "GRANT ALL PRIVILEGES ON dbispconfig.* TO 'ispconfig'@'172.%.%.%' IDENTIFIED BY '$ISP_ADMIN_PASS';"; \
+      -e "GRANT ALL PRIVILEGES ON dbispconfig.* TO 'ispconfig'@'${BUILD_MYSQL_REMOTE_ACCESS_HOST}' IDENTIFIED BY '$ISP_ADMIN_PASS';"; \
     fi
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.conf
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.vhost
