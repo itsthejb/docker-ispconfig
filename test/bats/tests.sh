@@ -52,5 +52,14 @@ setup() {
 }
 
 @test "stored roundcube password is correctly changed" {
-  run docker exec ispconfig grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
+  run docker exec $CONTAINER grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
+}
+
+@test "dkim key is configured" {
+  run docker exec $CONTAINER grep "dkim_key('${BUILD_HOSTNAME}', '${BUILD_HOSTNAME}', '/var/dkim/${BUILD_HOSTNAME}.key.pem');" /etc/amavis/conf.d/50-user
+}
+
+@test "volume dkim key is used" {
+  run docker exec $CONTAINER amavisd-new showkeys
+  diff -s "/app/dkim/showkeys.out" <(echo "$output")
 }
