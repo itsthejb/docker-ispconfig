@@ -18,6 +18,9 @@ services:
     build:
       args:
         BUILD_ISPCONFIG_PORT: "443"
+    volumes:
+      - ../volumes/www:/var/www
+      - ../volumes/vmail:/var/vmail
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig
