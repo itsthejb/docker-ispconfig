@@ -318,6 +318,10 @@ ENV TERM xterm
 
 RUN echo "export TERM=xterm" >> /root/.bashrc
 
+#
+# Tidy up
+RUN rm -rf /tmp/*
+
 EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 3306
 
 #
