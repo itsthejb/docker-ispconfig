@@ -31,24 +31,23 @@ function testNormal() {
 }
 
 function testLiveDB() {
-  NO_MARIA_DB="docker-compose.puppeteer.no-mariadb.test.yml"
-
   function databaseUp() {
-    docker-compose -f "test/$NO_MARIA_DB" up -d -V --force-recreate --remove-orphans mariadb
+    docker-compose -f "test/$1" up -d -V --force-recreate --remove-orphans mariadb
   }
   function databaseDown() {
-    docker-compose -f "test/$NO_MARIA_DB" down -v
+    docker-compose -f "test/$1" down -v
   }
   function insertDatabaseGatewayIP() {
     IP_ADDR="$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')"
-    $SED -i'' "s/database: .*$/database: $IP_ADDR/" "test/$NO_MARIA_DB"
+    $SED -i'' "s/database: .*$/database: $IP_ADDR/" "test/$1"
   }
 
-  databaseUp
-  insertDatabaseGatewayIP
-  buildAndTest "$NO_MARIA_DB" --no-cache
-  databaseDown
+  databaseUp "$1"
+  insertDatabaseGatewayIP "$1"
+  buildAndTest "$1" --no-cache
+  databaseDown "$1"
 }
 
 testNormal
-testLiveDB
+testLiveDB "docker-compose.puppeteer.remote-db.test.yml"
+testLiveDB "docker-compose.puppeteer.remote-db-seeded.test.yml"

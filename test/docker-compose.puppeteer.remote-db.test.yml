@@ -1,6 +1,7 @@
 version: '2.3'
 
 services:
+
   sut:
     build:
       context: .
@@ -10,7 +11,7 @@ services:
     cap_add:
       - SYS_ADMIN
     volumes:
-      - './no-mariadb:/app/test:ro'
+      - './remote-db:/app/test:ro'
 
   ispconfig:
     build:
@@ -30,27 +31,26 @@ services:
     links:
       - mariadb:database
     cap_add:
-      - DAC_READ_SEARCH                  # Pure-ftpd-mysql
-      - SYS_NICE                         # Pure-ftpd-mysql
+      - DAC_READ_SEARCH
+      - SYS_NICE
     environment:
-      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
-      - LANGUAGE=en                       # see ./build/autoinstall.ini
+      - HOSTNAME=myhost.test.com
+      - LANGUAGE=en
       - DISABLED_SERVICES=bind9 mailman mysql
     ports:
-      - "110:110"      # pop3
-      - "995:995"      # pop3s
-      - "143:143"      # imap
-      - "993:993"      # imaps
-      - "25:25"        # smtp
-      - "587:587"      # smtps
+      - "110:110"
+      - "995:995"
+      - "143:143"
+      - "993:993"
+      - "25:25"
+      - "587:587"
       - "20:20"
-      - "21:21"        # pureftpd
+      - "21:21"
       - "80:80"
       - "443:443"
       - "8080:8080"
-      #- "53:53"       # bind
-      - "2222:22"     # sshd
-      - "30000:30000"  # pure-ftpd
+      - "2222:22"
+      - "30000:30000"
       - "30001:30001"
       - "30002:30002"
       - "30003:30003"
@@ -68,6 +68,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mariadb
     volumes:
-      - ./sql:/docker-entrypoint-initdb.d:ro
+      - ./sql/init:/docker-entrypoint-initdb.d:ro
     ports:
       - 3306:3306
