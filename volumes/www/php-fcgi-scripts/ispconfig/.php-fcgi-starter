@@ -1,0 +1,11 @@
+#!/bin/sh
+PHPRC=/etc/php/7.0/cgi/
+export PHPRC
+export PHP_FCGI_MAX_REQUESTS=5000
+export PHP_FCGI_CHILDREN=1
+exec /usr/bin/php-cgi \
+    -d disable_classes= \
+    -d disable_functions= \
+    -d magic_quotes_gpc=off \
+    -d open_basedir= \
+    -d session.save_path=/usr/local/ispconfig/interface/temp
