@@ -24,24 +24,34 @@ services:
       - DAC_READ_SEARCH                  # Pure-ftpd-mysql
       - SYS_NICE                         # Pure-ftpd-mysql
     # volumes:
-    #   - ./volumes/www:/var/www
-    #   - ./volumes/vmail:/var/vmail
-      #- ./service:/service               # service volume for overwrites (ovm) and migration (mig)
-      #- /etc/localtime:/etc/localtime:ro
-     # - ./ispc/rsnapshot:/rsnapshot
+      # Mount host timezone (linux)
+      # - /etc/localtime:/etc/localtime:ro
+      # Mount (default) volumes - copy the templates to desired location (/volumes)
+      # - ./volumes/www:/var/www
+      # - ./volumes/vmail:/var/vmail
+      # service volume for overwrites (ovm) and migration (mig)
+      # - ./service:/service               
+      # - ./ispc/rsnapshot:/rsnapshot
     environment:
-     - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
-     - LANGUAGE=en                       # see ./build/autoinstall.ini
-     #- SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
-    #  - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
-    #  - SSL_CERT=
-    #  - SSL_KEY=
-     # disable services :
-     #   postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql
-     - DISABLED_SERVICES=bind9 mailman
-     #- MAILMAN_EMAIL_HOST=test.com
-     #- MAILMAN_EMAIL=email@test.com
-     #- MAILMAN_PASS=pass
+      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
+      - LANGUAGE=en                       # see ./build/autoinstall.ini
+      # disable services (postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql)
+      - DISABLED_SERVICES=bind9 mailman
+      # Directory of apache vhosts to include
+      # - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
+      # Apache mods to enable at start
+      # - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
+      # Paths to custom ssl cert and private key
+      # - SSL_CERT=
+      # - SSL_KEY=
+      # reconfigure the mysql password at start
+      #- MYSQL_HOST=password 
+      # reconfigure stored password for roundcube database at start
+      # - ROUNDCUBE_DB_PASSWORD=password
+      # mailman config (not working?)
+      #- MAILMAN_EMAIL_HOST=test.com
+      #- MAILMAN_EMAIL=email@test.com
+      #- MAILMAN_PASS=pass
     ports:
       - "110:110"      # pop3
       - "995:995"      # pop3s
