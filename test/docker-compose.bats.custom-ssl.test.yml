@@ -24,5 +24,7 @@ services:
       - SSL_CERT=/etc/ssl/local/test.com.crt
       - SSL_KEY=/etc/ssl/local/test.com.key
     volumes:
+      - ../volumes/www:/var/www
+      - ../volumes/vmail:/var/vmail
       - ./ssl:/etc/ssl/local:ro
 

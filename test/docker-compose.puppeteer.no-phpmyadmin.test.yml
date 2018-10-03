@@ -17,6 +17,9 @@ services:
     build:
       args:
         BUILD_PHPMYADMIN: "no"
+    volumes:
+      - ../volumes/www:/var/www
+      - ../volumes/vmail:/var/vmail
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig

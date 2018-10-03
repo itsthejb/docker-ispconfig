@@ -36,6 +36,9 @@ services:
       - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
       - LANGUAGE=en                       # see ./build/autoinstall.ini
       - DISABLED_SERVICES=bind9 mailman mysql
+    volumes:
+      - ../volumes/www:/var/www
+      - ../volumes/vmail:/var/vmail
     ports:
       - "110:110"      # pop3
       - "995:995"      # pop3s
