@@ -2,9 +2,7 @@
 /docker-compose.yml
 /.do.cfg
 /.do-machine.cfg
-.directory
 /service
-/ispc
+/volumes
 /private
-docker-compose.puppeteer.no-mariadb.test.yml
-
+test/docker-compose.puppeteer.no-mariadb.test.yml

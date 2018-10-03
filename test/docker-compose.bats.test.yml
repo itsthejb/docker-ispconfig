@@ -18,6 +18,8 @@ services:
       file: ../docker-compose.template.yml
       service: ispconfig
     volumes:
+      - ../volumes/www:/var/www
+      - ../volumes/vmail:/var/vmail
       - './vhost:/etc/apache2/supplementary:ro'
     environment:
       - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary

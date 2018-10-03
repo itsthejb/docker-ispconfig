@@ -6,11 +6,30 @@ MYSQL_ROOT_PW=$(grep "clientdb_password"  $FI | awk -F\' '{ print $2 }')
 
 if [ "$1" = "" ] ; then
   echo "  # Configuration :"
+  echo "  config mysql_host <hostname>            # reconfigure mysql host"
   echo "  config server_name <FQDN>               # set server name in database"
   echo "  config mysql_root_pw       <password>   # change mysql root password"
   echo "  config panal_admin_pw      <password>   # set panel admin password"
   echo "  config roundcube <password> <soap_url> <soap_user> # configure roundcubemail"
   echo "                                          # example: config roundcube MySecret localhost.test.com roundcube"
+  exit 0
+fi
+
+if [ "$1" = "mysql_host" ] ; then
+  HOST="$2"
+  ROUNDCUBE_DIR="/opt/roundcube"
+  ROUNDCUBE_CONFIG="${ROUNDCUBE_DIR}/config/config.inc.php"
+  ISP_CONFIG="/usr/local/ispconfig/interface/lib/config.inc.php"
+
+  echo "reconfiguring mysql host to \"$HOST\""
+  sed -i "s|\$conf\['db_host'\] = '\(.*\)';|\$conf\['db_host'\] = '$HOST';|" "${ISP_CONFIG}"
+
+  if [ -f "/var/lib/phpmyadmin/config.inc.php" ]; then
+    sed -i "s|\$dbserver='\(.*\)';|\$dbserver='$HOST';|" /etc/phpmyadmin/config-db.php
+  fi
+  if [ -f "${ROUNDCUBE_CONFIG}" ]; then
+    sed -i "s|mysql://\(.*\)@\(.*\)/roundcube|mysql://\1@$HOST/roundcube|" "${ROUNDCUBE_CONFIG}"
+  fi
   exit 0
 fi
 

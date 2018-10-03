@@ -9,6 +9,13 @@ for i in $list ; do
   $i
 done
 
+if [ -n "$MYSQL_HOST" ]; then
+  echo "#################################################"
+  echo "# mysql host reconfigure"
+  echo "#"
+  /usr/local/bin/config mysql_host "${MYSQL_HOST}"
+fi
+
 echo "#################################################"
 echo "# check for disabled services"
 echo "#"
