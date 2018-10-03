@@ -3,10 +3,14 @@
 FI=/usr/local/ispconfig/server/lib/mysql_clientdb.conf
 
 MYSQL_ROOT_PW=$(grep "clientdb_password"  $FI | awk -F\' '{ print $2 }')
+ROUNDCUBE_DIR="/opt/roundcube"
+ROUNDCUBE_CONFIG="${ROUNDCUBE_DIR}/config/config.inc.php"
+ISP_CONFIG="/usr/local/ispconfig/interface/lib/config.inc.php"
 
 if [ "$1" = "" ] ; then
   echo "  # Configuration :"
   echo "  config mysql_host <hostname>            # reconfigure mysql host"
+  echo "  config roundcube_password <password>    # reconfigure stored roundcube database password"
   echo "  config server_name <FQDN>               # set server name in database"
   echo "  config mysql_root_pw       <password>   # change mysql root password"
   echo "  config panal_admin_pw      <password>   # set panel admin password"
@@ -17,9 +21,6 @@ fi
 
 if [ "$1" = "mysql_host" ] ; then
   HOST="$2"
-  ROUNDCUBE_DIR="/opt/roundcube"
-  ROUNDCUBE_CONFIG="${ROUNDCUBE_DIR}/config/config.inc.php"
-  ISP_CONFIG="/usr/local/ispconfig/interface/lib/config.inc.php"
 
   echo "reconfiguring mysql host to \"$HOST\""
   sed -i "s|\$conf\['db_host'\] = '\(.*\)';|\$conf\['db_host'\] = '$HOST';|" "${ISP_CONFIG}"
@@ -29,6 +30,16 @@ if [ "$1" = "mysql_host" ] ; then
   fi
   if [ -f "${ROUNDCUBE_CONFIG}" ]; then
     sed -i "s|mysql://\(.*\)@\(.*\)/roundcube|mysql://\1@$HOST/roundcube|" "${ROUNDCUBE_CONFIG}"
+  fi
+  exit 0
+fi
+
+if [ "$1" = "roundcube_password" ] ; then
+  PASSWORD="$2"
+
+  if [ -f "${ROUNDCUBE_CONFIG}" ]; then
+    echo "reconfiguring stored roundcube database password"
+    sed -i "s|mysql://\(.*\):\(.*\)@\(.*\)|mysql://\1:$PASSWORD@\3|" "${ROUNDCUBE_CONFIG}"
   fi
   exit 0
 fi

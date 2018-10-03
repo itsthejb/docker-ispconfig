@@ -50,3 +50,7 @@ setup() {
   waitForPort 21
   closedPort 20
 }
+
+@test "stored roundcube password is correctly changed" {
+  run docker exec ispconfig grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
+}

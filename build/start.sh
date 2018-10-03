@@ -16,6 +16,13 @@ if [ -n "$MYSQL_HOST" ]; then
   /usr/local/bin/config mysql_host "${MYSQL_HOST}"
 fi
 
+if [ -n "$ROUNDCUBE_DB_PASSWORD" ]; then
+  echo "#################################################"
+  echo "# roundcube configuration stored database password reconfigure"
+  echo "#"
+  /usr/local/bin/config roundcube_password "${ROUNDCUBE_DB_PASSWORD}"
+fi
+
 echo "#################################################"
 echo "# check for disabled services"
 echo "#"
