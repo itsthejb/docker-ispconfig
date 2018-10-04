@@ -13,6 +13,7 @@ services:
         BUILD_ISPCONFIG: "3.1.13"
         BUILD_MYSQL_PW: pass
         BUILD_PRINTING: "no"
+        BUILD_ISPCONFIG_USE_SSL: "yes"
     ##################################################
     # RUN section
     ##################################################

@@ -29,6 +29,7 @@ ARG BUILD_ISPCONFIG="3-stable"
 ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
+ARG BUILD_ISPCONFIG_USE_SSL="yes"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
 ARG BUILD_MYSQL_REMOTE_ACCESS_HOST="172.%.%.%"
@@ -235,7 +236,8 @@ RUN \
     sed -i "s|mysql_root_password=pass|mysql_root_password=${BUILD_MYSQL_PW}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
     sed -i "s|mysql_database=dbispconfig|mysql_database=${BUILD_ISPCONFIG_MYSQL_DATABASE}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
     sed -i "s/^hostname=server1.example.com$/hostname=localhost/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
-    sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini
+    sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s/^ispconfig_use_ssl=y$/ispconfig_use_ssl=$(echo ${BUILD_ISPCONFIG_USE_SSL} | cut -c1)/g" /tmp/ispconfig3_install/install/autoinstall.ini
 RUN \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
     if echo "USE ${BUILD_ISPCONFIG_MYSQL_DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
