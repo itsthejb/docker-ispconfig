@@ -25,11 +25,12 @@ services:
       - DAC_READ_SEARCH                  # Pure-ftpd-mysql
       - SYS_NICE                         # Pure-ftpd-mysql
     # volumes:
-      # Mount host timezone (linux)
-      # - /etc/localtime:/etc/localtime:ro
       # Mount (default) volumes - copy the templates to desired location (/volumes)
       # - ./volumes/www:/var/www
       # - ./volumes/vmail:/var/vmail
+      # - ./volumes/mysql:/var/lib/mysql
+      # Mount host timezone (linux)
+      # - /etc/localtime:/etc/localtime:ro
       # service volume for overwrites (ovm) and migration (mig)
       # - ./service:/service               
       # - ./ispc/rsnapshot:/rsnapshot

@@ -24,6 +24,7 @@ services:
     volumes:
       - ../volumes/www:/var/www
       - ../volumes/vmail:/var/vmail
+      - ../volumes/mysql:/var/lib/mysql
       - ./dkim:/var/dkim:ro
       - ./vhost:/etc/apache2/supplementary:ro
     environment:
