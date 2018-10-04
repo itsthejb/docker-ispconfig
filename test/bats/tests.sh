@@ -13,9 +13,7 @@ setup() {
 }
 
 @test "web server ports are responding" {
-  waitForPort 80
-  waitForPort 443
-  waitForPort 8080
+  testPortsApache
 }
 
 @test "supplementary vhost is enabled" {
@@ -29,13 +27,7 @@ setup() {
 }
 
 @test "mail server ports are responding" {
-  waitForPort 110
-  waitForPort 995
-  waitForPort 143
-  waitForPort 993
-  waitForPort 25
-  waitForPort 465
-  waitForPort 587
+  testPortsMail
 }
 
 @test "database can be accessed using expected password" {
@@ -43,12 +35,11 @@ setup() {
 }
 
 @test "ssh server port is responding" {
-  waitForPort 22
+  testPortsSSH
 }
 
 @test "FTP ports are responding" {
-  waitForPort 21
-  closedPort 20
+  testPortsFTP
 }
 
 @test "stored roundcube password is correctly changed" {
