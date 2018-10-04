@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+
+  sut:
+    image: graze/bats
+    command: /app/bats/no-ispconfig-ssl.sh
+    depends_on:
+      - ispconfig
+    environment:
+      - HOSTNAME=test.com
+      - SSL_CERT=/etc/ssl/local/test.com.crt
+      - SSL_KEY=/etc/ssl/local/test.com.key
+    volumes:
+      - ./:/app:ro
+      - ./ssl:/etc/ssl/local:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  ispconfig:
+    build:
+      args:
+        BUILD_ISPCONFIG_USE_SSL: "no"
+    extends:
+      file: ../docker-compose.template.yml
+      service: ispconfig
+    environment:
+      - SSL_CERT=/etc/ssl/local/test.com.crt
+      - SSL_KEY=/etc/ssl/local/test.com.key
+    volumes:
+      - ./ssl:/etc/ssl/local:ro
+

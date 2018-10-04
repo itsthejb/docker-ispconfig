@@ -266,10 +266,12 @@ RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-
 RUN sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.vhost
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
-RUN mkdir -p /etc/ssl/private/
-RUN cd /usr/local/ispconfig/interface/ssl; cat ispserver.key ispserver.crt > ispserver.chain
-RUN ln -sf /usr/local/ispconfig/interface/ssl/ispserver.chain /etc/ssl/private/pure-ftpd.pem
-RUN echo 1 > /etc/pure-ftpd/conf/TLS
+RUN if [ -f "/usr/local/ispconfig/interface/ssl/ispserver.key" ] && [ -f "/usr/local/ispconfig/interface/ssl/ispserver.crt" ]; then \
+        mkdir -p /etc/ssl/private/; \
+        cd /usr/local/ispconfig/interface/ssl; cat ispserver.key ispserver.crt > ispserver.chain; \
+        ln -sf /usr/local/ispconfig/interface/ssl/ispserver.chain /etc/ssl/private/pure-ftpd.pem; \
+        echo 1 > /etc/pure-ftpd/conf/TLS; \
+    fi
 
 # --- 23 Install printing stuff
 RUN if [ "$BUILD_PRINTING" = "yes" ] ; then  apt-get -y install --fix-missing  -y libdmtx-utils dblatex latex-make cups-client lpr ; fi ;

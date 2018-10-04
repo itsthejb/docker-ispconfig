@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
+  echo " - ensure TLS is enabled"
+  mkdir -p /etc/ssl/private/
+  cat "$SSL_CERT" "$SSL_KEY" > /etc/ssl/private/pure-ftpd.pem
+  echo 1 > /etc/pure-ftpd/conf/TLS
+fi

@@ -18,3 +18,35 @@ function installDependencies() {
 function waitForUp() {
   waitForPort 443
 }
+
+function testPortsApache() {
+  waitForPort 80
+  waitForPort 443
+  waitForPort 8080
+}
+
+function testPortsMail() {
+  waitForPort 110
+  waitForPort 995
+  waitForPort 143
+  waitForPort 993
+  waitForPort 25
+  waitForPort 465
+  waitForPort 587
+}
+
+function testPortsSSH() {
+  waitForPort 22
+}
+
+function testPortsFTP() {
+  waitForPort 21
+  closedPort 20
+}
+
+function testAllPorts() {
+  testPortsApache
+  testPortsMail
+  testPortsSSH
+  testPortsFTP
+}
