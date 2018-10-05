@@ -33,6 +33,9 @@ services:
     cap_add:
       - DAC_READ_SEARCH
       - SYS_NICE
+    volumes:
+      - ../volumes/etc/passwd:/etc/passwd
+      - ../volumes/etc/group:/etc/group
     environment:
       - HOSTNAME=myhost.test.com
       - LANGUAGE=en
