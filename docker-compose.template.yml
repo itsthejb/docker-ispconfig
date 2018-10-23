@@ -46,14 +46,14 @@ services:
       # Paths to custom ssl cert and private key
       # - SSL_CERT=
       # - SSL_KEY=
-      # reconfigure the mysql password at start
-      #- MYSQL_HOST=password 
+      # reconfigure the mysql host at boot
+      # - MYSQL_HOST=host
       # reconfigure stored password for roundcube database at start
       # - ROUNDCUBE_DB_PASSWORD=password
       # mailman config (not working?)
-      #- MAILMAN_EMAIL_HOST=test.com
-      #- MAILMAN_EMAIL=email@test.com
-      #- MAILMAN_PASS=pass
+      # - MAILMAN_EMAIL_HOST=test.com
+      # - MAILMAN_EMAIL=email@test.com
+      # - MAILMAN_PASS=pass
     ports:
       - "110:110"      # pop3
       - "995:995"      # pop3s
