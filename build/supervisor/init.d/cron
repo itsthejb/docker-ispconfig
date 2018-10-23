@@ -1,0 +1,7 @@
+#!/bin/bash
+cd /var/spool/postfix
+
+# Fix error "(*system*) NUMBER OF HARD LINKS > 1" (/var/log/syslog)
+# https://unix.stackexchange.com/questions/453006/getting-cron-to-work-on-docker
+echo " - squash hard links for crontabs"
+touch /etc/crontab /etc/cron.*/* /var/spool/cron/crontabs/*
