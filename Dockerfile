@@ -235,7 +235,7 @@ RUN \
     sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
     sed -i "s|mysql_root_password=pass|mysql_root_password=${BUILD_MYSQL_PW}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
     sed -i "s|mysql_database=dbispconfig|mysql_database=${BUILD_ISPCONFIG_MYSQL_DATABASE}|" /tmp/ispconfig3_install/install/autoinstall.ini && \
-    sed -i "s/^hostname=server1.example.com$/hostname=localhost/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
+    sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
     sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" /tmp/ispconfig3_install/install/autoinstall.ini && \
     sed -i "s/^ispconfig_use_ssl=y$/ispconfig_use_ssl=$(echo ${BUILD_ISPCONFIG_USE_SSL} | cut -c1)/g" /tmp/ispconfig3_install/install/autoinstall.ini
 RUN \

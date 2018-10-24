@@ -16,6 +16,14 @@ setup() {
   testPortsApache
 }
 
+@test "mysql port is responding" {
+  waitForPort 3306
+}
+
+@test "ispconfig uses build hostname" {
+  docker exec $CONTAINER mysql -uroot -p$MYSQL_PW -e "SELECT * from dbispconfig.server" | grep "hostname=myhost.test.com"
+}
+
 @test "supplementary vhost is enabled" {
   run docker exec $CONTAINER apache2ctl -S
   [ $(echo "$output" | grep "webmail.test.com") ]
@@ -31,7 +39,7 @@ setup() {
 }
 
 @test "database can be accessed using expected password" {
-  run docker exec $CONTAINER mysql -uroot -p$MYSQL_PW
+  docker exec $CONTAINER mysql -uroot -p$MYSQL_PW
 }
 
 @test "ssh server port is responding" {
