@@ -9,7 +9,7 @@ fi
 
 if [ -d "$SUPPLEMENTARY_VHOSTS" ]; then
   echo " - configuring supplementary vhost include path"  
-  echo "IncludeOptional $SUPPLEMENTARY_VHOSTS/" >> /etc/apache2/apache2.conf
+  echo "IncludeOptional $SUPPLEMENTARY_VHOSTS/*.vhost" >> /etc/apache2/apache2.conf
 fi
 
 if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
