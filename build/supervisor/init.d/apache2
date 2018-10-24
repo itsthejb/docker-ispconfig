@@ -7,9 +7,9 @@ if [ -n "$ENABLE_APACHE_MODS" ]; then
   done
 fi
 
-if [ -d "$SUPPLEMENTARY_VHOSTS" ]; then
+if [ -d "$SUPPLEMENTARY_VHOSTS" ] && ! grep "IncludeOptional $SUPPLEMENTARY_VHOSTS" /etc/apache2/apache2.conf &> /dev/null ; then
   echo " - configuring supplementary vhost include path"  
-  echo "IncludeOptional $SUPPLEMENTARY_VHOSTS/*.vhost" >> /etc/apache2/apache2.conf
+  echo "IncludeOptional $SUPPLEMENTARY_VHOSTS" >> /etc/apache2/apache2.conf
 fi
 
 if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
