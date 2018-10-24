@@ -1,0 +1,12 @@
+[supervisord]
+nodaemon=true
+
+[program:php-fpm]
+command=/usr/sbin/php-fpm7.0 -F
+autostart=true
+autorestart=unexpected
+stdout_logfile=/var/log/php-fpm/stdout.log
+stdout_logfile_maxbytes=0
+stderr_logfile=/var/log/php-fpm/stderr.log
+stderr_logfile_maxbytes=0
+exitcodes=0
