@@ -12,20 +12,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - MYSQL_PW=pass
-      - BUILD_HOSTNAME=myhost.test.com
 
   ispconfig:
-    build:
-      args:
-        BUILD_HOSTNAME: myhost.test.com
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig
     volumes:
       - ../volumes/www:/var/www
       - ../volumes/vmail:/var/vmail
-      - ./dkim:/var/dkim:ro
-      - ./vhost:/etc/apache2/supplementary:ro
+      - './vhost:/etc/apache2/supplementary:ro'
     environment:
       - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
       - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http

@@ -1,7 +1,0 @@
-; key#1 1024 bits, i=myhost.test.com, d=myhost.test.com, /var/dkim/myhost.test.com.key.pem
-myhost.test.com._domainkey.myhost.test.com.	3600 TXT (
-  "v=DKIM1; p="
-  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCm7T+v+oRd4ZP3oYDGnh9fVeDK"
-  "mH7DqUQR0RjJoQCqB000mxgJHfLcV2V26gybnsn12mGEk8db4nwOQC5quAIUiSqe"
-  "X+r/KWF+UbyNo6Eq2OhDwByI/D9Ghd1X67LntPb7LJMhN1LPVmGhJlmfrXR1EW0p"
-  "wjLtvKzq2ZWw9Ed2KQIDAQAB")

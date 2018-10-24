@@ -276,18 +276,6 @@ RUN if [ -f "/usr/local/ispconfig/interface/ssl/ispserver.key" ] && [ -f "/usr/l
 # --- 23 Install printing stuff
 RUN if [ "$BUILD_PRINTING" = "yes" ] ; then  apt-get -y install --fix-missing  -y libdmtx-utils dblatex latex-make cups-client lpr ; fi ;
 
-# --- DKIM key
-RUN \
-    mkdir -p /var/dkim; \
-    DKIM_KEY="/var/dkim/${BUILD_HOSTNAME}.key.pem"; \
-    amavisd-new genrsa "${DKIM_KEY}" ;\
-    sed -i "s|@dkim_signature_options_bysender_maps|dkim_key('${BUILD_HOSTNAME}', '${BUILD_HOSTNAME}', '${DKIM_KEY}');\n@dkim_signature_options_bysender_maps|" /etc/amavis/conf.d/50-user; \
-    echo "\e[31mGenerated DKIM key follows:\e[0m"; \
-    echo "\e[31m===========================\e[0m"; \
-    amavisd-new showkeys; \
-    echo "\e[31m===========================\e[0m"; \
-    echo "\e[31m^^^^^^^^^ DKIM KEY ^^^^^^^^\e[0m";
-
 #
 # docker-extensions
 #
