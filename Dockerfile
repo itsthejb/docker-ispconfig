@@ -197,11 +197,10 @@ RUN service fail2ban restart
 
 # --- 19 Install roundcube
 RUN mkdir ${BUILD_ROUNDCUBE_DIR} && cd ${BUILD_ROUNDCUBE_DIR} && \
-    wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE}/roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
-    tar xfz roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && mv roundcubemail-${BUILD_ROUNDCUBE}/* . && \
+    wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE}/roundcubemail-${BUILD_ROUNDCUBE}-complete.tar.gz && \
+    tar xfz roundcubemail-${BUILD_ROUNDCUBE}-complete.tar.gz && mv roundcubemail-${BUILD_ROUNDCUBE}/* . && \
     mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess . && \
-    rm roundcubemail-${BUILD_ROUNDCUBE}/.travis.yml && \
-    rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}.tar.gz && \
+    rmdir roundcubemail-${BUILD_ROUNDCUBE} && rm roundcubemail-${BUILD_ROUNDCUBE}-complete.tar.gz && \
     chown -R www-data:www-data ${BUILD_ROUNDCUBE_DIR}
 RUN \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
