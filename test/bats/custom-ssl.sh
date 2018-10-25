@@ -7,30 +7,25 @@ setup() {
   waitForUp
 }
 
-@test "ispconfig uses custom ssl certificate" {
-  run openssl s_client -connect $CONTAINER:8080 \
-    -cert "$SSL_CERT" \
-    -key "$SSL_KEY" \
-    -state -debug 2> /dev/null
+function testSSL() {
+  run openssl s_client -showcerts -connect $CONTAINER:$1 $2 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=$HOSTNAME") ]
   [ $(echo "$output" | grep issuer | grep "CN=certauthority.com") ]
+}
+
+@test "apache uses custom ssl certificate" {
+  testSSL 443
+}
+
+@test "ispconfig uses custom ssl certificate" {
+  testSSL 8080
 }
 
 @test "postfix uses custom ssl certificate" {
-  run openssl s_client -connect $CONTAINER:587 \
-    -starttls smtp \
-    -cert "$SSL_CHAIN" \
-    -key "$SSL_KEY" \
-    -state -debug 2> /dev/null
-  [ $(echo "$output" | grep subject | grep "CN=$HOSTNAME") ]
-  [ $(echo "$output" | grep issuer | grep "CN=certauthority.com") ]
+  testSSL 587 "-starttls smtp"
 }
 
 @test "dovecot uses custom ssl certificate" {
-  run openssl s_client -connect $CONTAINER:993 \
-    -cert "$SSL_CHAIN" \
-    -key "$SSL_KEY" \
-    -state -debug 2> /dev/null
+  run openssl s_client -showcerts -connect $CONTAINER:993 $2 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=myhost.$HOSTNAME") ]
-  [ $(echo "$output" | grep issuer | grep "CN=myhost.$HOSTNAME") ]
 }
