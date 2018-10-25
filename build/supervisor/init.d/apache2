@@ -12,31 +12,30 @@ if [ -d "$SUPPLEMENTARY_VHOSTS" ] && ! grep "IncludeOptional $SUPPLEMENTARY_VHOS
   echo "IncludeOptional $SUPPLEMENTARY_VHOSTS" >> /etc/apache2/apache2.conf
 fi
 
-if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
+if [ -f "$SSL_CERT" ] && [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   echo " - configuring custom ssl certificate for apache and other services"
 
   # Paths cannot contain /etc/ssl
   function checkSafeSslPath() {
     if echo "/etc/ssl" | grep "$1" > /dev/null; then
-      echo "   - Path $1 is relative to /etc/ssl. This breaks PureFTP! Mount a different path"
+      echo "   - Path $1 is relative to /etc/ssl. This breaks PureFTP! Mount to a different path. eg. /etc/ssl/local"
       exit 1
     fi
   }
+
   checkSafeSslPath "$SSL_CERT"
+  checkSafeSslPath "$SSL_CHAIN"
   checkSafeSslPath "$SSL_KEY"
 
-  CERT="/usr/local/ispconfig/interface/ssl/ispserver.crt"
-  KEY="/usr/local/ispconfig/interface/ssl/ispserver.key"
-  CHAIN="/usr/local/ispconfig/interface/ssl/ispserver.chain"
-  ln -fs "$SSL_CERT" "$CERT"
-  ln -fs "$SSL_KEY" "$KEY"
-  cat "$KEY" "$CERT" > "$CHAIN"
+  ln -fs "$SSL_CERT" "/usr/local/ispconfig/interface/ssl/ispserver.crt"
+  ln -fs "$SSL_CHAIN" "/usr/local/ispconfig/interface/ssl/ispserver.chain"
+  ln -fs "$SSL_KEY" "/usr/local/ispconfig/interface/ssl/ispserver.key"
 
   APACHE_SSL="/etc/apache2/sites-available/default-ssl.conf"
-  sed -i "s|/etc/ssl/certs/ssl-cert-snakeoil.pem|$CERT|" "$APACHE_SSL"
-  sed -i "s|/etc/ssl/private/ssl-cert-snakeoil.key|$KEY|" "$APACHE_SSL"
-  sed -i "s|/etc/apache2/ssl.crt/server-ca.crt|$CHAIN|" "$APACHE_SSL"
-  sed -i "s|#SSLCertificateChainFile|SSLCertificateChainFile|" "$APACHE_SSL"
-
-  ln -fs /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/000-default-ssl.conf
+  sed -i "s|SSLCertificateFile.*|SSLCertificateFile $SSL_CHAIN|" "$APACHE_SSL"
+  sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile $SSL_KEY|" "$APACHE_SSL"
+  # https://mozilla.github.io/server-side-tls/ssl-config-generator/
+  sed -z -i 's|</VirtualHost>\n</IfModule>|\tHeader always set Strict-Transport-Security "max-age=15768000"\n\t</VirtualHost>\n\n\tSSLProtocol             all -SSLv2 -SSLv3\n\tSSLCipherSuite          ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS\n\tSSLHonorCipherOrder     on\n</IfModule>|' "$APACHE_SSL"
+  
+  ln -fs "$APACHE_SSL" "/etc/apache2/sites-enabled/000-default-ssl.conf"
 fi
