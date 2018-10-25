@@ -22,6 +22,8 @@ services:
     hostname: ispconfig
     domainname: test.com
     cap_add:
+      - SYS_ADMIN
+      - LINUX_IMMUTABLE
       - DAC_READ_SEARCH                  # Pure-ftpd-mysql
       - SYS_NICE                         # Pure-ftpd-mysql
     # volumes:
