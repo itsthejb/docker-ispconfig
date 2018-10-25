@@ -38,5 +38,5 @@ if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
   sed -i "s|/etc/apache2/ssl.crt/server-ca.crt|$CHAIN|" "$APACHE_SSL"
   sed -i "s|#SSLCertificateChainFile|SSLCertificateChainFile|" "$APACHE_SSL"
 
-  ln -s /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/000-default-ssl.conf
+  ln -fs /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/000-default-ssl.conf
 fi
