@@ -10,6 +10,7 @@ services:
     environment:
       - HOSTNAME=test.com
       - SSL_CERT=/etc/ssl/local/test.com.crt
+      - SSL_CHAIN=/etc/ssl/local/test.com.chain.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
     volumes:
       - ./:/app:ro
@@ -22,6 +23,7 @@ services:
       service: ispconfig
     environment:
       - SSL_CERT=/etc/ssl/local/test.com.crt
+      - SSL_CHAIN=/etc/ssl/local/test.com.chain.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
     volumes:
       - ./ssl:/etc/ssl/local:ro

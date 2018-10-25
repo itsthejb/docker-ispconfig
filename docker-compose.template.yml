@@ -47,6 +47,7 @@ services:
       # - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
       # Paths to custom ssl cert and private key
       # - SSL_CERT=
+      # - SSL_CHAIN=
       # - SSL_KEY=
       # reconfigure the mysql host at boot
       # - MYSQL_HOST=host

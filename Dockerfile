@@ -287,8 +287,8 @@ RUN chmod a+x /usr/local/bin/*
 #
 ADD ./build/supervisor /etc/supervisor
 # link old /etc/init.d/ startup scripts to supervisor
-RUN ls -m1    /etc/supervisor/services.d | while read i; do mv /etc/init.d/$i /etc/init.d/$i-orig ;  ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
-RUN ln -sf    /etc/supervisor/systemctl /bin/systemctl
+RUN ls -m1 /etc/supervisor/services.d | while read i; do mv /etc/init.d/$i /etc/init.d/$i-orig 2> /dev/null; ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i; done
+RUN ln -sf /etc/supervisor/systemctl /bin/systemctl
 RUN chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
 COPY ./build/supervisor/invoke-rc.d /usr/sbin/invoke-rc.d
 #
