@@ -11,7 +11,7 @@ setup() {
   run openssl s_client -connect $CONTAINER:8080 \
     -cert "$SSL_CERT" \
     -key "$SSL_KEY" \
-    -state -debug  
+    -state -debug 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=$HOSTNAME") ]
   [ $(echo "$output" | grep issuer | grep "CN=certauthority.com") ]
 }
@@ -21,7 +21,7 @@ setup() {
     -starttls smtp \
     -cert "$SSL_CHAIN" \
     -key "$SSL_KEY" \
-    -state -debug
+    -state -debug 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=$HOSTNAME") ]
   [ $(echo "$output" | grep issuer | grep "CN=certauthority.com") ]
 }
@@ -30,7 +30,7 @@ setup() {
   run openssl s_client -connect $CONTAINER:993 \
     -cert "$SSL_CHAIN" \
     -key "$SSL_KEY" \
-    -state -debug
+    -state -debug 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=myhost.$HOSTNAME") ]
   [ $(echo "$output" | grep issuer | grep "CN=myhost.$HOSTNAME") ]
 }
