@@ -12,6 +12,20 @@ setup() {
   ! docker logs $CONTAINER | egrep '(FATAL)|(exited)'
 }
 
+@test "expected supervisor services running" {
+  run docker exec $CONTAINER supervisorctl status
+  for SERVICE in amavis apache2 clamav-daemon cron dovecot fail2ban mysql php-fpm postfix postgrey pure-ftpd-mysql rsyslog spamassassin ssh; do
+    echo "$output" | grep "RUNNING" | grep "$SERVICE"
+  done
+}
+
+@test "expected supervisor services are disabled" {
+  run docker exec $CONTAINER supervisorctl status
+  for SERVICE in bind9 mailman; do
+    echo "$output" | grep "STOPPED" | grep "$SERVICE"
+  done
+}
+
 @test "web server ports are responding" {
   testPortsApache
 }

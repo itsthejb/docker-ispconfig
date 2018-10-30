@@ -37,6 +37,9 @@ services:
       - HOSTNAME=myhost.test.com
       - LANGUAGE=en
       - DISABLED_SERVICES=bind9 mailman mysql
+      - POSTGREY_DELAY=300
+      - POSTGREY_MAX_AGE=35
+      - POSTGREY_TEXT="Delayed by postgrey"
     ports:
       - "110:110"
       - "995:995"
