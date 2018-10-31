@@ -25,4 +25,4 @@ services:
       - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
       - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
       - ROUNDCUBE_DB_PASSWORD=reconfigured
-
+      - DISABLE_APACHE_DEFAULT_SITE=yes
