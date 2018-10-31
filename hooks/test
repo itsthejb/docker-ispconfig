@@ -32,18 +32,14 @@ function testNormal() {
 
 function testLiveDB() {
   function databaseUp() {
+    docker network create --driver=bridge --subnet=172.99.0.0/16 --ip-range=172.99.0.2/16 --gateway=172.99.0.1 -o 'com.docker.network.bridge.name'='test_shared' test_shared &> /dev/null || true
     docker-compose -f "test/$1" up -d -V --force-recreate --remove-orphans mariadb
   }
   function databaseDown() {
     docker-compose -f "test/$1" down -v
   }
-  function insertDatabaseGatewayIP() {
-    IP_ADDR="$(docker network inspect ispconfig_default | grep "Gateway" | sed 's|^.*"Gateway": "\(.*\)"$|\1|')"
-    $SED -i'' "s/database: .*$/database: $IP_ADDR/" "test/$1"
-  }
 
   databaseUp "$1"
-  insertDatabaseGatewayIP "$1"
   buildAndTest "$1" --no-cache
   databaseDown "$1"
 }
