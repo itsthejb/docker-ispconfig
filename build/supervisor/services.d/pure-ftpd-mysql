@@ -3,4 +3,4 @@ command=/usr/sbin/pure-ftpd-mysql-virtualchroot -p 30000:30000 -l mysql:/etc/pur
 stdout_logfile=/var/log/ftpserver.log
 stderr_logfile=/var/log/ftpserver.log
 autorestart=true
-
+autostart=true
