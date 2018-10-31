@@ -34,7 +34,7 @@ services:
       # Mount host timezone (linux)
       # - /etc/localtime:/etc/localtime:ro
       # service volume for overwrites (ovm) and migration (mig)
-      # - ./service:/service               
+      # - ./service:/service
       # - ./ispc/rsnapshot:/rsnapshot
     environment:
       - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
@@ -48,6 +48,7 @@ services:
       # - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary/*.vhost
       # Apache mods to enable at start
       # - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
+      # - DISABLE_APACHE_DEFAULT_SITE=no
       # Paths to custom ssl cert and private key
       # - SSL_CERT=
       # - SSL_CHAIN=
