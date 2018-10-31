@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.puppeteer
+    networks:
+      - test_shared
     depends_on:
       - ispconfig
     cap_add:
@@ -22,10 +24,12 @@ services:
         BUILD_MYSQL_PW: mariadb
         BUILD_PHPMYADMIN: "no"
       extra_hosts:
-        database: 1.2.3.4
+        database: 172.99.0.1
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
+    networks:
+      - test_shared
     depends_on:
       - mariadb
     links:
@@ -68,9 +72,15 @@ services:
     container_name: mariadb
     image: mariadb
     restart: always
+    networks:
+      - test_shared
     environment:
       MYSQL_ROOT_PASSWORD: mariadb
     volumes:
       - ./sql/seeded:/docker-entrypoint-initdb.d:ro
     ports:
       - 3306:3306
+
+networks:
+  test_shared:
+    external: true
