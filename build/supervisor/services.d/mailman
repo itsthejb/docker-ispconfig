@@ -1,4 +1,6 @@
 [program:mailman]
+autostart=false
+autostart=false
 command=/usr/lib/mailman/bin/mailmanctl start
 autorestart=true
 autostart=true

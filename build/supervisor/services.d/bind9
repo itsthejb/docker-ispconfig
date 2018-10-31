@@ -1,4 +1,6 @@
 [program:bind9]
+autostart=false
+autostart=false
 command=/usr/sbin/named -c /etc/bind/named.conf -u bind -f
 autostart=true
 
