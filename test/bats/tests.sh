@@ -77,5 +77,5 @@ setup() {
   run docker exec $CONTAINER grep "(*system*) NUMBER OF HARD LINKS > 1" /var/log/syslog
   [ "$status" -eq 1 ]
   run docker exec $CONTAINER cat /var/log/ispconfig/cron.log
-  [ -z $(echo "$output" | grep -v "$(date '+%a %b %d')") ]
+  [ ! $(echo "$output" | grep -v "$(date '+%a %b %-d')") ]
 }
