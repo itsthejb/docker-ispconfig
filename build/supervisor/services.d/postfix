@@ -4,4 +4,5 @@ command=/etc/supervisor/proxy.d/postfix
 stdout_logfile	= /var/log/supervisor/%(program_name)s.log
 stderr_logfile	= /var/log/supervisor/%(program_name)s.log
 autorestart=true
+autostart=true
 

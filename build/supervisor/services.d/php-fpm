@@ -1,7 +1,7 @@
 [program:php-fpm]
 command=/usr/sbin/php-fpm7.0 -F
-autostart=true
 autorestart=unexpected
+autostart=true
 stdout_logfile=/var/log/php-fpm/stdout.log
 stdout_logfile_maxbytes=0
 stderr_logfile=/var/log/php-fpm/stderr.log

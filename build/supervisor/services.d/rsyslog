@@ -2,6 +2,7 @@
 command=/usr/sbin/rsyslogd -n
 process_name=%(program_name)s
 autorestart=true
+autostart=true
 user=root
 directory=/
 priority=912
