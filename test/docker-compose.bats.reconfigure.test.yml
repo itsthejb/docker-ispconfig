@@ -7,6 +7,8 @@ services:
     command: /app/bats/reconfigure.sh
     depends_on:
       - ispconfig
+    networks:
+      - test_shared
     environment:
       - MYSQL_HOST=0.0.0.0
     volumes:
@@ -20,3 +22,9 @@ services:
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig
+    networks:
+      - test_shared
+
+networks:
+  test_shared:
+    external: true

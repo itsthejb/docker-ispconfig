@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile.puppeteer
     depends_on:
       - ispconfig
+    networks:
+      - test_shared
     cap_add:
       - SYS_ADMIN
     environment:
@@ -21,3 +23,9 @@ services:
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig
+    networks:
+      - test_shared
+
+networks:
+  test_shared:
+    external: true
