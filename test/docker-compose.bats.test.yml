@@ -7,6 +7,8 @@ services:
     command: /app/bats/tests.sh
     depends_on:
       - ispconfig
+    networks:
+      - test_shared
     volumes:
       - ./:/app:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -17,6 +19,8 @@ services:
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig
+    networks:
+      - test_shared
     volumes:
       - ../volumes/www:/var/www
       - ../volumes/vmail:/var/vmail
@@ -26,3 +30,7 @@ services:
       - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
       - ROUNDCUBE_DB_PASSWORD=reconfigured
       - DISABLE_APACHE_DEFAULT_SITE=yes
+
+networks:
+  test_shared:
+    external: true
