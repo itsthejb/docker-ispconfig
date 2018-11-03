@@ -26,10 +26,10 @@ services:
       - ../volumes/vmail:/var/vmail
       - './vhost:/etc/apache2/supplementary:ro'
     environment:
-      - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
-      - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
+      - APACHE_SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
+      - APACHE_ENABLE_MODS=macro,proxy_balancer,proxy_http
       - ROUNDCUBE_DB_PASSWORD=reconfigured
-      - DISABLE_APACHE_DEFAULT_SITE=yes
+      - APACHE_DISABLE_DEFAULT_SITE=yes
 
 networks:
   test_shared:

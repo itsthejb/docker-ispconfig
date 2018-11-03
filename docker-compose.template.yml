@@ -45,10 +45,10 @@ services:
       - POSTGREY_MAX_AGE=35
       - POSTGREY_TEXT="Delayed by postgrey"
       # Directory of apache vhosts to include
-      # - SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary/*.vhost
+      # - APACHE_SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary/*.vhost
       # Apache mods to enable at start
-      # - ENABLE_APACHE_MODS=macro,proxy_balancer,proxy_http
-      # - DISABLE_APACHE_DEFAULT_SITE=no
+      # - APACHE_ENABLE_MODS=macro,proxy_balancer,proxy_http
+      # - APACHE_DISABLE_DEFAULT_SITE=no
       # Paths to custom ssl cert and private key
       # - SSL_CERT=
       # - SSL_CHAIN=

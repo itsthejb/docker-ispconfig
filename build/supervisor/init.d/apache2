@@ -1,20 +1,20 @@
 #!/bin/bash
 
-if [ -n "$ENABLE_APACHE_MODS" ]; then
-  echo " - enabling requested mods '$ENABLE_APACHE_MODS'"
-  for MOD in $(echo "$ENABLE_APACHE_MODS" | tr ',' ' '); do
+if [ -n "$APACHE_ENABLE_MODS" ]; then
+  echo " - enabling requested mods '$APACHE_ENABLE_MODS'"
+  for MOD in $(echo "$APACHE_ENABLE_MODS" | tr ',' ' '); do
     a2enmod "$MOD" > /dev/null
   done
 fi
 
-if [ "$DISABLE_APACHE_DEFAULT_SITE" == "yes" ]; then
+if [ "$APACHE_DISABLE_DEFAULT_SITE" == "yes" ]; then
   echo " - disabling default site"
   a2dissite 000-default.conf > /dev/null
 fi
 
-if [ -d "$SUPPLEMENTARY_VHOSTS" ] && ! grep "IncludeOptional $SUPPLEMENTARY_VHOSTS" /etc/apache2/apache2.conf &> /dev/null ; then
+if [ -d "$APACHE_SUPPLEMENTARY_VHOSTS" ] && ! grep "IncludeOptional $APACHE_SUPPLEMENTARY_VHOSTS" /etc/apache2/apache2.conf &> /dev/null ; then
   echo " - configuring supplementary vhost include path"
-  echo "IncludeOptional $SUPPLEMENTARY_VHOSTS" >> /etc/apache2/apache2.conf
+  echo "IncludeOptional $APACHE_SUPPLEMENTARY_VHOSTS" >> /etc/apache2/apache2.conf
 fi
 
 if [ -f "$SSL_CERT" ] && [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
