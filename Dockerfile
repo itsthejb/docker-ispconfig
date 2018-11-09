@@ -223,7 +223,7 @@ ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 # --- 19 Install ispconfig plugins for roundcube
 RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_roundcube/ && mv /tmp/ispconfig3_roundcube/ispconfig3_* ${BUILD_ROUNDCUBE_DIR}/plugins && rm -Rvf /tmp/ispconfig3_roundcube
 RUN echo "\$rcmail_config['plugins'] = array(\"jqueryui\", \"ispconfig3_account\", \"ispconfig3_autoreply\", \"ispconfig3_pass\", \"ispconfig3_spam\", \"ispconfig3_fetchmail\", \"ispconfig3_filter\");" >> ${BUILD_ROUNDCUBE_DIR}/config.inc.php
-RUN cd ${BUILD_ROUNDCUBE_DIR}/plugins && mv ispconfig3_account/config/config.inc.php.dist ispconfig3_account/config/config.inc.php
+RUN cd ${BUILD_ROUNDCUBE_DIR}/plugins && mv ispconfig3_account/config/config.inc.php.dist ispconfig3_account/config/config.inc.php && chown www-data:www-data ispconfig3_account/config/config.inc.php
 
 # --- 20 Install ISPConfig 3
 RUN cd /tmp && cd . && wget https://ispconfig.org/downloads/ISPConfig-${BUILD_ISPCONFIG}.tar.gz
