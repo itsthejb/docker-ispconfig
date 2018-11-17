@@ -8,6 +8,7 @@ setup() {
 }
 
 function testSSL() {
+  waitForPort $1
   run openssl s_client -showcerts -connect $CONTAINER:$1 $2 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=$HOSTNAME") ]
   [ $(echo "$output" | grep issuer | grep "CN=certauthority.com") ]
@@ -26,6 +27,7 @@ function testSSL() {
 }
 
 @test "dovecot uses custom ssl certificate" {
+  waitForPort 993
   run openssl s_client -showcerts -connect $CONTAINER:993 $2 2> /dev/null
   [ $(echo "$output" | grep subject | grep "CN=myhost.$HOSTNAME") ]
 }
