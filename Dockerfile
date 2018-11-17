@@ -52,7 +52,7 @@ RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata
 
 # --- 1 Preliminary
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx curl iputils-ping wget
 RUN touch /var/log/cron.log
 # Create the log file to be able to run tail
 RUN touch /var/log/auth.log
@@ -221,9 +221,11 @@ RUN sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'local
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 
 # --- 19 Install ispconfig plugins for roundcube
-RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_roundcube/ && mv /tmp/ispconfig3_roundcube/ispconfig3_* ${BUILD_ROUNDCUBE_DIR}/plugins && rm -Rvf /tmp/ispconfig3_roundcube
-RUN echo "\$rcmail_config['plugins'] = array(\"jqueryui\", \"ispconfig3_account\", \"ispconfig3_autoreply\", \"ispconfig3_pass\", \"ispconfig3_spam\", \"ispconfig3_fetchmail\", \"ispconfig3_filter\");" >> ${BUILD_ROUNDCUBE_DIR}/config.inc.php
-RUN cd ${BUILD_ROUNDCUBE_DIR}/plugins && mv ispconfig3_account/config/config.inc.php.dist ispconfig3_account/config/config.inc.php && chown www-data:www-data ispconfig3_account/config/config.inc.php
+RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_roundcube/ && \
+    mv /tmp/ispconfig3_roundcube/ispconfig3_* ${BUILD_ROUNDCUBE_DIR}/plugins && rm -Rvf /tmp/ispconfig3_roundcube && \
+    printf "\n\$config['plugins'] = array_merge(\$config['plugins'], array(\"jqueryui\", \"ispconfig3_account\", \"ispconfig3_autoreply\", \"ispconfig3_pass\", \"ispconfig3_spam\", \"ispconfig3_fetchmail\", \"ispconfig3_filter\"));\n" >> ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php && \
+    cd ${BUILD_ROUNDCUBE_DIR}/plugins && mv ispconfig3_account/config/config.inc.php.dist ispconfig3_account/config/config.inc.php && chown www-data:www-data ispconfig3_account/config/config.inc.php && \
+    chown -R www-data:www-data ${BUILD_ROUNDCUBE_DIR}/plugins/ispconfig3_*
 
 # --- 20 Install ISPConfig 3
 RUN cd /tmp && cd . && wget https://ispconfig.org/downloads/ISPConfig-${BUILD_ISPCONFIG}.tar.gz
