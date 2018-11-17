@@ -75,7 +75,7 @@ RUN dpkg-reconfigure dash
 RUN apt-get -y install ntp ntpdate
 
 # --- 8 Install MySQL (optional)
-RUN apt-get -y install mariadb-client 
+RUN apt-get -y install mariadb-client
 RUN \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         echo "mariadb-server mariadb-server/root_password password ${BUILD_MYSQL_PW}"       | debconf-set-selections; \
@@ -108,6 +108,7 @@ RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi
 
 # --- 9 Install Amavisd-new, SpamAssassin And Clamav
 RUN apt-get -y install amavisd-new spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey
+RUN chown amavis:amavis /var/run/amavis
 ADD ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN freshclam
 RUN service spamassassin stop
