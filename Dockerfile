@@ -215,10 +215,12 @@ RUN \
     mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "\
     GRANT ALL PRIVILEGES ON ${BUILD_ROUNDCUBE_DB}.* TO ${BUILD_ROUNDCUBE_USER}@'${BUILD_MYSQL_REMOTE_ACCESS_HOST}' IDENTIFIED BY '${BUILD_ROUNDCUBE_PW}'; \
     FLUSH PRIVILEGES;"
-RUN cd ${BUILD_ROUNDCUBE_DIR}/config && cp -pf config.inc.php.sample config.inc.php
-RUN sed -i "s|mysql://roundcube:pass@localhost/roundcubemail|mysql://${BUILD_ROUNDCUBE_USER}:${BUILD_ROUNDCUBE_PW}@${BUILD_MYSQL_HOST}/${BUILD_ROUNDCUBE_DB}|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
-RUN sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
-RUN sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php
+RUN cd ${BUILD_ROUNDCUBE_DIR}/config && cp -pf config.inc.php.sample config.inc.php && \
+    sed -i "s|mysql://roundcube:pass@localhost/roundcubemail|mysql://${BUILD_ROUNDCUBE_USER}:${BUILD_ROUNDCUBE_PW}@${BUILD_MYSQL_HOST}/${BUILD_ROUNDCUBE_DB}|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php && \
+    sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php && \
+    sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" ${BUILD_ROUNDCUBE_DIR}/config/config.inc.php && \
+    find "${BUILD_ROUNDCUBE_DIR}" -name ".htaccess" -exec sed -i "s|mod_php5|mod_php7|" {} \; && \
+    find "${BUILD_ROUNDCUBE_DIR}" -name ".htaccess" -exec sed -i "s|# php_value    error_log|php_value   date.timezone ${BUILD_TZ}\nphp_value   error_log|" {} \;
 ADD ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 
 # --- 19 Install ispconfig plugins for roundcube
