@@ -10,14 +10,13 @@ services:
       args:
         BUILD_TZ: Europe/Berlin
         BUILD_HOSTNAME: myhost.test.com
-        BUILD_ISPCONFIG: "3.1.13"
         BUILD_MYSQL_PW: pass
         BUILD_PRINTING: "no"
         BUILD_ISPCONFIG_USE_SSL: "yes"
     ##################################################
     # RUN section
     ##################################################
-    image: itsthejb/ispconfig-docker:0.5.0
+    image: itsthejb/ispconfig-docker:0.5.1
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
