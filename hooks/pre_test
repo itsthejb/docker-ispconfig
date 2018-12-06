@@ -1,0 +1,4 @@
+#!/bin/bash -xe
+
+# Create test network
+docker network create --driver=bridge --subnet=172.99.0.0/16 --ip-range=172.99.0.2/16 --gateway=172.99.0.1 -o 'com.docker.network.bridge.name'='test_shared' test_shared &> /dev/null || true
