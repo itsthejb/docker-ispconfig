@@ -182,7 +182,10 @@ RUN apt-get -y --no-install-recommends install build-essential autoconf automake
 ADD ./build/etc/fail2ban/jail.local /etc/fail2ban/jail.local
 ADD ./build/etc/fail2ban/filter.d/pureftpd.conf /etc/fail2ban/filter.d/pureftpd.conf
 ADD ./build/etc/fail2ban/filter.d/dovecot-pop3imap.conf /etc/fail2ban/filter.d/dovecot-pop3imap.conf
-RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf; \
+RUN touch /var/log/auth.log; \
+    touch /var/log/mail.log; \
+    touch /var/log/syslog; \
+    echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf; \
     service fail2ban restart; \
 # --- 19 Install roundcube
     mkdir ${BUILD_ROUNDCUBE_DIR}; \
