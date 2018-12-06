@@ -266,8 +266,7 @@ RUN \
     sed -i "s|NameVirtualHost|#NameVirtualHost|" /etc/apache2/sites-enabled/000-ispconfig.vhost; \
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
-    if [ -f "/usr/local/ispconfig/interface/ssl/ispserver.key" ]; \
-	[ -f "/usr/local/ispconfig/interface/ssl/ispserver.crt" ]; then \
+    if [ -f "/usr/local/ispconfig/interface/ssl/ispserver.key" ] && [ -f "/usr/local/ispconfig/interface/ssl/ispserver.crt" ]; then \
         mkdir -p /etc/ssl/private/; \
         cd /usr/local/ispconfig/interface/ssl; cat ispserver.key ispserver.crt > ispserver.chain; \
         ln -sf /usr/local/ispconfig/interface/ssl/ispserver.chain /etc/ssl/private/pure-ftpd.pem; \
