@@ -308,8 +308,10 @@ ADD ./build/track.gitignore /.gitignore
 RUN cp -v /etc/passwd /etc/passwd.bootstrap; \
     cp -v /etc/shadow /etc/shadow.bootstrap; \
     cp -v /etc/group  /etc/group.bootstrap; \
-    mkdir -p /bootstrap; tar -C /var/vmail -czf /bootstrap/vmail.tgz .; \
-    mkdir -p /bootstrap; tar -C /var/www   -czf /bootstrap/www.tgz  .
+    mkdir -p /bootstrap; \
+    mkdir -p /var/vmail; \
+    tar -C /var/vmail -czf /bootstrap/vmail.tgz .; \
+    tar -C /var/www -czf /bootstrap/www.tgz  .
 ENV TERM xterm
 
 RUN echo "export TERM=xterm" >> /root/.bashrc; \
