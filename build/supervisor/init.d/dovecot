@@ -2,9 +2,11 @@
 
 if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   echo " - configuring ssl certificate"
-  echo "ssl = yes" >> /etc/dovecot/conf.d/10-ssl.conf
-  echo "ssl_protocols = !SSLv2" >> /etc/dovecot/conf.d/10-ssl.conf
-  echo "ssl_cipher_list = ALL:!LOW:!SSLv2:!EXP:!aNULL:!RC4::!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS" >> /etc/dovecot/conf.d/10-ssl.conf
-  echo "ssl_cert = <$SSL_CHAIN" >> /etc/dovecot/conf.d/10-ssl.conf
-  echo "ssl_key = <$SSL_KEY" >> /etc/dovecot/conf.d/10-ssl.conf
+
+  SSL_CONF="/etc/dovecot/conf.d/10-ssl.conf"
+  sed -i "s|ssl = .*|ssl = yes|" "$SSL_CONF"
+  sed -i "s|#ssl_protocols = .*|ssl_protocols = !SSLv2|" "$SSL_CONF"
+  sed -i "s|#ssl_cipher_list = .*|ssl_cipher_list = ALL:!LOW:!SSLv2:!EXP:!aNULL:!RC4::!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS" "$SSL_CONF"
+  sed -i "s|#ssl_cert = .*|ssl_cert = <$SSL_CHAIN|" "$SSL_CONF"
+  sed -i "s|#ssl_key = .*|ssl_key = <$SSL_KEY|" "$SSL_CONF"
 fi
