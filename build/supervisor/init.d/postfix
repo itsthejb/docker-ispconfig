@@ -27,3 +27,11 @@ for i in $list ; do
    echo " - running postmap for </etc/postfix/${i%.db}>"
    postmap /etc/postfix/${i%.db}
 done
+
+echo " - ensuring correct permissions"
+chgrp -R postdrop /var/spool/postfix/public
+chgrp -R postdrop /var/spool/postfix/maildrop/
+chgrp postdrop /usr/sbin/postqueue
+chgrp postdrop /usr/sbin/postdrop
+chmod g+s /usr/sbin/postqueue
+chmod g+s /usr/sbin/postdrop
