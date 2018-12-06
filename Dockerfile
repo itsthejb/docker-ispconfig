@@ -182,7 +182,10 @@ RUN apt-get -y --no-install-recommends install build-essential autoconf automake
 ADD ./build/etc/fail2ban/jail.local /etc/fail2ban/jail.local
 ADD ./build/etc/fail2ban/filter.d/pureftpd.conf /etc/fail2ban/filter.d/pureftpd.conf
 ADD ./build/etc/fail2ban/filter.d/dovecot-pop3imap.conf /etc/fail2ban/filter.d/dovecot-pop3imap.conf
-RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf; \
+RUN touch /var/log/auth.log; \
+    touch /var/log/mail.log; \
+    touch /var/log/syslog; \
+    echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf; \
     service fail2ban restart; \
 # --- 19 Install roundcube
     mkdir ${BUILD_ROUNDCUBE_DIR}; \
@@ -231,6 +234,7 @@ RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_ro
 	tar xfz ISPConfig-${BUILD_ISPCONFIG}.tar.gz
 ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
 RUN \
+    touch /etc/mailname; \
     sed -i "s|mysql_hostname=localhost|mysql_hostname=${BUILD_MYSQL_HOST}|" /tmp/ispconfig3_install/install/autoinstall.ini; \
     sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g" /tmp/ispconfig3_install/install/autoinstall.ini; \
     sed -i "s|mysql_root_password=pass|mysql_root_password=${BUILD_MYSQL_PW}|" /tmp/ispconfig3_install/install/autoinstall.ini; \
