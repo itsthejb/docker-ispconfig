@@ -51,7 +51,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
-    apt-get -y update && apt-get -y --no-install-recommends install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx wget; \
+    apt-get -y update && apt-get -y --no-install-recommends install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx wget sudo; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
 # --- 2 Install the SSH server
