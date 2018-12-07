@@ -22,10 +22,6 @@ function buildAndTest() {
   $DOWN &> /dev/null || true
 }
 
-function createTestNetwork() {
-  docker network create --driver=bridge --subnet=172.99.0.0/16 --ip-range=172.99.0.2/16 --gateway=172.99.0.1 -o 'com.docker.network.bridge.name'='test_shared' test_shared &> /dev/null || true
-}
-
 function testNormal() {
   buildAndTest docker-compose.bats.test.yml
   buildAndTest docker-compose.bats.custom-ssl.test.yml
@@ -47,7 +43,6 @@ function testLiveDB() {
   databaseDown "$1"
 }
 
-createTestNetwork
 testNormal
 testLiveDB "docker-compose.puppeteer.remote-db.test.yml"
 testLiveDB "docker-compose.puppeteer.remote-db-seeded.test.yml"
