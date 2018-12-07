@@ -9,6 +9,6 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   sed -i "s|#ssl_key = .*|ssl_key = <$SSL_KEY|" "$SSL_CONF"
 
   DOVECOT_CONF="/etc/dovecot/dovecot.conf"
-  sed -i "s|ssl_cert = </etc/postfix/smtpd.cert|ssl_cert = |<$SSL_CHAIN|" "$DOVECOT_CONF"
-  sed -i "s|ssl_key = </etc/postfix/smtpd.key|ssl_key = <$SSL_KEY|" "$DOVECOT_CONF"
+  sed -i "s|ssl_cert = .*|ssl_cert = <$SSL_CHAIN|" "$DOVECOT_CONF"
+  sed -i "s|ssl_key = .*|ssl_key = <$SSL_KEY|" "$DOVECOT_CONF"
 fi
