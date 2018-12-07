@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 export CONTAINER="ispconfig"
-export TIMEOUT=30
+export TIMEOUT=10
 
 function waitForPort() {
   timeout -t $TIMEOUT sh -c "until nc -vz $CONTAINER $1; do sleep 0.1; done"

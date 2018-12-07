@@ -22,12 +22,6 @@ function testSSL() {
   testSSL 8080
 }
 
-@test "postfix uses custom ssl certificate" {
-  testSSL 587 "-starttls smtp"
-}
-
-@test "dovecot uses custom ssl certificate" {
-  waitForPort 993
-  run openssl s_client -showcerts -connect $CONTAINER:993 $2 2> /dev/null
-  [ $(echo "$output" | grep subject | grep "CN=myhost.$HOSTNAME") ]
+@test "postfix uses secure ports" {
+  testSSL 465
 }
