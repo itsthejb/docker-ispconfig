@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /var/spool/postfix
 
-echo " - calling newaliases" 
+echo " - calling newaliases"
 newaliases
 
 echo " - applying hosts, localtime, resolv.conf from /etc to /var/spool/postfix/etc"
@@ -17,6 +17,7 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   echo " - configuring ssl certificate"
   postconf -e "smtpd_tls_cert_file = ${SSL_CHAIN}"
   postconf -e "smtpd_tls_key_file = ${SSL_KEY}"
+  postconf -e "smtpd_tls_auth_only = yes"
 fi
 
 echo " - creating /etc/mailname with <$(hostname -f)>"
