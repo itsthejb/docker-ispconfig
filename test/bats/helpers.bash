@@ -26,13 +26,13 @@ function testPortsApache() {
 }
 
 function testPortsMail() {
-  waitForPort 110
-  waitForPort 995
-  waitForPort 143
-  waitForPort 993
   waitForPort 25
+  waitForPort 110
+  waitForPort 143
   waitForPort 465
   waitForPort 587
+  waitForPort 993
+  waitForPort 995
 }
 
 function testPortsSSH() {
