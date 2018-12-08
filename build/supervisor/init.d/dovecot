@@ -4,11 +4,18 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   echo " - configuring ssl certificate"
 
   SSL_CONF="/etc/dovecot/conf.d/10-ssl.conf"
-  sed -i "s|ssl = .*|ssl = yes|" "$SSL_CONF"
+  sed -i "s|ssl = .*|ssl = required|" "$SSL_CONF"
   sed -i "s|#ssl_cert = .*|ssl_cert = <$SSL_CHAIN|" "$SSL_CONF"
   sed -i "s|#ssl_key = .*|ssl_key = <$SSL_KEY|" "$SSL_CONF"
 
   DOVECOT_CONF="/etc/dovecot/dovecot.conf"
   sed -i "s|ssl_cert = .*|ssl_cert = <$SSL_CHAIN|" "$DOVECOT_CONF"
   sed -i "s|ssl_key = .*|ssl_key = <$SSL_KEY|" "$DOVECOT_CONF"
+
+  echo " - configure roundcube for tls"
+  ROUNDCUBE_DIR="/opt/roundcube"
+  ROUNDCUBE_CONF="$ROUNDCUBE_DIR/config/config.inc.php"
+  sed -i "s|\$config\['default_host'\] = .*;|\$config\['default_host'\] = 'tls://$HOSTNAME';|" "$ROUNDCUBE_CONF" || true
+  sed -i "s|\$config\['smtp_server'\] = .*;|\$config\['smtp_server'\] = 'tls://$HOSTNAME';|" "$ROUNDCUBE_CONF" || true
+  sed -i "s|\$config\['smtp_port'\] = .*;|\$config\['smtp_port'\] = 587;|" "$ROUNDCUBE_CONF" || true
 fi
