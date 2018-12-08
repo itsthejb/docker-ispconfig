@@ -19,25 +19,18 @@ submission inet n - - - - smtpd
  -o smtpd_tls_security_level=encrypt
  -o smtpd_sasl_auth_enable=yes
  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-# -o smtpd_reject_unlisted_recipient=no
-# -o smtpd_client_restrictions=$mua_client_restrictions
-# -o smtpd_helo_restrictions=$mua_helo_restrictions
-# -o smtpd_sender_restrictions=$mua_sender_restrictions
-# -o smtpd_recipient_restrictions=
-# -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
-# -o milter_macro_daemon_name=ORIGINATING
 smtps inet n - - - - smtpd
  -o syslog_name=postfix/smtps
  -o smtpd_tls_wrappermode=yes
  -o smtpd_sasl_auth_enable=yes
  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-# -o smtpd_reject_unlisted_recipient=no
-# -o smtpd_client_restrictions=$mua_client_restrictions
-# -o smtpd_helo_restrictions=$mua_helo_restrictions
-# -o smtpd_sender_restrictions=$mua_sender_restrictions
-# -o smtpd_recipient_restrictions=
-# -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
-# -o milter_macro_daemon_name=ORIGINATING
+# SASL authentication with dovecot
+# https://wiki.archlinux.org/index.php/Postfix_with_SASL
+ -o smtpd_sasl_type=dovecot
+ -o smtpd_sasl_path=private/auth
+ -o smtpd_sasl_security_options=noanonymous
+ -o smtpd_sasl_local_domain=$myhostname
+ -o smtpd_recipient_restrictions=reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject
 #628       inet  n       -       y       -       -       qmqpd
 pickup    unix  n       -       y       60      1       pickup
 cleanup   unix  n       -       y       -       0       cleanup
