@@ -38,7 +38,10 @@ function testSSL() {
   run testSSL 993
 }
 
-@test "dovecot has expected imap login" {
+@test "dovecot requires secure login" {
+  run nc -q1 $CONTAINER 25 <<< "EHLO $HOSTNAME"
+  [ ! $(echo "$output" | grep "250-AUTH PLAIN LOGIN") ]
+  [ ! $(echo "$output" | grep "250-AUTH=PLAIN LOGIN") ]
   run openSSL -connect $CONTAINER:143 -starttls imap
   [ ! $(echo "$output" | grep "AUTH=login") ]
   [ ! $(echo "$output" | grep "AUTH=plain") ]
