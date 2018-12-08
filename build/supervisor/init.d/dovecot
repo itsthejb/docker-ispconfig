@@ -11,11 +11,20 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   DOVECOT_CONF="/etc/dovecot/dovecot.conf"
   sed -i "s|ssl_cert = .*|ssl_cert = <$SSL_CHAIN|" "$DOVECOT_CONF"
   sed -i "s|ssl_key = .*|ssl_key = <$SSL_KEY|" "$DOVECOT_CONF"
+  sed -i "s|^disable_plaintext_auth = .*|disable_plaintext_auth = yes|" "$DOVECOT_CONF"
+  sed -i "s|.*disable_plaintext_auth = .*|disable_plaintext_auth = yes|" "/etc/dovecot/conf.d/10-auth.conf"
 
-  echo " - configure roundcube for tls"
+  echo " - configure roundcube security"
   ROUNDCUBE_DIR="/opt/roundcube"
   ROUNDCUBE_CONF="$ROUNDCUBE_DIR/config/config.inc.php"
-  sed -i "s|\$config\['default_host'\] = .*;|\$config\['default_host'\] = 'tls://$HOSTNAME';|" "$ROUNDCUBE_CONF" || true
-  sed -i "s|\$config\['smtp_server'\] = .*;|\$config\['smtp_server'\] = 'tls://$HOSTNAME';|" "$ROUNDCUBE_CONF" || true
-  sed -i "s|\$config\['smtp_port'\] = .*;|\$config\['smtp_port'\] = 587;|" "$ROUNDCUBE_CONF" || true
+  ROUNDCUBE_TMP=$(mktemp)
+  cp "$ROUNDCUBE_CONF" "$ROUNDCUBE_TMP"
+  sed -i "s|\$config\['default_host'\] = .*;|\$config\['default_host'\] = 'ssl://$HOSTNAME:993';|" "$ROUNDCUBE_TMP"
+  sed -i "s|\$config\['smtp_server'\] = .*;|\$config\['smtp_server'\] = 'tls://$HOSTNAME';|" "$ROUNDCUBE_TMP"
+  sed -i "s|\$config\['smtp_port'\] = .*;|\$config\['smtp_port'\] = 587;|" "$ROUNDCUBE_TMP"
+  cp -f "$ROUNDCUBE_TMP" "$ROUNDCUBE_CONF"
+  rm "$ROUNDCUBE_TMP"
+  if ! grep "local 172.0.0.0/8 {" > /dev/null "$DOVECOT_CONF"; then
+    printf "local 172.0.0.0/8 {\n  disable_plaintext_auth = no\n}\n" >> "$DOVECOT_CONF"
+  fi
 fi

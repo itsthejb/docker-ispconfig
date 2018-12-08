@@ -91,7 +91,6 @@ RUN \
 # --- 8 Install Postfix, Dovecot, phpMyAdmin, rkhunter, binutils
     apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc openssl getmail4 binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd
 ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
-ADD ./build/etc/dovecot/10-master.conf /etc/dovecot/conf.d/10-master.conf
 
 RUN service postfix restart; \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
