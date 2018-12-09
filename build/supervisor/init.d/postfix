@@ -23,12 +23,6 @@ fi
 echo " - creating /etc/mailname with <$(hostname -f)>"
 echo $(hostname -f) > /etc/mailname
 
-list=$(cd /etc/postfix && ls *.db 2> /dev/null)
-for i in $list ; do
-   echo " - running postmap for </etc/postfix/${i%.db}>"
-   postmap /etc/postfix/${i%.db}
-done
-
 echo " - ensuring correct permissions"
 chgrp -R postdrop /var/spool/postfix/public
 chgrp -R postdrop /var/spool/postfix/maildrop/
