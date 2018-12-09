@@ -154,9 +154,8 @@ ADD ./build/etc/aliases /etc/aliases
 RUN newaliases; \
     service postfix restart; \
     ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf; \
-# --- 14 Install PureFTPd And Quota
-# install package building helpers
-    apt-get -y --no-install-recommends install pure-ftpd-common pure-ftpd-mysql quota quotatool; \
+# --- 14 Install PureFTPd
+    apt-get -y --no-install-recommends install pure-ftpd-common pure-ftpd-mysql; \
     groupadd ftpgroup; \
     useradd -g ftpgroup -d /dev/null -s /etc ftpuser
 ADD ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
@@ -168,6 +167,7 @@ RUN apt-get -y --no-install-recommends install bind9 dnsutils haveged; \
 ADD ./build/etc/cron.d/awstats /etc/cron.d/
 
 # --- 17 Install Jailkit
+# install package building helpers
 RUN apt-get -y --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils; \
     cd /tmp; \
     wget http://olivier.sessink.nl/jailkit/jailkit-2.19.tar.gz; \
