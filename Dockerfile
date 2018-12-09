@@ -89,7 +89,7 @@ RUN \
         exit 1; \
     fi; \
 # --- 8 Install Postfix, Dovecot, phpMyAdmin, rkhunter, binutils
-    apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc openssl getmail4 binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd
+    apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc libsasl2-modules openssl getmail4 binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd
 ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN service postfix restart; \
