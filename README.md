@@ -145,27 +145,27 @@ It is possible to connect to a remote SQL server during the build. This would re
 
 | Argument                         | Default / Example           | Comments |
 |----------------------------------|-------------------|----------|
-| SSL_CERT | None | Path to a custom SSL certificate (must be mounted to the container)
-| SSL_CHAIN | None | Path to a custom SSL certificate chain (must be mounted to the container)
-| SSL_KEY | None | Path to a custom SSL private key (must be mounted to the container)
-| APACHE_SUPPLEMENTARY_VHOSTS | `/etc/apache2/supplementary/*.vhost` | Adds an `include` statement to the Apache config to add supplementary [vhosts](https://httpd.apache.org/docs/2.4/vhosts/examples.html)
-| APACHE_ENABLE_MODS | `macro,proxy_balancer,proxy_http` | Apache standard modules to enable. Note this won't _install_ any non-standard mods
-| MYSQL_HOST | `host` | Reconfigure services to point to this SQL server
-| HOSTNAME | `myhost.test.com` | Runtime hostname
-| DISABLED_SERVICES | `bind9 mailman` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
-| POSTGREY_DELAY | `300` | [Postgrey delay time](https://wiki.centos.org/HowTos/postgrey)
-| POSTGREY_MAX_AGE | `35` | [Postgrey maximum age](https://wiki.centos.org/HowTos/postgrey)
-| POSTGREY_TEXT | `"Delayed by postgrey"` | [Postgrey delay message](https://wiki.centos.org/HowTos/postgrey)
-| APACHE_DISABLE_DEFAULT_SITE | `no` | If `yes`, disables Apache's default site
+| `SSL_CERT` | _none_ | Path to a custom SSL certificate (must be mounted to the container)
+| `SSL_CHAIN` | _none_ | Path to a custom SSL certificate chain (must be mounted to the container)
+| `SSL_KEY` | _none_ | Path to a custom SSL private key (must be mounted to the container)
+| `APACHE_SUPPLEMENTARY_VHOSTS` | `/etc/apache2/supplementary/*.vhost` | Adds an `include` statement to the Apache config to add supplementary [vhosts](https://httpd.apache.org/docs/2.4/vhosts/examples.html)
+| `APACHE_ENABLE_MODS` | `macro,proxy_balancer,proxy_http` | Apache standard modules to enable. Note this won't _install_ any non-standard mods
+| `MYSQL_HOST` | `host` | Reconfigure services to point to this SQL server
+| `HOSTNAME` | `myhost.test.com` | Runtime hostname
+| `DISABLED_SERVICES` | `bind9 mailman` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
+| `POSTGREY_DELAY` | `300` | [Postgrey delay time](https://wiki.centos.org/HowTos/postgrey)
+| `POSTGREY_MAX_AGE` | `35` | [Postgrey maximum age](https://wiki.centos.org/HowTos/postgrey)
+| `POSTGREY_TEXT` | `"Delayed by postgrey"` | [Postgrey delay message](https://wiki.centos.org/HowTos/postgrey)
+| `APACHE_DISABLE_DEFAULT_SITE` | `no` | If `yes`, disables Apache's default site
 
 ### Non-functional
 
 | Argument                         | Default           | Comments |
 |----------------------------------|-------------------|----------|
-| MAILMAN_EMAIL_HOST | `test.com` | [Mailman host](http://www.list.org/)
-| MAILMAN_EMAIL | `email@test.com` | [Mailman address](http://www.list.org/)
-| MAILMAN_PASS | `pass` | [Mailman password](http://www.list.org/)
-| LANGUAGE | `en` | [Mailman language](http://www.list.org/)
+| `MAILMAN_EMAIL_HOST` | `test.com` | [Mailman host](http://www.list.org/)
+| `MAILMAN_EMAIL` | `email@test.com` | [Mailman address](http://www.list.org/)
+| `MAILMAN_PASS` | `pass` | [Mailman password](http://www.list.org/)
+| `LANGUAGE` | `en` | [Mailman language](http://www.list.org/)
 
 ## Recommendations
 
