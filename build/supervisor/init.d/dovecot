@@ -19,8 +19,8 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   ROUNDCUBE_CONF="$ROUNDCUBE_DIR/config/config.inc.php"
   ROUNDCUBE_TMP=$(mktemp)
   cp "$ROUNDCUBE_CONF" "$ROUNDCUBE_TMP"
-  sed -i "s|\$config\['default_host'\] = .*;|\$config\['default_host'\] = 'ssl://$HOSTNAME:993';|" "$ROUNDCUBE_TMP"
-  sed -i "s|\$config\['smtp_server'\] = .*;|\$config\['smtp_server'\] = 'tls://$HOSTNAME';|" "$ROUNDCUBE_TMP"
+  sed -i "s|\$config\['default_host'\] = .*;|\$config\['default_host'\] = 'ssl://$HOSTNAME_EMAIL:993';|" "$ROUNDCUBE_TMP"
+  sed -i "s|\$config\['smtp_server'\] = .*;|\$config\['smtp_server'\] = 'tls://$HOSTNAME_EMAIL';|" "$ROUNDCUBE_TMP"
   sed -i "s|\$config\['smtp_port'\] = .*;|\$config\['smtp_port'\] = 587;|" "$ROUNDCUBE_TMP"
   cp -f "$ROUNDCUBE_TMP" "$ROUNDCUBE_CONF"
   rm "$ROUNDCUBE_TMP"
