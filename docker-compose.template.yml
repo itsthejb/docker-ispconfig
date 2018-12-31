@@ -16,7 +16,7 @@ services:
     ##################################################
     # RUN section
     ##################################################
-    image: itsthejb/ispconfig-docker:0.5.0
+    image: itsthejb/ispconfig-docker:0.5.1
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
@@ -36,8 +36,9 @@ services:
       # - ./service:/service
       # - ./ispc/rsnapshot:/rsnapshot
     environment:
-      - HOSTNAME=myhost.test.com          # see ./build/autoinstall.ini
-      - LANGUAGE=en                       # see ./build/autoinstall.ini
+      - HOSTNAME=myhost.test.com            # see ./build/autoinstall.ini
+      - HOSTNAME_EMAIL=mail.myhost.test.com # Hostname for email
+      - LANGUAGE=en                         # see ./build/autoinstall.ini
       # disable services (postfix ssh mysql postfix rsyslog cron bind9 apache2 fail2ban dovecot mailman clamav-daemon amavis spamassassin pure-ftpd-mysql)
       - DISABLED_SERVICES=bind9 mailman
       - POSTGREY_DELAY=300
