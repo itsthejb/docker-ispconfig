@@ -25,7 +25,7 @@ LABEL description="ISPConfig 3.1 on Debian Stretch, with Roundcube mail, phpMyAd
 # All arguments
 ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
-ARG BUILD_ISPCONFIG="3-stable"
+ARG BUILD_ISPCONFIG_VERSION="3.1.13p1"
 ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
@@ -230,9 +230,9 @@ RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_ro
 # --- 20 Install ISPConfig 3
     cd /tmp; \
 	cd .; \
-	wget https://ispconfig.org/downloads/ISPConfig-${BUILD_ISPCONFIG}.tar.gz; \
+	wget https://ispconfig.org/downloads/ISPConfig-${BUILD_ISPCONFIG_VERSION}.tar.gz; \
     cd /tmp; \
-	tar xfz ISPConfig-${BUILD_ISPCONFIG}.tar.gz
+	tar xfz ISPConfig-${BUILD_ISPCONFIG_VERSION}.tar.gz
 ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
 RUN \
     touch /etc/mailname; \
