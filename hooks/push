@@ -6,5 +6,8 @@ TAG=$(echo "$IMAGE" | sed "s/\(.*\):\(.*\)/\2/")
 
 docker tag "$REPO:$TAG" "$REPO:latest"
 docker push "$REPO:$TAG"
-docker push "$REPO:latest"
+
+if [ "$SOURCE_BRANCH" = "master" ]; then
+  docker push "$REPO:latest"
+fi
 
