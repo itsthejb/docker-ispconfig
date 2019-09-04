@@ -131,8 +131,8 @@ It is possible to connect to a remote SQL server during the build. This would re
 
 | Argument                         | Default           | Comments |
 |----------------------------------|-------------------|----------|
-| `BUILD_ISPCONFIG_VERSION`        |       | Version of ISPConfig to install
-| `BUILD_ROUNDCUBE`                |            | Version of [Roundcube to install](https://roundcube.net/download/)
+| `BUILD_ISPCONFIG_VERSION`        | [Dockerfile](https://github.com/itsthejb/ispconfig-docker/blob/master/Dockerfile#L28)      | Version of ISPConfig to install
+| `BUILD_ROUNDCUBE_VERSION`                | [Dockerfile](https://github.com/itsthejb/ispconfig-docker/blob/master/Dockerfile#L40)           | Version of [Roundcube to install](https://roundcube.net/download/)
 | `BUILD_ROUNDCUBE_DIR`            | `/opt/roundcube`  | Path where Roundcube will be installed. **Don't change!**
 
 ### Currently non-functional

@@ -25,7 +25,7 @@ LABEL description="ISPConfig 3.1 on Debian Stretch, with Roundcube mail, phpMyAd
 # All arguments
 ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
-ARG BUILD_ISPCONFIG_VERSION="3.1.13p1"
+ARG BUILD_ISPCONFIG_VERSION="3.1.14p2"
 ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
@@ -37,7 +37,7 @@ ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PRINTING="no"
-ARG BUILD_ROUNDCUBE="1.3.8"
+ARG BUILD_ROUNDCUBE_VERSION="1.3.8"
 ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
 ARG BUILD_ROUNDCUBE_PW="secretpassword"
@@ -191,12 +191,12 @@ RUN touch /var/log/auth.log; \
 # --- 19 Install roundcube
     mkdir ${BUILD_ROUNDCUBE_DIR}; \
 	cd ${BUILD_ROUNDCUBE_DIR}; \
-    wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE}/roundcubemail-${BUILD_ROUNDCUBE}-complete.tar.gz; \
-    tar xfz roundcubemail-${BUILD_ROUNDCUBE}-complete.tar.gz; \
-	mv roundcubemail-${BUILD_ROUNDCUBE}/* .; \
-    mv roundcubemail-${BUILD_ROUNDCUBE}/.htaccess .; \
-    rmdir roundcubemail-${BUILD_ROUNDCUBE}; \
-	rm roundcubemail-${BUILD_ROUNDCUBE}-complete.tar.gz; \
+    wget https://github.com/roundcube/roundcubemail/releases/download/${BUILD_ROUNDCUBE_VERSION}/roundcubemail-${BUILD_ROUNDCUBE_VERSION}-complete.tar.gz; \
+    tar xfz roundcubemail-${BUILD_ROUNDCUBE_VERSION}-complete.tar.gz; \
+	mv roundcubemail-${BUILD_ROUNDCUBE_VERSION}/* .; \
+    mv roundcubemail-${BUILD_ROUNDCUBE_VERSION}/.htaccess .; \
+    rmdir roundcubemail-${BUILD_ROUNDCUBE_VERSION}; \
+	rm roundcubemail-${BUILD_ROUNDCUBE_VERSION}-complete.tar.gz; \
     chown -R www-data:www-data ${BUILD_ROUNDCUBE_DIR}; \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         service mysql restart; \
