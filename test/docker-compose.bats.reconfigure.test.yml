@@ -18,7 +18,7 @@ services:
   ispconfig:
     environment:
       - MYSQL_HOST=0.0.0.0
-      - DISABLED_SERVICES=bind9 mailman
+      - DISABLED_SERVICES=mailman
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig

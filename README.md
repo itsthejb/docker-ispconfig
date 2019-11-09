@@ -95,6 +95,7 @@ volumes:
 | `BUILD_ISPCONFIG_USE_SSL`        | `yes`             | Should ISPConfig use SSL? Note: this will be a self-signed certificate. See Reverse Proxy section
 | `BUILD_PHPMYADMIN`               | `yes`             | Include PHPMyAdmin
 | `BUILD_CERTBOT`                  | `yes`             | Include/exclude [Let's Encrypt](https://letsencrypt.org/)
+| `BUILD_REDIS` | `yes` | Install Redis? Required for Rspamd, but can be configured to another host with `REDIS_HOST` environmental variable
 | `BUILD_TZ`                       | `Europe/Berlin`   | Timezone for the container
 
 ### Less-essential options
@@ -153,10 +154,11 @@ It is possible to connect to a remote SQL server during the build. This would re
 | `MYSQL_HOST` | `host` | Reconfigure services to point to this SQL server
 | `HOSTNAME` | `myhost.test.com` | Runtime hostname
 | `HOSTNAME_EMAIL` | `email.myhost.test.com` | Runtime hostname for email
-| `DISABLED_SERVICES` | `bind9 mailman` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
+| `DISABLED_SERVICES` | `mailman` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
 | `POSTGREY_DELAY` | `300` | [Postgrey delay time](https://wiki.centos.org/HowTos/postgrey)
 | `POSTGREY_MAX_AGE` | `35` | [Postgrey maximum age](https://wiki.centos.org/HowTos/postgrey)
 | `POSTGREY_TEXT` | `"Delayed by postgrey"` | [Postgrey delay message](https://wiki.centos.org/HowTos/postgrey)
+| `REDIS_HOST` | `localhost` | Hostname for Redis. If `localhost`, requires `BUILD_REDIS = "yes"`
 | `APACHE_DISABLE_DEFAULT_SITE` | `no` | If `yes`, disables Apache's default site
 
 ### Non-functional

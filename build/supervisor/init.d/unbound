@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo " - ensure lib directory"
+mkdir -p /var/lib/unbound
+
+if [ ! -f /var/lib/unbound/root.key ]; then
+    echo " - create root key"
+    /usr/sbin/unbound-anchor -a /var/lib/unbound/root.key
+fi

@@ -14,14 +14,14 @@ setup() {
 
 @test "expected supervisor services running" {
   run docker exec $CONTAINER supervisorctl status
-  for SERVICE in amavis apache2 clamav-daemon cron dovecot fail2ban mysql php-fpm postfix postgrey pure-ftpd-mysql rsyslog spamassassin ssh; do
+  for SERVICE in apache2 clamav-daemon cron dovecot fail2ban mysql php-fpm postfix postgrey pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound; do
     echo "$output" | grep "RUNNING" | grep "$SERVICE"
   done
 }
 
 @test "expected supervisor services are disabled" {
   run docker exec $CONTAINER supervisorctl status
-  for SERVICE in bind9 mailman; do
+  for SERVICE in mailman; do
     echo "$output" | grep "STOPPED" | grep "$SERVICE"
   done
 }

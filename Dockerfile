@@ -37,6 +37,7 @@ ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PRINTING="no"
+ARG BUILD_REDIS="yes"
 ARG BUILD_ROUNDCUBE_VERSION="1.3.10"
 ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
@@ -94,12 +95,11 @@ ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN service postfix restart; \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-# --- 9 Install Amavisd-new, SpamAssassin And Clamav
-    apt-get -y --no-install-recommends install amavisd-new spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey gpgv1 gnupg1
+# --- 9 Install SpamAssassin And Clamav
+    apt-get -y --no-install-recommends install spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey gpgv1 gnupg1
 
 ADD ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
-RUN chown amavis:amavis /var/run/amavis; \
-    freshclam; \
+RUN freshclam; \
     service spamassassin stop; \
     systemctl disable spamassassin; \
     sa-update; sa-compile; \
@@ -161,8 +161,23 @@ RUN newaliases; \
     useradd -g ftpgroup -d /dev/null -s /etc ftpuser
 ADD ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
 
-# --- 15 Install BIND DNS Server, haveged
-RUN apt-get -y --no-install-recommends install bind9 dnsutils haveged; \
+# --- 15 Install BIND DNS Server, haveged, unbound, rspamd
+RUN apt-get -y --no-install-recommends install haveged unbound lsb-release; \
+    echo "do-ip6: no" >> /etc/unbound/unbound.conf; \
+    if [ "$BUILD_REDIS" = "yes" ]; then \
+        apt-get -y --no-install-recommends install redis-server; \
+        sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
+    fi; \
+    CODENAME=`lsb_release -c -s`; \
+    wget -O- https://rspamd.com/apt-stable/gpg.key | apt-key add - ; \
+    echo "deb [arch=amd64] http://rspamd.com/apt-stable/ $CODENAME main" > /etc/apt/sources.list.d/rspamd.list; \
+    echo "deb-src [arch=amd64] http://rspamd.com/apt-stable/ $CODENAME main" >> /etc/apt/sources.list.d/rspamd.list; \
+    apt-get update && apt-get -y --no-install-recommends install rspamd; \
+    echo "servers = \"localhost\";" > /etc/rspamd/local.d/redis.conf; \
+    echo "nrows = 2500;" > /etc/rspamd/local.d/history_redis.conf; \
+    echo "compress = true;" >> /etc/rspamd/local.d/history_redis.conf; \
+    echo "subject_privacy = false;" >> /etc/rspamd/local.d/history_redis.conf; \
+    cat /etc/apt/sources.list.d/rspamd.list; \
 # --- 16 Install Vlogger, Webalizer, And AWStats
     apt-get -y --no-install-recommends install webalizer awstats geoip-database libclass-dbi-mysql-perl libtimedate-perl
 ADD ./build/etc/cron.d/awstats /etc/cron.d/
@@ -292,6 +307,8 @@ RUN chmod a+x /usr/local/bin/*
 # establish supervisord
 #
 ADD ./build/supervisor /etc/supervisor
+ADD ./build/etc/init.d /etc/init.d
+
 # link old /etc/init.d/ startup scripts to supervisor
 RUN ls -m1 /etc/supervisor/services.d | while read i; do mv /etc/init.d/$i /etc/init.d/$i-orig 2> /dev/null; ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i; done; \
     ln -sf /etc/supervisor/systemctl /bin/systemctl; \
