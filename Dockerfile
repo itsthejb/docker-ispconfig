@@ -100,6 +100,7 @@ RUN service postfix restart; \
 
 ADD ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN freshclam; \
+    (crontab -l; echo "@daily    /usr/bin/freshclam") | sort - | uniq - | sudo crontab -; \
     service spamassassin stop; \
     systemctl disable spamassassin; \
     sa-update; sa-compile; \
