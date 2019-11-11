@@ -17,7 +17,7 @@ services:
     ##################################################
     # RUN section
     ##################################################
-    image: itsthejb/ispconfig:0.6.0
+    image: itsthejb/ispconfig:0.6.1
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
