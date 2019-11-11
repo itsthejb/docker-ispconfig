@@ -24,9 +24,23 @@ echo " - creating /etc/mailname with <$(hostname -f)>"
 echo $(hostname -f) > /etc/mailname
 
 echo " - ensuring correct permissions"
+chmod 644 /etc/postfix/mysql-virtual_*
 chgrp -R postdrop /var/spool/postfix/public
 chgrp -R postdrop /var/spool/postfix/maildrop/
 chgrp postdrop /usr/sbin/postqueue
 chgrp postdrop /usr/sbin/postdrop
 chmod g+s /usr/sbin/postqueue
 chmod g+s /usr/sbin/postdrop
+
+function setPermissions() {
+  /usr/sbin/postfix set-permissions 2>&1 | grep "No such file or directory" | cut -d"'" -f2
+}
+
+OUT=$(setPermissions)
+while [ $? -eq 1 ]; do 
+  touch "$OUT"
+  OUT=$(setPermissions)
+done
+
+setPermissions
+postfix check
