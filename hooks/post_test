@@ -4,6 +4,5 @@ IMAGE=$(grep "image:" "$DIR/../docker-compose.template.yml" | sed "s/\(.*image: 
 REPO=$(echo "$IMAGE" | sed "s/\(.*\):\(.*\)/\1/")
 TAG=$(echo "$IMAGE" | sed "s/\(.*\):\(.*\)/\2/")
 
-docker tag "$REPO:$TAG" "$REPO:latest"
-docker push "$REPO:$TAG"
-
+# docker tag "$REPO:$TAG" "$REPO:latest"
+# docker push "$REPO:$TAG"
