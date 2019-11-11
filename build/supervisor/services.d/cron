@@ -2,6 +2,6 @@
 command = /usr/sbin/cron -f
 stdout_logfile=/var/log/%(program_name)s-stdout.log
 stderr_logfile=/var/log/%(program_name)s-stderr.log
-autorestart = true
+autorestart=true
 autostart=true
 
