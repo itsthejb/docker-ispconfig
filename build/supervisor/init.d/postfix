@@ -30,3 +30,4 @@ chgrp postdrop /usr/sbin/postqueue
 chgrp postdrop /usr/sbin/postdrop
 chmod g+s /usr/sbin/postqueue
 chmod g+s /usr/sbin/postdrop
+chmod 644 /etc/postfix/mysql-virtual_*

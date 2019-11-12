@@ -1,8 +1,11 @@
 #!/bin/bash
 
 echo " - fix permissions"
+chmod 644 /etc/passwd*
+chmod 644 /etc/group*
 mkdir -p /var/run/clamav/ && chown clamav:clamav /var/run/clamav
 mkdir -p /var/lib/clamav/
 chown -R clamav:clamav /var/lib/clamav/
-sed -i "s/^Foreground false/Foreground true/g"   /etc/clamav/clamd.conf
+chown -R clamav:clamav /var/log/clamav
+sed -i "s/^Foreground false/Foreground true/g" /etc/clamav/clamd.conf
 
