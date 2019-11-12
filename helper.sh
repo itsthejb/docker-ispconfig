@@ -14,7 +14,7 @@ check()
 
 
 if [ "$1" = "" ] ; then
-  echo " usage: `basename $0` check|build|config|rerun" 
+  echo " usage: `basename $0` check|build|config|rerun|permissions" 
   exit 0
 fi
 
@@ -74,6 +74,21 @@ if [ "$1" = "rebuild" ] ; then
   exit 0
 fi
 
+if [ "$1" = "permissions" ] ; then
+  echo " - postfix"
 
+  function postfixSetPermissions() {
+    /usr/sbin/postfix set-permissions 2>&1 | grep "No such file or directory" | cut -d"'" -f2
+  }
 
-  
+  OUT=$(postfixSetPermissions)
+  while [ $? -eq 1 ]; do 
+    touch "$OUT"
+    OUT=$(postfixSetPermissions)
+  done
+
+  service postfix stop
+  postfixSetPermissions
+  postfix check
+  service postfix start
+fi
