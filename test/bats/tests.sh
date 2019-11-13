@@ -70,7 +70,7 @@ setup() {
 }
 
 @test "stored roundcube password is correctly changed" {
-  run docker exec ispconfig grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
+  run docker exec "$CONTAINER" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
 }
 
 @test "cron jobs are running" {

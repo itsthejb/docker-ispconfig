@@ -13,7 +13,7 @@ function buildAndTest() {
   fi
 
   DOWN="docker-compose -f test/$YML down -v"
-  CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit sut"
+  CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit --force-recreate --remove-orphans sut"
   if ! $CMD; then
     echo "Failed: \"$CMD\""
     $DOWN &> /dev/null || true
