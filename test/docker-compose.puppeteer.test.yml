@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.puppeteer
     depends_on:
-      - ispconfig
+      - ispconfig-test
     networks:
       - test_shared
     cap_add:
@@ -16,7 +16,7 @@ services:
     volumes:
       - './default:/app/test:ro'
 
-  ispconfig:
+  ispconfig-test:
     build:
       args:
         BUILD_ISPCONFIG_PORT: "443"

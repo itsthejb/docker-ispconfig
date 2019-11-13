@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-export CONTAINER="ispconfig"
+export CONTAINER="ispconfig-test"
 export TIMEOUT=10
 
 function waitForPort() {

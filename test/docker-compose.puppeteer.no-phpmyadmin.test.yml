@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.puppeteer
     depends_on:
-      - ispconfig
+      - ispconfig-test
     networks:
       - test_shared
     cap_add:
@@ -15,7 +15,8 @@ services:
     volumes:
       - './no-phpmyadmin:/app/test:ro'
 
-  ispconfig:
+  ispconfig-test:
+    container_name: ispconfig-test
     build:
       args:
         BUILD_PHPMYADMIN: "no"

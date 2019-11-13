@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const host = "ispconfig:" + process.env.PORT;
+const host = "ispconfig-test:" + process.env.PORT;
 
 const timeout = 30 * 1000;
 jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;

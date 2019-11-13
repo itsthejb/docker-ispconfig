@@ -12,13 +12,13 @@ setup() {
 }
 
 @test "ISPConfig at expected HTTP URL" {
-  curl -sL "http://ispconfig:8080" | grep "<title>ISPConfig</title>"
+  curl -sL "http://$CONTAINER:8080" | grep "<title>ISPConfig</title>"
 }
 
 @test "phpMyAdmin at expected HTTP URL" {
-  curl -sL "http://ispconfig:8080/phpmyadmin" | grep "<title>phpMyAdmin</title>"
+  curl -sL "http://$CONTAINER:8080/phpmyadmin" | grep "<title>phpMyAdmin</title>"
 }
 
 @test "ISPConfig at expected HTTP URL" {
-  curl -sL "http://ispconfig:8080/webmail" | grep "<title>Roundcube Webmail :: Welcome to Roundcube Webmail</title>"
+  curl -sL "http://$CONTAINER:8080/webmail" | grep "<title>Roundcube Webmail :: Welcome to Roundcube Webmail</title>"
 }

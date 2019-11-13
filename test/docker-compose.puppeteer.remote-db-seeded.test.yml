@@ -9,13 +9,14 @@ services:
     networks:
       - test_shared
     depends_on:
-      - ispconfig
+      - ispconfig-test
     cap_add:
       - SYS_ADMIN
     volumes:
       - './remote-db:/app/test:ro'
 
-  ispconfig:
+  ispconfig-test:
+    container_name: ispconfig-test
     build:
       context: ..
       dockerfile: Dockerfile
@@ -25,7 +26,6 @@ services:
         BUILD_PHPMYADMIN: "no"
       extra_hosts:
         database: 172.99.0.1
-    container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
     networks:
