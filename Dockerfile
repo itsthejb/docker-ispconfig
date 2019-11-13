@@ -96,11 +96,12 @@ ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 RUN service postfix restart; \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
 # --- 9 Install SpamAssassin And Clamav
-    apt-get -y --no-install-recommends install spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey gpgv1 gnupg1
+    (crontab -l; echo "") | sort - | uniq - | crontab -; \
+    apt-get -y --no-install-recommends install spamassassin clamav clamav-daemon gpg zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey gpgv1 gnupg1
 
 ADD ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
-RUN freshclam; \
-    (crontab -l; echo "@daily    /usr/bin/freshclam") | sort - | uniq - | sudo crontab -; \
+RUN (crontab -l; echo "@daily    /usr/bin/freshclam") | sort - | uniq - | crontab -; \
+    freshclam; \
     service spamassassin stop; \
     systemctl disable spamassassin; \
     sa-update; sa-compile; \
@@ -250,8 +251,7 @@ RUN git clone https://github.com/w2c/ispconfig3_roundcube.git /tmp/ispconfig3_ro
     cd /tmp; \
 	tar xfz ISPConfig-${BUILD_ISPCONFIG_VERSION}.tar.gz
 ADD ./build/autoinstall.ini /tmp/ispconfig3_install/install/autoinstall.ini
-RUN \
-    touch /etc/mailname; \
+RUN touch /etc/mailname; \
     sed -i "s|mysql_hostname=localhost|mysql_hostname=${BUILD_MYSQL_HOST}|" /tmp/ispconfig3_install/install/autoinstall.ini; \
     sed -i "s/^ispconfig_port=8080$/ispconfig_port=${BUILD_ISPCONFIG_PORT}/g" /tmp/ispconfig3_install/install/autoinstall.ini; \
     sed -i "s|mysql_root_password=pass|mysql_root_password=${BUILD_MYSQL_PW}|" /tmp/ispconfig3_install/install/autoinstall.ini; \
