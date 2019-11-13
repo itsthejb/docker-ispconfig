@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo " - fix permissions"
+chown -R postgrey:postgrey postgrey
