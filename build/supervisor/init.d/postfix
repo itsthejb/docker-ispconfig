@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /var/spool/postfix
+cd /var/spool/postfix || exit
 
 echo " - calling newaliases"
 newaliases
@@ -8,9 +8,9 @@ echo " - applying hosts, localtime, resolv.conf from /etc to /var/spool/postfix/
 FILES="etc/localtime etc/services etc/resolv.conf etc/hosts \
       etc/nsswitch.conf etc/nss_mdns.config"
 for file in $FILES; do
-     [ -d ${file%/*} ] || mkdir -p ${file%/*}
-     if [ -f /${file} ]; then rm -f ${file} && cp /${file} ${file}; fi
-     if [ -f  ${file} ]; then chmod a+rX ${file}; fi
+     [ -d "${file%/*}" ] || mkdir -p "${file%/*}"
+     if [ -f "/${file}" ]; then rm -f "${file}" && cp "/${file}" "${file}"; fi
+     if [ -f  "${file}" ]; then chmod a+rX "${file}"; fi
 done
 
 if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
@@ -21,7 +21,7 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
 fi
 
 echo " - creating /etc/mailname with <$(hostname -f)>"
-echo $(hostname -f) > /etc/mailname
+hostname -f > /etc/mailname
 
 echo " - ensuring correct permissions"
 chgrp -R postdrop /var/spool/postfix/public
