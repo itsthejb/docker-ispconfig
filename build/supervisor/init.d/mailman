@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -z "$DEFAULT_EMAIL_HOST" ]; then
+if [ -n "$DEFAULT_EMAIL_HOST" ]; then
   sed -i "s/^\(DEFAULT_EMAIL_HOST\) = .*$/\1 = '$MAILMAN_EMAIL_HOST'/g" /etc/mailman/mm_cfg.py
   newlist -q mailman $(MAILMAN_EMAIL) $(MAILMAN_PASS)
   newaliases
