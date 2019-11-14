@@ -1,5 +1,5 @@
 [program:rspamd]
-command=/usr/bin/rspamd -f -u _rspamd -c /etc/rspamd/rspamd.conf
+command=/usr/bin/rspamd -f -u _rspamd -g _rspamd -c /etc/rspamd/rspamd.conf
 stdout_logfile=/var/log/rspamd/rspamd.log
 stderr_logfile=/var/log/rspamd/rspamd.log
 priority=20
