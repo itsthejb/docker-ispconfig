@@ -165,7 +165,7 @@ ADD ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
 
 # --- 15 Install BIND DNS Server, haveged, unbound, rspamd
 RUN apt-get -y --no-install-recommends install haveged unbound lsb-release; \
-    echo "do-ip6: no" >> /etc/unbound/unbound.conf; \
+    echo "do-ip6: no" > /etc/unbound/unbound.conf.d/no-ip6v.conf; \
     if [ "$BUILD_REDIS" = "yes" ]; then \
         apt-get -y --no-install-recommends install redis-server; \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
