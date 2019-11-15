@@ -79,3 +79,13 @@ setup() {
   run docker exec $CONTAINER cat /var/log/ispconfig/cron.log
   [ ! $(echo "$output" | grep -v "$(date '+%a %b %-d')") ]
 }
+
+@test "root crontab is as expected" {
+  run docker exec $CONTAINER cat /var/spool/cron/crontabs/root
+  echo "$output"
+  [ $(echo "$output" | grep -E "@daily.*/usr/bin/freshclam") ]
+  [ $(echo "$output" | grep "* * * * * /usr/local/ispconfig/server/server.sh") ]
+  [ $(echo "$output" | grep "* * * * * /usr/local/ispconfig/server/cron.sh") ]
+  [ $(echo "$output" | grep "MAILTO=to@mail.com") ]
+  [ $(echo "$output" | grep "MAILFROM=from@mail.com") ]
+}

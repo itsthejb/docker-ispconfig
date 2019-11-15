@@ -31,6 +31,8 @@ services:
       - APACHE_ENABLE_MODS=macro,proxy_balancer,proxy_http
       - ROUNDCUBE_DB_PASSWORD=reconfigured
       - APACHE_DISABLE_DEFAULT_SITE=yes
+      - CRON_MAILTO=to@mail.com
+      - CRON_MAILFROM=from@mail.com
 
 networks:
   test_shared:
