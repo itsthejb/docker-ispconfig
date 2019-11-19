@@ -97,6 +97,7 @@ volumes:
 | `BUILD_CERTBOT`                  | `yes`             | Include/exclude [Let's Encrypt](https://letsencrypt.org/)
 | `BUILD_REDIS` | `yes` | Install Redis? Required for Rspamd, but can be configured to another host with `REDIS_HOST` environmental variable
 | `BUILD_TZ`                       | `Europe/Berlin`   | Timezone for the container
+| `BUILD_LOCALE` | `en_GB` | POSIX (ISO 15897) locale code for the container. UTF-8 is required and will automatically be appended
 
 ### Less-essential options
 
