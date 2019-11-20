@@ -89,3 +89,11 @@ setup() {
   [ $(echo "$output" | grep "MAILTO=to@mail.com") ]
   [ $(echo "$output" | grep "MAILFROM=from@mail.com") ]
 }
+
+@test "locale is correctly configured" {
+  run docker exec "$CONTAINER" locale
+  echo "$output"
+  [ "$(echo "$output" | grep "en" | wc -l)" -eq 15 ]
+  [ "$(echo "$output" | grep "en_US.UTF-8" | wc -l)" -eq 14 ]
+  [ "$(echo "$output" | grep -v "en" | wc -l)" -eq 0 ]
+}

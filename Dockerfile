@@ -30,7 +30,7 @@ ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
 ARG BUILD_ISPCONFIG_USE_SSL="yes"
-ARG BUILD_LOCALE="en_GB"
+ARG BUILD_LOCALE="en_US"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
 ARG BUILD_MYSQL_REMOTE_ACCESS_HOST="172.%.%.%"
@@ -49,16 +49,18 @@ ARG BUILD_TZ="Europe/Berlin"
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
 
-# --- set timezone
+# --- set timezone and locale
+RUN apt-get -y update && \
+    apt-get -y --no-install-recommends install locales && \
+    sed -i -e "s/# ${BUILD_LOCALE}.UTF-8 UTF-8/${BUILD_LOCALE}.UTF-8 UTF-8/" /etc/locale.gen && \
+    locale-gen
+ENV LANG "${BUILD_LOCALE}.UTF-8"
+ENV LANGUAGE "${BUILD_LOCALE}:en"
+ENV LC_ALL "${BUILD_LOCALE}.UTF-8"
 RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
-    apt-get -y update && apt-get -y --no-install-recommends install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx wget sudo; \
-# --- Locale
-    apt-get -y --no-install-recommends install locales; \
-    BUILD_LOCALE_UTF8="$BUILD_LOCALE.UTF-8"; \
-    grep "$BUILD_LOCALE_UTF8" /etc/locale.gen && sed -i "s/^# *\($BUILD_LOCALE_UTF8\)/\1/" /etc/locale.gen && locale-gen; \
-    echo "LANG=$BUILD_LOCALE_UTF8" > /etc/environment; \
+    apt-get -y --no-install-recommends install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx wget sudo; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
 # --- 2 Install the SSH server
