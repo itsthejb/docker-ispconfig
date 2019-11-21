@@ -187,7 +187,7 @@ RUN apt-get -y --no-install-recommends install haveged unbound lsb-release; \
     echo "nrows = 2500;" > /etc/rspamd/local.d/history_redis.conf; \
     echo "compress = true;" >> /etc/rspamd/local.d/history_redis.conf; \
     echo "subject_privacy = false;" >> /etc/rspamd/local.d/history_redis.conf; \
-    cat /etc/apt/sources.list.d/rspamd.list; \
+    sed -i 's|-f /bin/systemctl|-d /run/systemd/system|' /etc/logrotate.d/rspamd; \
 # --- 16 Install Vlogger, Webalizer, And AWStats
     apt-get -y --no-install-recommends install webalizer awstats geoip-database libclass-dbi-mysql-perl libtimedate-perl
 ADD ./build/etc/cron.d/awstats /etc/cron.d/
