@@ -108,6 +108,7 @@ volumes:
 | `BUILD_ROUNDCUBE_PW`             | `secretpassword`  | Roundcube database password
 | `BUILD_PHPMYADMIN_USER`          | `phpmyadmin`      | PHPMyAdmin database username
 | `BUILD_PHPMYADMIN_PW`            | `phpmyadmin`      | PHPMyAdmin database password
+| `BUILD_PHPMYADMIN_VERSION` | `4.9.0.1` | Version of PHPMyAdmin to install
 | `BUILD_MYSQL_PW`                 | `pass`            | Root password for MariaDB local server, if installed
 | `BUILD_ISPCONFIG_MYSQL_DATABASE` | `dbispconfig`     | ISPConfig database name
 | `BUILD_ISPCONFIG_PORT`           | `8080`            | ISPConfig web app port number (control panel, PHPMyAdmin, Roundcube)
