@@ -15,12 +15,13 @@
 #
 # Dockerfile for ISPConfig with MariaDB database
 #
+# Originally based on:
 # https://www.howtoforge.com/tutorial/perfect-server-debian-9-stretch-apache-bind-dovecot-ispconfig-3-1/
 #
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 LABEL maintainer="jon.crooke@gmail.com"
-LABEL description="ISPConfig 3.1 on Debian Stretch, with Roundcube mail, phpMyAdmin and more"
+LABEL description="ISPConfig 3.1 on Debian Buster, with Roundcube mail, phpMyAdmin and more"
 
 # All arguments
 ARG BUILD_CERTBOT="yes"
@@ -61,7 +62,7 @@ ENV LC_ALL "${BUILD_LOCALE}.UTF-8"
 RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
-    apt-get -y --no-install-recommends install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx wget sudo; \
+    apt-get -y --no-install-recommends install cron rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot wget sudo; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
     touch /var/spool/cron/root; \
@@ -108,7 +109,7 @@ RUN service postfix restart; \
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
 # --- 9 Install SpamAssassin And Clamav
     (crontab -l; echo "") | sort - | uniq - | crontab -; \
-    apt-get -y --no-install-recommends install spamassassin clamav clamav-daemon gpg zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey gpgv1 gnupg1
+    apt-get -y --no-install-recommends install spamassassin sa-compile clamav clamav-daemon gpg gpg-agent unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey gpgv1 gnupg1
 
 ADD ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN (crontab -l; echo "@daily    /usr/bin/freshclam") | sort - | uniq - | crontab -; \
@@ -118,12 +119,13 @@ RUN (crontab -l; echo "@daily    /usr/bin/freshclam") | sort - | uniq - | cronta
     sa-update; sa-compile; \
 # --- 10 Install Apache2, PHP5, FCGI, suExec, Pear, And mcrypt
     if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mysql restart; fi; \
-    apt-get -y --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi php7.0-bz2 php-apcu php-apcu-bc libapache2-mod-fcgid apache2-suexec-pristine php-pear php7.0-mcrypt mcrypt imagemagick libruby libapache2-mod-python php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy php7.0-xmlrpc php7.0-xsl memcached php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring memcached libapache2-mod-passenger php7.0-soap; \
-    a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers
+    apt-get -y --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php7.3 php7.3-common php7.3-gd php7.3-mysql php7.3-imap php7.3-cli php7.3-cgi php7.3-bz2 php-apcu php-apcu-bc libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python php7.3-curl php7.3-intl php7.3-pspell php7.3-recode php7.3-sqlite3 php7.3-tidy php7.3-xmlrpc php7.3-xsl memcached php-memcache php-imagick php-gettext php7.3-zip php7.3-mbstring memcached libapache2-mod-passenger php7.3-soap; \
+    apt-get -y --no-install-recommends install -y php php-cgi php-mysqli php-pear php-mbstring php-gettext libapache2-mod-php php-common php-phpseclib php-mysql; \
+    /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers
 ADD ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
 RUN echo "ServerName ${BUILD_HOSTNAME}" | tee /etc/apache2/conf-available/fqdn.conf; \
-	a2enconf fqdn; \
-    a2enconf httpoxy
+	/usr/sbin/a2enconf fqdn; \
+    /usr/sbin/a2enconf httpoxy
 
 # --- 10.1 Install phpMyAdmin (optional)
 # https://www.linuxbabe.com/debian/install-phpmyadmin-apache-lamp-debian-10-buster
@@ -139,8 +141,8 @@ RUN \
             service mysql restart; \
             mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "CREATE DATABASE phpmyadmin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; \
             mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "GRANT ALL ON phpmyadmin.* TO '${BUILD_PHPMYADMIN_USER}'@'localhost' IDENTIFIED BY '${BUILD_PHPMYADMIN_PW}';"; \
-            apt-get -y --no-install-recommends install php-imagick php-phpseclib php-php-gettext php7.0-common php7.0-mysql php7.0-gd php7.0-imap php7.0-json php7.0-curl php7.0-zip php7.0-xml php7.0-mbstring php7.0-bz2 php7.0-intl php7.0-gmp ;\
-            a2enconf phpmyadmin.conf; \
+            apt-get -y --no-install-recommends install php-imagick php-phpseclib php-php-gettext php7.3-common php7.3-mysql php7.3-gd php7.3-imap php7.3-json php7.3-curl php7.3-zip php7.3-xml php7.3-mbstring php7.3-bz2 php7.3-intl php7.3-gmp ;\
+            /usr/sbin/a2enconf phpmyadmin.conf; \
             mv /tmp/phpmyadmin.config.inc.php /usr/share/phpmyadmin/config.inc.php; \
             sed -i "s|\['controlhost'\] = '';|\['controlhost'\] = '${BUILD_MYSQL_HOST}';|" /usr/share/phpmyadmin/config.inc.php; \
             sed -i "s|\['controluser'\] = '';|\['controluser'\] = '${BUILD_PHPMYADMIN_USER}';|" /usr/share/phpmyadmin/config.inc.php; \
@@ -158,12 +160,12 @@ RUN \
 # --- 11 Free SSL RUN mkdir /opt/certbot
     if [ "${BUILD_CERTBOT}" = "yes" ]; then apt-get -y --no-install-recommends install certbot; fi; \
 # --- 12 PHP-FPM
-    apt-get -y --no-install-recommends install php7.0-fpm; \
-    a2enmod actions proxy_fcgi alias setenvif; \
-    a2enconf php7.0-fpm; \
+    apt-get -y --no-install-recommends install php7.3-fpm; \
+    /usr/sbin/a2enmod actions proxy_fcgi alias setenvif; \
+    /usr/sbin/a2enconf php7.3-fpm; \
     service apache2 restart; \
 # --- 12.2 Opcode Cache
-    apt-get -y --no-install-recommends install php7.0-opcache php-apcu; service apache2 restart; \
+    apt-get -y --no-install-recommends install php7.3-opcache php-apcu; service apache2 restart; \
 # --- 13 Install Mailman
 # Doesn't really work (yet)
     echo 'mailman mailman/default_server_language select en' | debconf-set-selections; \
