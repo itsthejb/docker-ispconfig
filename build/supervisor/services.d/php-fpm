@@ -1,5 +1,5 @@
 [program:php-fpm]
-command=/usr/sbin/php-fpm7.0 -F
+command=/usr/sbin/php-fpm7.3 -F
 autorestart=unexpected
 autostart=true
 stdout_logfile=/var/log/php-fpm/stdout.log

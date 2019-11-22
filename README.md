@@ -13,7 +13,7 @@ This is a fork of [Unimock](https://github.com/unimock)'s excellent work on impl
 
 ## Changes from the base project
 
-* Updated to Debian 9 Stretch
+* Updated to Debian 10 (Buster)
 * Support for a non-local MYSQL server
 * Out-of-the-box support for a custom SSL certificate
 * Integration tests running on [Docker Cloud](https://cloud.docker.com/repository/docker/itsthejb/ispconfig-docker)
