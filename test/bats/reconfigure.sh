@@ -10,7 +10,6 @@ setup() {
 
 @test "services have been reconfigured to MYSQL_HOST" {
   docker exec "$CONTAINER" grep "^\$conf\['db_host'\] = '0.0.0.0';$" /usr/local/ispconfig/interface/lib/config.inc.php
-  docker exec "$CONTAINER" grep "^\$dbserver='0.0.0.0';$" /etc/phpmyadmin/config-db.php
   docker exec "$CONTAINER" grep "^\$config\['db_dsnw'\] = 'mysql://roundcube:secretpassword@0.0.0.0/roundcube';$" /opt/roundcube/config/config.inc.php
 }
 

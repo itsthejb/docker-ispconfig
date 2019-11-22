@@ -25,9 +25,6 @@ if [ "$1" = "mysql_host" ] ; then
   echo "reconfiguring mysql host to \"$HOST\""
   sed -i "s|\$conf\['db_host'\] = '\(.*\)';|\$conf\['db_host'\] = '$HOST';|" "${ISP_CONFIG}"
 
-  if [ -f "/var/lib/phpmyadmin/config.inc.php" ]; then
-    sed -i "s|\$dbserver='\(.*\)';|\$dbserver='$HOST';|" /etc/phpmyadmin/config-db.php
-  fi
   if [ -f "${ROUNDCUBE_CONFIG}" ]; then
     sed -i "s|mysql://\(.*\)@\(.*\)/roundcube|mysql://\1@$HOST/roundcube|" "${ROUNDCUBE_CONFIG}"
   fi

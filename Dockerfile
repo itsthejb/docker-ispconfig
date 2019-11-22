@@ -37,6 +37,7 @@ ARG BUILD_MYSQL_REMOTE_ACCESS_HOST="172.%.%.%"
 ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
+ARG BUILD_PHPMYADMIN_VERSION="4.9.1"
 ARG BUILD_PRINTING="no"
 ARG BUILD_REDIS="yes"
 ARG BUILD_ROUNDCUBE_VERSION="1.4.0"
@@ -63,6 +64,8 @@ RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     apt-get -y --no-install-recommends install rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot heirloom-mailx wget sudo; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
+    touch /var/spool/cron/root; \
+    crontab /var/spool/cron/root; \
 # --- 2 Install the SSH server
     apt-get -y --no-install-recommends install ssh openssh-server rsync; \
 # --- 3 Install a shell text editor
@@ -97,7 +100,7 @@ RUN \
         echo "\e[31mConnection to mysql host \"${BUILD_MYSQL_HOST}\" failed!\e[0m"; \
         exit 1; \
     fi; \
-# --- 8 Install Postfix, Dovecot, phpMyAdmin, rkhunter, binutils
+# --- 8 Install Postfix, Dovecot, rkhunter, binutils
     apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc libsasl2-modules openssl getmail4 binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd
 ADD ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
@@ -123,26 +126,29 @@ RUN echo "ServerName ${BUILD_HOSTNAME}" | tee /etc/apache2/conf-available/fqdn.c
     a2enconf httpoxy
 
 # --- 10.1 Install phpMyAdmin (optional)
-# TODO change phpmyadmin password with debconf?
-ADD ./build/etc/phpmyadmin/config.inc.php /var/lib/phpmyadmin
+# https://www.linuxbabe.com/debian/install-phpmyadmin-apache-lamp-debian-10-buster
+COPY ./build/etc/phpmyadmin/config.inc.php /tmp/phpmyadmin.config.inc.php
+COPY ./build/etc/apache2/phpmyadmin.conf /etc/apache2/conf-available/phpmyadmin.conf
 RUN \
     if [ "${BUILD_PHPMYADMIN}" = "yes" ]; then \
         if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
+            wget "https://files.phpmyadmin.net/phpMyAdmin/${BUILD_PHPMYADMIN_VERSION}/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages.zip" -O "/tmp/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages.zip"; \
+            unzip "/tmp/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages.zip" -d /usr/share/; \
+            mv "/usr/share/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages" /usr/share/phpmyadmin; \
+            chown -R www-data:www-data /usr/share/phpmyadmin; \
             service mysql restart; \
-            echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections; \
-            echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${BUILD_MYSQL_PW}" | debconf-set-selections; \
-            echo "phpmyadmin phpmyadmin/db/app-user string ${BUILD_PHPMYADMIN_USER}" | debconf-set-selections; \
-            echo "phpmyadmin phpmyadmin/mysql/app-pass password ${BUILD_PHPMYADMIN_PW}" | debconf-set-selections; \
-            echo "phpmyadmin phpmyadmin/app-password-confirm password ${BUILD_PHPMYADMIN_PW}" | debconf-set-selections; \
-            echo "phpmyadmin phpmyadmin/password-confirm password ${BUILD_PHPMYADMIN_PW}" | debconf-set-selections; \
-            echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections; \
-            apt-get -y --no-install-recommends install phpmyadmin; \
-            mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "SET PASSWORD FOR '${BUILD_PHPMYADMIN_USER}'@'localhost' = PASSWORD('${BUILD_PHPMYADMIN_PW}');"; \
-            sed -i "s|['controlhost'] = '';|['controlhost'] = '${BUILD_MYSQL_HOST}';|" /var/lib/phpmyadmin/config.inc.php; \
-            sed -i "s|['controluser'] = '';|['controluser'] = '${BUILD_PHPMYADMIN_USER}';|" /var/lib/phpmyadmin/config.inc.php; \
-            sed -i "s|['controlpass'] = '';|['controlpass'] = '${BUILD_PHPMYADMIN_PW}';|" /var/lib/phpmyadmin/config.inc.php; \
-            sed -i "s|\$dbuser='.*';|\$dbuser='${BUILD_PHPMYADMIN_USER}';|" /etc/phpmyadmin/config-db.php; \
-            sed -i "s|\$dbpass='.*';|\$dbpass='${BUILD_PHPMYADMIN_PW}';|" /etc/phpmyadmin/config-db.php; \
+            mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "CREATE DATABASE phpmyadmin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; \
+            mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "GRANT ALL ON phpmyadmin.* TO '${BUILD_PHPMYADMIN_USER}'@'localhost' IDENTIFIED BY '${BUILD_PHPMYADMIN_PW}';"; \
+            apt-get -y --no-install-recommends install php-imagick php-phpseclib php-php-gettext php7.0-common php7.0-mysql php7.0-gd php7.0-imap php7.0-json php7.0-curl php7.0-zip php7.0-xml php7.0-mbstring php7.0-bz2 php7.0-intl php7.0-gmp ;\
+            a2enconf phpmyadmin.conf; \
+            mv /tmp/phpmyadmin.config.inc.php /usr/share/phpmyadmin/config.inc.php; \
+            sed -i "s|\['controlhost'\] = '';|\['controlhost'\] = '${BUILD_MYSQL_HOST}';|" /usr/share/phpmyadmin/config.inc.php; \
+            sed -i "s|\['controluser'\] = '';|\['controluser'\] = '${BUILD_PHPMYADMIN_USER}';|" /usr/share/phpmyadmin/config.inc.php; \
+            sed -i "s|\['controlpass'\] = '';|\['controlpass'\] = '${BUILD_PHPMYADMIN_PW}';|" /usr/share/phpmyadmin/config.inc.php; \
+            mkdir -p /var/lib/phpmyadmin/tmp; \
+            chown www-data:www-data /var/lib/phpmyadmin/tmp; \
+            service apache2 restart; \
+            service apache2 reload; \
         else \
             echo "\e[31m'BUILD_PHPMYADMIN' = 'yes', but 'BUILD_MYSQL_HOST' is not 'localhost' ('${BUILD_MYSQL_HOST}')\e[0m"; \
             echo "\e[31mCan't currently install phpMyAdmin with a remote server connection. Sorry!\e[0m"; \
@@ -153,7 +159,9 @@ RUN \
     if [ "${BUILD_CERTBOT}" = "yes" ]; then apt-get -y --no-install-recommends install certbot; fi; \
 # --- 12 PHP-FPM
     apt-get -y --no-install-recommends install php7.0-fpm; \
-    a2enmod actions proxy_fcgi alias; service apache2 restart; \
+    a2enmod actions proxy_fcgi alias setenvif; \
+    a2enconf php7.0-fpm; \
+    service apache2 restart; \
 # --- 12.2 Opcode Cache
     apt-get -y --no-install-recommends install php7.0-opcache php-apcu; service apache2 restart; \
 # --- 13 Install Mailman
