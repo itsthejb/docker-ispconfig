@@ -1,8 +1,16 @@
 #!/bin/bash
 cd /var/spool/postfix || exit
 
+echo " - ensure permissions"
+mkdir -p /var/lib/postfix
+postfix set-permissions 2> /dev/null || true
+
 echo " - calling newaliases"
 newaliases
+
+echo " - sync certs"
+cp /etc/ssl/certs/ca-certificates.crt /var/spool/postfix/etc/ssl/certs/ca-certificates.crt
+cp /lib/x86_64-linux-gnu/libgcc_s.so.1 /var/spool/postfix/lib/x86_64-linux-gnu/libgcc_s.so.1
 
 echo " - applying hosts, localtime, resolv.conf from /etc to /var/spool/postfix/etc"
 FILES="etc/localtime etc/services etc/resolv.conf etc/hosts \
