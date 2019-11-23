@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo " - creating directories for php-fpm"
-mkdir -p /var/lib/php7.0-fpm
+mkdir -p /var/lib/php7.3-fpm
 mkdir -p /var/log/php-fpm
 mkdir -p /var/run/php
 
