@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo " - ensure all mounts"
+mount -a
+
 if [ -n "$APACHE_ENABLE_MODS" ]; then
   echo " - enabling requested mods '$APACHE_ENABLE_MODS'"
   for MOD in $(echo "$APACHE_ENABLE_MODS" | tr ',' ' '); do
