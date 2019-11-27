@@ -63,6 +63,7 @@ RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
     apt-get -y --no-install-recommends install cron rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot wget sudo; \
+    ln -s /usr/bin/true /usr/bin/systemctl; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
     touch /var/spool/cron/root; \

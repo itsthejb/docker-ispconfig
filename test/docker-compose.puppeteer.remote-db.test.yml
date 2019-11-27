@@ -26,7 +26,7 @@ services:
         BUILD_PHPMYADMIN: "no"
       extra_hosts:
         database: 172.99.0.1
-    hostname: ispconfig
+    hostname: ispconfig-test
     domainname: test.com
     networks:
       - test_shared

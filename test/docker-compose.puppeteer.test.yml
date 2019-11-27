@@ -17,6 +17,7 @@ services:
       - './default:/app/test:ro'
 
   ispconfig-test:
+    container_name: ispconfig-test
     build:
       args:
         BUILD_ISPCONFIG_PORT: "443"
