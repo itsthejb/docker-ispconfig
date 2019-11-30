@@ -33,7 +33,6 @@ services:
       - SSL_CHAIN=/etc/ssl/local/test.com.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
       - HOSTNAME_EMAIL=email.myhost.test.com
-      - DISABLED_SERVICES=rspamd unbound mailman
     volumes:
       - ./ssl:/etc/ssl/local:ro
 

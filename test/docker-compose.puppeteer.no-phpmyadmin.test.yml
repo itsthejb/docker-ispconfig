@@ -26,8 +26,6 @@ services:
       service: ispconfig
     networks:
       - test_shared
-    environment:
-      - DISABLED_SERVICES=rspamd unbound mailman
 
 networks:
   test_shared:

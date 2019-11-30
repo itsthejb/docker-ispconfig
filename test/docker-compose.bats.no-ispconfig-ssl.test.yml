@@ -32,7 +32,6 @@ services:
     environment:
       - SSL_CERT=/etc/ssl/local/test.com.crt
       - SSL_KEY=/etc/ssl/local/test.com.key
-      - DISABLED_SERVICES=rspamd unbound mailman
     volumes:
       - ./ssl:/etc/ssl/local:ro
 

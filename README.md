@@ -156,7 +156,7 @@ It is possible to connect to a remote SQL server during the build. This would re
 | `MYSQL_HOST` | `host` | Reconfigure services to point to this SQL server
 | `HOSTNAME` | `myhost.test.com` | Runtime hostname
 | `HOSTNAME_EMAIL` | `email.myhost.test.com` | Runtime hostname for email
-| `DISABLED_SERVICES` | `mailman` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
+| `DISABLED_SERVICES` | `mailman unbound` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
 | `POSTGREY_DELAY` | `300` | [Postgrey delay time](https://wiki.centos.org/HowTos/postgrey)
 | `POSTGREY_MAX_AGE` | `35` | [Postgrey maximum age](https://wiki.centos.org/HowTos/postgrey)
 | `POSTGREY_TEXT` | `"Delayed by postgrey"` | [Postgrey delay message](https://wiki.centos.org/HowTos/postgrey)

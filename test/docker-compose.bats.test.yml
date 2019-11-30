@@ -34,7 +34,6 @@ services:
       - APACHE_DISABLE_DEFAULT_SITE=yes
       - CRON_MAILTO=to@mail.com
       - CRON_MAILFROM=from@mail.com
-      - DISABLED_SERVICES=rspamd unbound mailman
 
 networks:
   test_shared:

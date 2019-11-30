@@ -76,8 +76,11 @@ setup() {
 @test "cron jobs are running" {
   run docker exec $CONTAINER grep "(*system*) NUMBER OF HARD LINKS > 1" /var/log/syslog
   [ "$status" -eq 1 ]
+}
+
+@test "cron log should contain no errors, only timestamped info" {
   run docker exec $CONTAINER cat /var/log/ispconfig/cron.log
-  [ ! $(echo "$output" | grep -v "$(date '+%a %b %-d')") ]
+  [ ! $(echo "$output" | grep -Ev "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}") ]
 }
 
 @test "root crontab is as expected" {
