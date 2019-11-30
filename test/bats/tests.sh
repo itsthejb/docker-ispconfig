@@ -69,6 +69,12 @@ setup() {
   testPortsFTP
 }
 
+@test "default rspamd web interface is accessible" {
+  docker exec "$CONTAINER" apt-get -y install curl
+  run docker exec "$CONTAINER" curl "http://localhost:11334"
+  [ $(echo "$output" | grep "<title>Rspamd Web Interface</title>") ]
+}
+
 @test "stored roundcube password is correctly changed" {
   run docker exec "$CONTAINER" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
 }
