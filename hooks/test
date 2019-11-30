@@ -16,12 +16,12 @@ function buildAndTest() {
 
   DOWN="docker-compose -f test/$YML down -v"
   CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit --force-recreate --remove-orphans sut"
-  if ! $CMD; then
+  if $CMD; then
+    $DOWN || true
+  else
     echo "Failed: \"$CMD\""
-    $DOWN &> /dev/null || true
     exit 1
   fi
-  $DOWN &> /dev/null || true
 }
 
 function cleanImage() {
@@ -49,8 +49,12 @@ function testLiveDB() {
   databaseUp "$1"
   buildAndTest "$1" --no-cache
   databaseDown "$1"
+  docker image rmi ispconfig-test
+  cleanImage
 }
 
 testLiveDB "docker-compose.puppeteer.remote-db.test.yml"
 testLiveDB "docker-compose.puppeteer.remote-db-seeded.test.yml"
 testNormal
+
+echo "$(tput bold)=> Tests succeeded! $(tput sgr0)"
