@@ -1,6 +1,8 @@
 #!/bin/bash -xe
 
 trap "echo Exited!; exit;" SIGINT SIGTERM
+
+export CONTAINER="ispconfig-test"
 if command -v gsed; then SED="gsed"; else SED="sed"; fi
 
 function buildAndTest() {
@@ -22,12 +24,16 @@ function buildAndTest() {
   $DOWN &> /dev/null || true
 }
 
+function cleanImage() {
+    docker image rmi "$CONTAINER" 2> /dev/null || true
+}
+
 function testNormal() {
+  buildAndTest docker-compose.puppeteer.test.yml
+  buildAndTest docker-compose.puppeteer.no-phpmyadmin.test.yml
   buildAndTest docker-compose.bats.test.yml
   buildAndTest docker-compose.bats.custom-ssl.test.yml
   buildAndTest docker-compose.bats.reconfigure.test.yml
-  buildAndTest docker-compose.puppeteer.test.yml
-  buildAndTest docker-compose.puppeteer.no-phpmyadmin.test.yml
 }
 
 function testLiveDB() {
@@ -39,11 +45,12 @@ function testLiveDB() {
     docker rm mariadb
   }
 
+  cleanImage
   databaseUp "$1"
   buildAndTest "$1" --no-cache
   databaseDown "$1"
 }
 
-testNormal
 testLiveDB "docker-compose.puppeteer.remote-db.test.yml"
 testLiveDB "docker-compose.puppeteer.remote-db-seeded.test.yml"
+testNormal
