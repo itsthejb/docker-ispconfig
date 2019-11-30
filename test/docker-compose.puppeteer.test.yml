@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
   sut:
@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile.puppeteer
     depends_on:
-      ispconfig-test:
-        condition: service_healthy
+      - ispconfig-test:
+          condition: service_healthy
     networks:
       - test_shared
     cap_add:
