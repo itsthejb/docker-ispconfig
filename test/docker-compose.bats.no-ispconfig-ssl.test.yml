@@ -6,7 +6,8 @@ services:
     image: graze/bats
     command: /app/bats/no-ispconfig-ssl.sh
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     environment:
@@ -31,6 +32,7 @@ services:
     environment:
       - SSL_CERT=/etc/ssl/local/test.com.crt
       - SSL_KEY=/etc/ssl/local/test.com.key
+      - DISABLED_SERVICES=rspamd unbound
     volumes:
       - ./ssl:/etc/ssl/local:ro
 

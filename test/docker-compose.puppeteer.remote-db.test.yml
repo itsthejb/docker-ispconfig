@@ -9,7 +9,8 @@ services:
     networks:
       - test_shared
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     cap_add:
       - SYS_ADMIN
     volumes:
@@ -43,7 +44,7 @@ services:
     environment:
       - HOSTNAME=myhost.test.com
       - LANGUAGE=en
-      - DISABLED_SERVICES=bind9 mailman mysql
+      - DISABLED_SERVICES=bind9 mailman mysql rspamd unbound
       - POSTGREY_DELAY=300
       - POSTGREY_MAX_AGE=35
       - POSTGREY_TEXT="Delayed by postgrey"

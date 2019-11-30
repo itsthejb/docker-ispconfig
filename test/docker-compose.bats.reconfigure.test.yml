@@ -6,7 +6,8 @@ services:
     image: graze/bats
     command: /app/bats/reconfigure.sh
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     environment:
@@ -19,7 +20,7 @@ services:
     container_name: ispconfig-test
     environment:
       - MYSQL_HOST=0.0.0.0
-      - DISABLED_SERVICES=mailman
+      - DISABLED_SERVICES=mailman rspamd unbound
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig

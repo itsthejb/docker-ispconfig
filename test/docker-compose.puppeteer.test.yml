@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile.puppeteer
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     cap_add:
@@ -26,6 +27,8 @@ services:
       service: ispconfig
     networks:
       - test_shared
+    environment:
+      - DISABLED_SERVICES=rspamd unbound
 
 networks:
   test_shared:

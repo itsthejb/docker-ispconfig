@@ -6,7 +6,8 @@ services:
     image: graze/bats
     command: /app/bats/tests.sh
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     volumes:
@@ -33,6 +34,7 @@ services:
       - APACHE_DISABLE_DEFAULT_SITE=yes
       - CRON_MAILTO=to@mail.com
       - CRON_MAILFROM=from@mail.com
+      - DISABLED_SERVICES=rspamd unbound
 
 networks:
   test_shared:

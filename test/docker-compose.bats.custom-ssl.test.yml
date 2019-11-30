@@ -6,7 +6,8 @@ services:
     image: graze/bats
     command: /app/bats/custom-ssl.sh
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     environment:
@@ -32,6 +33,7 @@ services:
       - SSL_CHAIN=/etc/ssl/local/test.com.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
       - HOSTNAME_EMAIL=email.myhost.test.com
+      - DISABLED_SERVICES=rspamd unbound
     volumes:
       - ./ssl:/etc/ssl/local:ro
 
