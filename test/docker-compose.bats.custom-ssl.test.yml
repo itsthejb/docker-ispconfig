@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
 
@@ -6,14 +6,15 @@ services:
     image: graze/bats
     command: /app/bats/custom-ssl.sh
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     environment:
       - HOSTNAME=myhost.test.com
       - HOSTNAME_EMAIL=email.myhost.test.com
       - SSL_CERT=/etc/ssl/local/test.com.crt
-      - SSL_CHAIN=/etc/ssl/local/test.com.chain.pem
+      - SSL_CHAIN=/etc/ssl/local/test.com.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
     volumes:
       - ./:/app:ro
@@ -29,7 +30,7 @@ services:
       - test_shared
     environment:
       - SSL_CERT=/etc/ssl/local/test.com.crt
-      - SSL_CHAIN=/etc/ssl/local/test.com.chain.pem
+      - SSL_CHAIN=/etc/ssl/local/test.com.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
       - HOSTNAME_EMAIL=email.myhost.test.com
     volumes:

@@ -69,6 +69,12 @@ setup() {
   testPortsFTP
 }
 
+@test "default rspamd web interface is accessible" {
+  docker exec "$CONTAINER" apt-get -y install curl
+  run docker exec "$CONTAINER" curl "http://localhost:11334"
+  [ $(echo "$output" | grep "<title>Rspamd Web Interface</title>") ]
+}
+
 @test "stored roundcube password is correctly changed" {
   run docker exec "$CONTAINER" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
 }
@@ -76,8 +82,11 @@ setup() {
 @test "cron jobs are running" {
   run docker exec $CONTAINER grep "(*system*) NUMBER OF HARD LINKS > 1" /var/log/syslog
   [ "$status" -eq 1 ]
+}
+
+@test "cron log should contain no errors, only timestamped info" {
   run docker exec $CONTAINER cat /var/log/ispconfig/cron.log
-  [ ! $(echo "$output" | grep -v "$(date '+%a %b %-d')") ]
+  [ ! $(echo "$output" | grep -Ev "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}") ]
 }
 
 @test "root crontab is as expected" {

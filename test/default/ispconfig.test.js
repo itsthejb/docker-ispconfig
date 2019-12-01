@@ -6,7 +6,7 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
 page.setDefaultNavigationTimeout(timeout);
 
 describe('ISPConfig Admin Interface', () => {
-beforeAll(async () => {
+  beforeAll(async () => {
     await page.goto("https://" + host);
   })
 

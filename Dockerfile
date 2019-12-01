@@ -63,6 +63,7 @@ RUN ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
     apt-get -y --no-install-recommends install cron rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot wget sudo; \
+    ln -s /usr/bin/true /usr/bin/systemctl; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
     touch /var/spool/cron/root; \
@@ -360,7 +361,7 @@ RUN echo "export TERM=xterm" >> /root/.bashrc; \
 EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 3306
 
 HEALTHCHECK --start-period=2m --timeout=3s --retries=1 \
-  CMD sh -c '! supervisorctl status all | grep "FATAL"'
+  CMD sh -c '! supervisorctl status all | grep -E "STARTING|FATAL"'
 
 #
 # startup script

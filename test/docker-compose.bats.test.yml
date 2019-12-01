@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
 
@@ -6,7 +6,8 @@ services:
     image: graze/bats
     command: /app/bats/tests.sh
     depends_on:
-      - ispconfig-test
+      ispconfig-test:
+        condition: service_healthy
     networks:
       - test_shared
     volumes:
