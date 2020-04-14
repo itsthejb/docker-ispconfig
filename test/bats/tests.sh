@@ -71,8 +71,7 @@ setup() {
 
 @test "default rspamd web interface is accessible" {
   docker exec "$CONTAINER" apt-get -y install curl
-  run docker exec "$CONTAINER" curl "http://localhost:11334"
-  [ $(echo "$output" | grep "<title>Rspamd Web Interface</title>") ]
+  docker exec "$CONTAINER" curl -s "http://localhost:11334"
 }
 
 @test "stored roundcube password is correctly changed" {
