@@ -70,6 +70,7 @@ setup() {
 }
 
 @test "default rspamd web interface is accessible" {
+  skip
   docker exec "$CONTAINER" apt-get -y install curl
   docker exec "$CONTAINER" curl -s "http://localhost:11334"
 }
