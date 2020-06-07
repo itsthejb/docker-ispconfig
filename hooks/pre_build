@@ -6,4 +6,4 @@ docker run \
     --rm \
     -i \
     -v $DIR/../.hadolint.yaml:/root/.config/hadolint.yaml \
-    hadolint/hadolint < Dockerfile
+    hadolint/hadolint < Dockerfile || true
