@@ -126,7 +126,7 @@ RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | cr
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
 RUN apt-get update; \
-    echo "ServerName ${BUILD_HOSTNAME}" | tee /etc/apache2/conf-available/fqdn.conf; \
+    printf "ServerName %s" "${BUILD_HOSTNAME}" | tee /etc/apache2/conf-available/fqdn.conf; \
 	/usr/sbin/a2enconf fqdn; \
     /usr/sbin/a2enconf httpoxy; \
 # --- 11 Free SSL RUN mkdir /opt/certbot
@@ -217,8 +217,8 @@ RUN service fail2ban restart; \
             service apache2 restart; \
             service apache2 reload; \
         else \
-            echo "\e[31m'BUILD_PHPMYADMIN' = 'yes', but 'BUILD_MYSQL_HOST' is not 'localhost' ('${BUILD_MYSQL_HOST}')\e[0m"; \
-            echo "\e[31mCan't currently install phpMyAdmin with a remote server connection. Sorry!\e[0m"; \
+            printf "\e[31m'BUILD_PHPMYADMIN' = 'yes', but 'BUILD_MYSQL_HOST' is not 'localhost' ('%s')\e[0m" "${BUILD_MYSQL_HOST}"; \
+            printf "\e[31mCan't currently install phpMyAdmin with a remote server connection. Sorry!\e[0m"; \
         fi; \
     fi; \
     service apache2 restart; \
@@ -231,8 +231,8 @@ RUN service fail2ban restart; \
         service mysql restart; \
         BUILD_MYSQL_REMOTE_ACCESS_HOST="localhost"; \
     fi; \
-    if ! echo "USE ${BUILD_ROUNDCUBE_DB};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
-        echo "CREATE DATABASE ${BUILD_ROUNDCUBE_DB};" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
+    if ! printf "USE %s;" "${BUILD_ROUNDCUBE_DB}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
+        printf "CREATE DATABASE %s;" "${BUILD_ROUNDCUBE_DB}" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
         mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} ${BUILD_ROUNDCUBE_DB} < $BUILD_ROUNDCUBE_DIR/SQL/mysql.initial.sql; \
     fi; \
     mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "\
@@ -269,11 +269,11 @@ RUN touch "/etc/mailname"; \
     sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" "/tmp/ispconfig3_install/install/autoinstall.ini"; \
     sed -i "s/^ispconfig_use_ssl=y$/ispconfig_use_ssl=$(printf "%s" ${BUILD_ISPCONFIG_USE_SSL} | cut -c1)/g" "/tmp/ispconfig3_install/install/autoinstall.ini"; \
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
-    if echo "USE ${BUILD_ISPCONFIG_MYSQL_DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
+    if printf "USE %s;" "${BUILD_ISPCONFIG_MYSQL_DATABASE}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
         if [ ${BUILD_ISPCONFIG_DROP_EXISTING} = "yes" ]; then \
-            echo "DROP DATABASE ${BUILD_ISPCONFIG_MYSQL_DATABASE};" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
+            printf "DROP DATABASE %s;" "${BUILD_ISPCONFIG_MYSQL_DATABASE}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
         else \
-            echo "\e[31mERROR: ISPConfig database '${BUILD_ISPCONFIG_MYSQL_DATABASE}' already exists and build argument 'BUILD_ISPCONFIG_DROP_EXISTING' = 'no'. Move the existing database aside before continuing\e[0m"; \
+            printf "\e[31mERROR: ISPConfig database '%s' already exists and build argument 'BUILD_ISPCONFIG_DROP_EXISTING' = 'no'. Move the existing database aside before continuing\e[0m" "${BUILD_ISPCONFIG_MYSQL_DATABASE}"; \
 	exit 1; \
         fi; \
     fi; \
