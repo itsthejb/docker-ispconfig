@@ -8,16 +8,33 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BUILD_TZ: Europe/Berlin
-        BUILD_HOSTNAME: myhost.test.com
-        BUILD_MYSQL_PW: pass
+        BUILD_CERTBOT: "yes"
+        BUILD_HOSTNAME: "myhost.test.com"
+        BUILD_ISPCONFIG_VERSION: "3.1.15p3"
+        BUILD_ISPCONFIG_DROP_EXISTING: "no"
+        BUILD_ISPCONFIG_MYSQL_DATABASE: "dbispconfig"
+        BUILD_ISPCONFIG_PORT: "8080"
+        BUILD_ISPCONFIG_USE_SSL: "yes"
+        BUILD_LOCALE: "en_US"
+        BUILD_MYSQL_HOST: "localhost"
+        BUILD_MYSQL_PW: "pass"
+        BUILD_MYSQL_REMOTE_ACCESS_HOST: "172.%.%.%"
+        BUILD_PHPMYADMIN: "yes"
+        BUILD_PHPMYADMIN_PW: "phpmyadmin"
+        BUILD_PHPMYADMIN_USER: "phpmyadmin"
+        BUILD_PHPMYADMIN_VERSION: "4.9.1"
         BUILD_PRINTING: "no"
         BUILD_REDIS: "yes"
-        BUILD_ISPCONFIG_USE_SSL: "yes"
+        BUILD_ROUNDCUBE_VERSION: "1.4.5"
+        BUILD_ROUNDCUBE_DB: "roundcube"
+        BUILD_ROUNDCUBE_DIR: "/opt/roundcube"
+        BUILD_ROUNDCUBE_PW: "secretpassword"
+        BUILD_ROUNDCUBE_USER: "roundcube"
+        BUILD_TZ: "Europe/Berlin"
     ##################################################
     # RUN section
     ##################################################
-    image: itsthejb/ispconfig:0.7.4
+    image: itsthejb/ispconfig:0.8.0
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
