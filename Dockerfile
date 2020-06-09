@@ -105,15 +105,15 @@ RUN if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
         exit 1; \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
-    apt-get update && apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd; \
+    apt-get update && apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN service postfix restart; \
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
-# --- 9 Install Amavisd-new, SpamAssassin, and ClamAV
+# --- 9 Install SpamAssassin, and ClamAV
     (crontab -l; printf "\n") | sort - | uniq - | crontab -; \
-    apt-get update && apt-get -y --no-install-recommends install amavisd-new spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
+    apt-get update && apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
