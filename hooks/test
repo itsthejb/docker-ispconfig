@@ -1,5 +1,7 @@
 #!/bin/bash -xe
 
+if [ "$SOURCE_BRANCH" = "master" ]; then exit 1; fi
+
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
 export CONTAINER="ispconfig-test"
