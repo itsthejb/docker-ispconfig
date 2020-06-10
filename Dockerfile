@@ -54,39 +54,39 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # --- set timezone and locale
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN apt-get -y update && \
-    apt-get -y --no-install-recommends install apt-utils locales && \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apt-utils locales && \
     sed -i -e "s/# ${BUILD_LOCALE}.UTF-8 UTF-8/${BUILD_LOCALE}.UTF-8 UTF-8/" /etc/locale.gen && \
     locale-gen; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 ENV LANG "${BUILD_LOCALE}.UTF-8"
 ENV LANGUAGE "${BUILD_LOCALE}:en"
 ENV LC_ALL "${BUILD_LOCALE}.UTF-8"
-RUN apt-get -y update && \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
-    apt-get -y --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot wget sudo; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot wget sudo; \
     ln -s /usr/bin/true /usr/bin/systemctl; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
     touch /var/spool/cron/root; \
     crontab /var/spool/cron/root; \
 # --- 2 Install the SSH server
-    apt-get -y --no-install-recommends install ssh openssh-server; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install ssh openssh-server; \
 # --- 3 Install a shell text editor
-    apt-get -y --no-install-recommends install nano vim-nox; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install nano vim-nox; \
 # --- 6 Change The Default Shell
     printf "dash  dash/sh boolean no\n" | debconf-set-selections; \
     dpkg-reconfigure dash; \
 # --- 7 Synchronize the System Clock
-    apt-get -y --no-install-recommends install ntp ntpdate; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install ntp ntpdate; \
 # --- 8a Install MySQL (optional)
-    apt-get -y --no-install-recommends install mariadb-client; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-client; \
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
         printf "mariadb-server mariadb-server/root_password password %s\n" "${BUILD_MYSQL_PW}"       | debconf-set-selections; \
         printf "mariadb-server mariadb-server/root_password_again password %s\n" "${BUILD_MYSQL_PW}" | debconf-set-selections; \
-        apt-get -y --no-install-recommends install mariadb-server; \
+        apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-server; \
     fi; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/mysql/debian.cnf /etc/mysql
@@ -105,7 +105,7 @@ RUN if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
         exit 1; \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
-    apt-get update && apt-get -y --no-install-recommends install postfix postfix-mysql postfix-doc getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
@@ -113,33 +113,33 @@ RUN service postfix restart; \
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
 # --- 9 Install SpamAssassin, and ClamAV
     (crontab -l; printf "\n") | sort - | uniq - | crontab -; \
-    apt-get update && apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | crontab -; \
     freshclam; \
     sa-update 2>&1; \
-    sa-compile 2>&1; \
+    sa-compile --quiet 2>&1; \
 # --- 10 Install Apache Web Server and PHP
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
-    apt-get update && apt-get -y --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php7.3 php7.3-common php7.3-gd php7.3-mysql php7.3-imap php7.3-cli php7.3-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python php7.3-curl php7.3-intl php7.3-pspell php7.3-recode php7.3-sqlite3 php7.3-tidy php7.3-xmlrpc php7.3-xsl memcached php-memcache php-imagick php-gettext php7.3-zip php7.3-mbstring memcached libapache2-mod-passenger php7.3-soap php7.3-fpm php7.3-opcache php-apcu; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php7.3 php7.3-common php7.3-gd php7.3-mysql php7.3-imap php7.3-cli php7.3-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python php7.3-curl php7.3-intl php7.3-pspell php7.3-recode php7.3-sqlite3 php7.3-tidy php7.3-xmlrpc php7.3-xsl memcached php-memcache php-imagick php-gettext php7.3-zip php7.3-mbstring memcached libapache2-mod-passenger php7.3-soap php7.3-fpm php7.3-opcache php-apcu; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
-RUN apt-get update; \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
     printf "ServerName %s\n" "${BUILD_HOSTNAME}" > /etc/apache2/conf-available/fqdn.conf; \
 	/usr/sbin/a2enconf fqdn; \
     /usr/sbin/a2enconf httpoxy; \
 # --- 11 Free SSL RUN mkdir /opt/certbot
-    if [ ${BUILD_CERTBOT} = "yes" ]; then apt-get -y --no-install-recommends install certbot; fi; \
+    if [ ${BUILD_CERTBOT} = "yes" ]; then apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install certbot; fi; \
 # --- PHP-FPM
     /usr/sbin/a2enmod actions proxy_fcgi alias setenvif; \
     /usr/sbin/a2enconf php7.3-fpm; \
     service apache2 restart; \
 # --- 12 Install Mailman (Doesn't really work (yet))
     printf 'mailman mailman/default_server_language select en\n' | debconf-set-selections; \
-    apt-get -y --no-install-recommends install mailman; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mailman; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 # RUN ["/usr/lib/mailman/bin/newlist", "-q", "mailman", "mail@mail.com", "pass"]
 COPY ./build/etc/aliases /etc/aliases
@@ -147,7 +147,7 @@ RUN newaliases; \
     service postfix restart; \
     ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf; \
 # --- 13 Install PureFTPd
-    apt-get update && apt-get -y --no-install-recommends install pure-ftpd-common pure-ftpd-mysql; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install pure-ftpd-common pure-ftpd-mysql; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
     openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048 2>&1; \
     groupadd ftpgroup; \
@@ -155,29 +155,29 @@ RUN newaliases; \
 COPY ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
 
 # --- 14 Install BIND DNS Server
-RUN apt-get update && apt-get -y --no-install-recommends install lsb-release unbound dnsutils haveged; \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install lsb-release unbound dnsutils haveged; \
     printf "do-ip6: no\n" > /etc/unbound/unbound.conf.d/no-ip6v.conf; \
     if [ $BUILD_REDIS = "yes" ]; then \
-        apt-get -y --no-install-recommends install redis-server; \
+        apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server; \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
     fi; \
     wget -O- https://rspamd.com/apt-stable/gpg.key | apt-key add - 2>&1; \
     printf "deb [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" > /etc/apt/sources.list.d/rspamd.list; \
     printf "deb-src [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" >> /etc/apt/sources.list.d/rspamd.list; \
-    apt-get update && apt-get -y --no-install-recommends install rspamd; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd; \
     printf "servers = \"localhost\";\n" > /etc/rspamd/local.d/redis.conf; \
     printf "nrows = 2500;\n" > /etc/rspamd/local.d/history_redis.conf; \
     printf "compress = true;\n" >> /etc/rspamd/local.d/history_redis.conf; \
     printf "subject_privacy = false;\n" >> /etc/rspamd/local.d/history_redis.conf; \
     sed -i 's|-f /bin/systemctl|-d /run/systemd/system|' /etc/logrotate.d/rspamd; \
 # --- 15 Install Webalizer and AWStats
-    apt-get -y --no-install-recommends install webalizer awstats geoip-database libclass-dbi-mysql-perl libtimedate-perl; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install webalizer awstats geoip-database libclass-dbi-mysql-perl libtimedate-perl; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/cron.d/awstats /etc/cron.d/
 
 # --- 16 Install Jailkit
 # install package building helpers
-RUN apt-get update && apt-get -y --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils; \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils; \
     wget "http://olivier.sessink.nl/jailkit/jailkit-$BUILD_JAILKIT_VERSION.tar.gz" -q -P /tmp; \
     tar xfz "/tmp/jailkit-${BUILD_JAILKIT_VERSION}.tar.gz" -C /tmp; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -190,7 +190,7 @@ RUN printf "5\n" > debian/compat; \
     touch /var/log/auth.log; \
     touch /var/log/mail.log; \
     touch /var/log/syslog; \
-    apt-get update && apt-get -y --no-install-recommends install fail2ban ufw; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install fail2ban ufw; \
     apt-get clean && rm -rf /var/lib/apt/lists/*;
 COPY ./build/etc/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY ./build/etc/phpmyadmin/config.inc.php /tmp/phpmyadmin.config.inc.php
@@ -198,7 +198,7 @@ COPY ./build/etc/apache2/phpmyadmin.conf /etc/apache2/conf-available/phpmyadmin.
 # --- 18 Install PHPMyAdmin Database Administration Tool
 # https://www.linuxbabe.com/debian/install-phpmyadmin-apache-lamp-debian-10-buster
 RUN service fail2ban restart; \
-    apt-get update; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update; \
     if [ ${BUILD_PHPMYADMIN} = "yes" ]; then \
         if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
             wget "https://files.phpmyadmin.net/phpMyAdmin/${BUILD_PHPMYADMIN_VERSION}/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages.zip" -q -O "/tmp/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages.zip"; \
@@ -208,7 +208,7 @@ RUN service fail2ban restart; \
             service mysql restart; \
             mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "CREATE DATABASE phpmyadmin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; \
             mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "GRANT ALL ON phpmyadmin.* TO '${BUILD_PHPMYADMIN_USER}'@'localhost' IDENTIFIED BY '${BUILD_PHPMYADMIN_PW}';"; \
-            apt-get -y --no-install-recommends install php-imagick php-phpseclib php-php-gettext php7.3-common php7.3-mysql php7.3-gd php7.3-imap php7.3-json php7.3-curl php7.3-zip php7.3-xml php7.3-mbstring php7.3-bz2 php7.3-intl php7.3-gmp ;\
+            apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install php-imagick php-phpseclib php-php-gettext php7.3-common php7.3-mysql php7.3-gd php7.3-imap php7.3-json php7.3-curl php7.3-zip php7.3-xml php7.3-mbstring php7.3-bz2 php7.3-intl php7.3-gmp ;\
             /usr/sbin/a2enconf phpmyadmin.conf; \
             mv /tmp/phpmyadmin.config.inc.php /usr/share/phpmyadmin/config.inc.php; \
             sed -i "s|\['controlhost'\] = '';|\['controlhost'\] = '${BUILD_MYSQL_HOST}';|" /usr/share/phpmyadmin/config.inc.php; \
@@ -307,8 +307,8 @@ RUN touch "/etc/mailname"; \
     fi; \
 # --- 23 Install printing stuff
     if [ $BUILD_PRINTING = "yes" ]; then \
-        apt-get update; \
-        apt-get -y --no-install-recommends install --fix-missing -y libdmtx-utils dblatex latex-make cups-client lpr; \
+        apt-get -qq -o Dpkg::Use-Pty=0 update; \
+        apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install --fix-missing -y libdmtx-utils dblatex latex-make cups-client lpr; \
         apt-get clean && rm -rf /var/lib/apt/lists/*; \
     fi; \
 #
