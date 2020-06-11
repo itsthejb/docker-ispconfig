@@ -183,7 +183,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
     apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /tmp/jailkit-${BUILD_JAILKIT_VERSION}
 RUN printf "5\n" > debian/compat; \
-    debian/rules binary 2>&1; \
+    make -s -f debian/rules binary 2>&1; \
     dpkg -i /tmp/jailkit_${BUILD_JAILKIT_VERSION}-1_*.deb; \
     rm -rf /tmp/jailkit-${BUILD_JAILKIT_VERSION}*; \
 # --- 17 Install fail2ban and UFW Firewall
