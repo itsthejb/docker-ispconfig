@@ -9,5 +9,9 @@ chown -R _rspamd:_rspamd /run/rspamd
 if [ -n "$REDIS_HOST" ]; then
   echo " - configure redis host as $REDIS_HOST"
   sed -i "s|servers = \".*\";|servers = \"$REDIS_HOST\";|" /etc/rspamd/local.d/redis.conf
-  grep -lR ":6379" /etc/rspamd | while read -r F; do sed -i'' 's|servers = .*:6379.*;|servers = "redis:6379";|' $F; done
+
+  grep -lR ":6379" /etc/rspamd | while read -r F; do
+    sed -i'' "s|servers = \".*:6379\";|servers = \"$REDIS_HOST:6379\";|" $F
+    sed -i'' "s|servers = [^\"].*:6379;|servers = $REDIS_HOST:6379;|" $F
+  done
 fi
