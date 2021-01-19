@@ -41,7 +41,6 @@ fi
 if [ "$1" = "config" ] ; then
   ./do track init                                     # initialize tracking for  /etc and /usr/local/ispconfig
   ./do config mysql_root_pw  test                     # change mysql root password to test
-  ./do config panal_admin_pw  test                    # set panel admin password to test
   ./do config server_name  myhost.test.com            # set server name in ispconfig database
   ./do restart ; sleep 3 ; ./do log                   # restart ispconfig
   ./do track show                                     # show ispconfig file modifications

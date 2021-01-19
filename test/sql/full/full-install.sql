@@ -2524,7 +2524,7 @@ CREATE TABLE `sys_user` (
 
 LOCK TABLES `sys_user` WRITE;
 /*!40000 ALTER TABLE `sys_user` DISABLE KEYS */;
-INSERT INTO `sys_user` VALUES (1,1,0,'riud','riud','','admin','21232f297a57a5a743894a0e4a801fc3','dashboard,admin,client,mail,monitor,sites,dns,vm,tools,help','dashboard','default','admin',1,'en','1,2',1,0,'','',1,'',NULL);
+INSERT INTO `sys_user` VALUES (1,1,0,'riud','riud','','admin','5f4dcc3b5aa765d61d8327deb882cf99','dashboard,admin,client,mail,monitor,sites,dns,vm,tools,help','dashboard','default','admin',1,'en','1,2',1,0,'','',1,'',NULL);
 /*!40000 ALTER TABLE `sys_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
