@@ -10,3 +10,4 @@ test/docker-compose.puppeteer.remote-db-seeded.test.yml
 
 .DS_Store
 
+super-linter.log
