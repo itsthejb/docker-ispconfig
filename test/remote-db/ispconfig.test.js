@@ -13,7 +13,7 @@ beforeAll(async () => {
   it('should be possible to login with the default credentials', async () => {
     await expect(page).toFillForm('form[action="index.php"]', {
       username: 'admin',
-      password: 'admin'
+      password: 'password'
     })
     await expect(page).toClick('input[value="Login"]')
     await page.waitForNavigation()
