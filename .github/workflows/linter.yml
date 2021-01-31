@@ -42,7 +42,10 @@ jobs:
         env:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_DOCKERFILE: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
+          
           VALIDATE_ANSIBLE: false
           VALIDATE_ARM: false
           VALIDATE_BASH: false
@@ -53,8 +56,6 @@ jobs:
           VALIDATE_CSHARP: false
           VALIDATE_CSS: false
           VALIDATE_DART: false
-          VALIDATE_DOCKERFILE: false
-          VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_EDITORCONFIG: false
           VALIDATE_ENV: false
           VALIDATE_GHERKIN: false
