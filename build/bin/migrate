@@ -97,6 +97,7 @@ if [ "$1" = "import" ] ; then
       mysql -u $MUSER -p"${MYSQL_ROOT_PW}" "$db" < "${i}"
     fi    
   done
+  # shellcheck source=/dev/null
   source "${TARGET}/config"
   echo "change mysql root password to ${ORIG_MYSQL_ROOT_PW}"
   mysqladmin -uroot -p"${MYSQL_ROOT_PW}" password "${ORIG_MYSQL_ROOT_PW}"

@@ -5,7 +5,6 @@ if [ "$SOURCE_BRANCH" = "master" ]; then exit 0; fi
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
 export CONTAINER="ispconfig-test"
-if command -v gsed; then SED="gsed"; else SED="sed"; fi
 
 function buildAndTest() {
   YML=$1

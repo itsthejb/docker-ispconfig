@@ -9,17 +9,18 @@ if [ ! -e $CFG ] ; then
 fi
 
 SERVICEVOL=./service
-. $CFG
+# shellcheck source=/dev/null
+. "$CFG"
 
 DCN=$DO_CNAME
 
 if [ -f $DMC ] ; then
- . $DMC
+# shellcheck source=/dev/null
+ . "$DMC"
 fi
 
-
 if [ "$1" = "" ] ; then
-  echo "usage: `basename $0` <command>"
+  echo "usage: $(basename "$0") <command>"
   echo "          setup <container-name> [<machine-name>]"
   echo "          build ............... build image"
   echo "          up .................  create <$DCN> from image"
@@ -63,12 +64,14 @@ if [ "$1" = "setup" ] ; then
   else
     sed -i -e "s/^DO_CNAME=.*/DO_CNAME=$2/"       $CFG
   fi
-  . $CFG
+  # shellcheck source=/dev/null
+  . "$CFG"
   if [ "$3" != "" ] ; then
     sed -i -e "s/^DO_MNAME=.*/DO_MNAME=$3/"       $CFG
-    docker-machine env $3
-    docker-machine env $3 > $DMC
-    . $DMC
+    docker-machine env "$3"
+    docker-machine env "$3" > "$DMC"
+    # shellcheck source=/dev/null
+    . "$DMC"
   fi
 fi
 
@@ -85,8 +88,8 @@ if [ "$1" = "rm" ] ; then
   docker-compose rm -f
 fi
 
-if [ "$1" = "start" -o "$1" = "stop" -o "$1" = "restart" -o "$1" = "build" ] ; then
-  docker-compose  $1
+if [ "$1" = "start" ] || [ "$1" = "stop" ] || [ "$1" = "restart" ] || [ "$1" = "build" ] ; then
+  docker-compose "$1"
   exit 0
 fi
 
@@ -96,7 +99,7 @@ fi
 
 
 if [ "$1" = "supervisor" ] ; then
-  docker exec -it $DCN supervisorctl
+  docker exec -it "$DCN" supervisorctl
   exit 0
 fi
 
@@ -106,12 +109,12 @@ if [ "$1" = "log" ] ; then
 fi
 
 if [ "$1" = "syslog" ] ; then
-  docker exec -it $DCN tail -n 200 /var/log/syslog
+  docker exec -it "$DCN" tail -n 200 /var/log/syslog
   exit 0
 fi
 
 if [ "$1" = "maillog" ] ; then
-  docker exec -it $DCN tail -n 200 /var/log/mail.log
+  docker exec -it "$DCN" tail -n 200 /var/log/mail.log
   exit 0
 fi
 if [ "$1" = "login" ] ; then
@@ -121,18 +124,18 @@ if [ "$1" = "login" ] ; then
   else
     CMD=$*
   fi
-  docker exec -it $DCN $CMD
+  docker exec -it "$DCN" "$CMD"
 fi
 
-if [ "$1" = "config" -o "$1" = "migrate" -o "$1" = "track" ] ; then
+if [ "$1" = "config" ] || [ "$1" = "migrate" ] || [ "$1" = "track" ] ; then
   FI=$1
   shift
-  docker exec -it $DCN /usr/local/bin/${FI} $*
+  docker exec -it "$DCN" "/usr/local/bin/${FI}" "$*"
 fi
 
 if [ "$1" = "ovw" ] ; then
   if [ "$2" = "push" ] ; then
-    docker exec  -it $DCN rsync -av /service/ovw/ /
+    docker exec -it "$DCN" rsync -av /service/ovw/ /
     exit 0
   fi
   if [ "$2" = "fetch" ] ; then
@@ -141,12 +144,12 @@ if [ "$1" = "ovw" ] ; then
       exit 0
     fi
     echo "rsync -avR ${3} /service/ovw/"
-    docker exec  -it $DCN rsync -avR ${3} /service/ovw/
+    docker exec  -it "$DCN" rsync -avR "${3}" /service/ovw/
     exit 0
   fi
 
   if [ "$2" = "fetch" ] ; then
-    docker exec -it $DCN diff /service/ovw/${3} ${3}
+    docker exec -it "$DCN" diff "/service/ovw/${3}" "${3}"
     exit 0
   fi
 fi
@@ -156,30 +159,30 @@ if [ "$1" = "service" ] ; then
     DRY=""
   fi
   if [ "$2" = "push" ] ; then
-     ssh root@$(docker-machine ip $DO_MNAME) mkdir -p /Docker/$DO_CNAME 
-     sudo rsync  ${DRY} -arvzS --numeric-ids --delete -e ssh ${SERVICEVOL}/ root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service 
-     echo "push $DRY folder from <${SERVICEVOL}> to <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME>"
+     ssh "root@$(docker-machine ip "$DO_MNAME")" mkdir -p "/Docker/$DO_CNAME"
+     sudo rsync "${DRY}" -arvzS --numeric-ids --delete -e ssh "${SERVICEVOL}/" root@"$(docker-machine ip "$DO_MNAME")":/Docker/"$DO_CNAME"/service
+     echo "push $DRY folder from <${SERVICEVOL}> to <$(docker-machine ip "$DO_MNAME"):/Docker/$DO_CNAME>"
   fi
   if [ "$2" = "pull" ] ; then
-    sudo rsync   ${DRY} -arvzS --numeric-ids --delete -e ssh root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service/ ${SERVICEVOL} 
-    echo "pull $DRY folder from <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME> to <${SERVICEVOL}> done." 
+    sudo rsync "${DRY}" -arvzS --numeric-ids --delete -e ssh root@"$(docker-machine ip "$DO_MNAME")":/Docker/"$DO_CNAME"/service/ "${SERVICEVOL}"
+    echo "pull $DRY folder from <$(docker-machine ip "$DO_MNAME"):/Docker/""$DO_CNAME""> to <${SERVICEVOL}> done."
   fi
 
   if [ "$2" = "backup" ] ; then
     mkdir -p backup
-    sudo tar -cjvf ./backup/$DCN.tar.bz2 -C ${SERVICEVOL} .
+    sudo tar -cjvf "./backup/$DCN.tar.bz2" -C "${SERVICEVOL}" .
     echo "backup stored as <./backup/$DCN.tar.bz2>"
     exit 0
   fi
   if [ "$2" = "restore" ] ; then
     rm -Rvf ./service/ovw/*
-    sudo tar -C ${SERVICEVOL} -xjvf ./backup/$DCN.tar.bz2
+    sudo tar -C "${SERVICEVOL}" -xjvf "./backup/$DCN.tar.bz2"
     exit 0
   fi
 fi
 
 if [ "$1" = "cp" ] ; then
-    docker cp $2 $3
+    docker cp "$2" "$3"
     exit 0
 fi
 if [ "$1" = "encrypt" ] ; then
