@@ -2,5 +2,4 @@
 
 SVC=${2%.service}
 
-/etc/init.d/${SVC} ${1}
-
+"/etc/init.d/${SVC}" "${1}"

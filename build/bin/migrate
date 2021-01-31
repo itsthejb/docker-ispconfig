@@ -14,7 +14,7 @@ if [ "$1" = "" ] ; then
   _usage
 fi
 
-if [ "$1" != "export" -a "$1" != "import" ] ; then
+if [ "$1" != "export" ] && [ "$1" != "import" ] ; then
   _usage
 fi
 #############################################################################################
@@ -40,11 +40,11 @@ if [ "$1" = "export" ] ; then
   #
   echo "ORIG_MYSQL_ROOT_PW=${MYSQL_ROOT_PW}" > $TARGET/config
 
-  DBS="$(mysql -u $MUSER -p${MYSQL_ROOT_PW} -Bse 'show databases')"
+  DBS="$(mysql -u $MUSER -p"${MYSQL_ROOT_PW}" -Bse 'show databases')"
   mkdir -p $TARGET/sql
   for db in $DBS ; do
     echo "exporting database <$db> ..." 
-    mysqldump -u$MUSER --password=${MYSQL_ROOT_PW} $db --single-transaction > "$TARGET/sql/$db.sql"
+    mysqldump -u$MUSER --password="${MYSQL_ROOT_PW}" "$db" --single-transaction > "$TARGET/sql/$db.sql"
   done
   echo "migration export to <$TARGET> done."
   echo ""
@@ -62,25 +62,25 @@ if [ "$1" = "import" ] ; then
 
   list="passwd shadow group"
   for i in $list ; do
-    cp -f /etc/${i} /etc/${i}.new
-    while read line ; do
-      STRING=$(echo $line | cut -d":" -f1 )
-      if grep -q "^${STRING}:" /etc/${i}.new ; then
+    cp -f "/etc/${i}" "/etc/${i}.new"
+    while read -r line ; do
+      STRING=$(echo "$line" | cut -d":" -f1 )
+      if grep -q "^${STRING}:" "/etc/${i}.new" ; then
         #echo "/etc/${i}.new replace line with <$line>"
         #sed -i 's/^"$STRING":.*/"$line"/'                        /etc/${i}.new
-        sed -i "s#^${STRING}:.*#${line}#"                        /etc/${i}.new
+        sed -i "s#^${STRING}:.*#${line}#"                        "/etc/${i}.new"
       else
         #echo "/etc/${i}.new append line: <$line>" 
-        echo "$line" >> /etc/${i}.new
+        echo "$line" >> "/etc/${i}.new"
       fi          
       #echo -e "<$i> :  <$line> : <$STRING>"
-    done < ${TARGET}/${i}.ispconfig
+    done < "${TARGET}/${i}.ispconfig"
     echo "#######################################################"
     echo "# diff between </etc/${i}.new> </etc/${i}> :"
-    diff /etc/${i}.new /etc/${i}
+    diff "/etc/${i}.new" "/etc/${i}"
     ret=$?
     if [ "$ret" = "1" ] ; then
-      cp -v /etc/${i}.new /etc/${i}
+      cp -v "/etc/${i}.new" "/etc/${i}"
     fi
   done
   echo "#######################################################"
@@ -89,19 +89,19 @@ if [ "$1" = "import" ] ; then
 
   list=$(ls -d -1 $TARGET/sql/*)
   for i in $list ; do
-    db=`basename $i`
+    db=$(basename "$i")
     db=${db%.sql}
-    if [ "$db" != "mysql" -a "$db" != "information_schema" -a "$db" != "performance_schema" -a "$db" !=  "phpmyadmin" ] ; then
+    if [ "$db" != "mysql" ] && [ "$db" != "information_schema" ] && [ "$db" != "performance_schema" ] && [ "$db" !=  "phpmyadmin" ] ; then
       echo "restoring database <$db> from <$i> ..."
-      echo "CREATE DATABASE IF NOT EXISTS $db ; " |  mysql -u $MUSER -p${MYSQL_ROOT_PW} 
-      mysql -u $MUSER -p${MYSQL_ROOT_PW} $db < ${i}
+      echo "CREATE DATABASE IF NOT EXISTS $db ; " |  mysql -u $MUSER -p"${MYSQL_ROOT_PW}"
+      mysql -u $MUSER -p"${MYSQL_ROOT_PW}" "$db" < "${i}"
     fi    
   done
-  . ${TARGET}/config
+  source "${TARGET}/config"
   echo "change mysql root password to ${ORIG_MYSQL_ROOT_PW}"
-  mysqladmin -uroot -p${MYSQL_ROOT_PW} password ${ORIG_MYSQL_ROOT_PW}
+  mysqladmin -uroot -p"${MYSQL_ROOT_PW}" password "${ORIG_MYSQL_ROOT_PW}"
   FI=/usr/local/ispconfig/server/lib/mysql_clientdb.conf
-  sed -i -e "/clientdb_password/ s/'"${MYSQL_ROOT_PW}"'/'"${ORIG_MYSQL_ROOT_PW}"'/" $FI
+  sed -i -e "/clientdb_password/ s/${MYSQL_ROOT_PW}/${ORIG_MYSQL_ROOT_PW}/" $FI
   supervisorctl start apache2
   supervisorctl start cron
 

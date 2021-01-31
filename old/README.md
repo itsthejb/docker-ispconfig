@@ -1,46 +1,52 @@
 # ispconfig-docker
-Attempt to dockerize ispconfig 
+
+Attempt to dockerize ispconfig
 
 ## Preface
+
 ISPConfig is a great framework!
 
 Changes in the ispconfig panel will be stored in a mysql database and the config files for the appropriate services (postfix, dovecot, ...) will be written. Clean, simple and clear. But this architecture do not really fit to the docker concept.
-  * multipe daemons
-  * config will be done in/etc/ /var/log/ispconfig /etc/oasswd /etc/group /usr/local/ispconfig.
+
+* multipe daemons
+* config will be done in/etc/ /var/log/ispconfig /etc/oasswd /etc/group /usr/local/ispconfig.
 
 ## History/Todo's
-  * Initially Dockerfile from jerob : https://github.com/jerob/docker-ispconfig - thanks for the excellent work.
-  * Start new repro: ispconfig-docker (cleanups for my purposes). 
-  * Implement build/login/start/stop management with docker-compose
-  * Wrapper script [./do] to build image, manage container and control ispconfig.
-  * modified supervisord (proper shutdown, supervisorctl, linking /etc/init.d/<services>, proxy scripts for postfix
-  * enable/disable ispconfig services
-  * tracking possibility of ispconfig file modifications (./do track)
-  * install config files on every start up (certs, ssh-keys, main.cf, ..) from a service share (./do ovw) 
-  * configure ispconfig from host: set server_name, passwords ... (./do config)
-  * volumes (keep /etc, /usr, /var/lib/mysql,.. in the container)
-  * migration (./do migrate)
-  * bootstrap directories only if the target is a emptydir. remove /etc/bootsp...
-  * cleanup supervisord start scripts
-  * TBD: docu for ovw:  examples: certs, disabe/enable services
+
+* Initially Dockerfile from jerob : [https://github.com/jerob/docker-ispconfig](https://github.com/jerob/docker-ispconfig) - thanks for the excellent work.
+* Start new repro: ispconfig-docker (cleanups for my purposes).
+* Implement build/login/start/stop management with docker-compose
+* Wrapper script [./do] to build image, manage container and control ispconfig.
+* modified supervisord (proper shutdown, supervisorctl, linking `/etc/init.d/<services>`, proxy scripts for postfix
+* enable/disable ispconfig services
+* tracking possibility of ispconfig file modifications (./do track)
+* install config files on every start up (certs, ssh-keys, main.cf, ..) from a service share (./do ovw)
+* configure ispconfig from host: set server_name, passwords ... (./do config)
+* volumes (keep /etc, /usr, /var/lib/mysql,.. in the container)
+* migration (./do migrate)
+* bootstrap directories only if the target is a emptydir. remove /etc/bootsp...
+* cleanup supervisord start scripts
+* TBD: docu for ovw:  examples: certs, disabe/enable services
 
 ## Requirements
- * docker-engine version >= 1.10.0 
- * user with sudo access
- * user belongs to "docker" group
+
+* docker-engine version >= 1.10.0
+* user with sudo access
+* user belongs to "docker" group
 
 ## Installation
 
-```
+```bash
 DDIR=./ispc
 git clone https://github.com/unimock/ispconfig-docker.git $DDIR
 cd $DDIR
 ```
 
 ## Build image
-Customize docker-compose.yml to your needs and create an image. 
 
-```
+Customize docker-compose.yml to your needs and create an image.
+
+```bash
 cp docker-compose.yml-template docker-compose.yml
 # edit
   vi docker-compose.yml
@@ -51,14 +57,16 @@ cp docker-compose.yml-template docker-compose.yml
 ./do build
 ```
 
-## Create and run a container from the image.
-```
+## Create and run a container from the image
+
+```bash
 ./do up
 ./do log
 ```
 
-## Post install configuration:
-```
+## Post install configuration
+
+```bash
 ./do track init                                     # initialize tracking for  /etc and /usr/local/ispconfig
 ./do config mysql_root_pw  test                     # change mysql root password to test
 ./do config panal_admin_pw  test                    # set panel admin password to test
@@ -68,17 +76,21 @@ cp docker-compose.yml-template docker-compose.yml
 ./do log                                            # show start up console
 ./do track show                                     # show ispconfig file modifications
 ```
+
 ### Test installation
-```
+
+```bash
 FQDN=127.0.0.1
 firefox https://${FQDN}:8080 &
 firefox https://${FQDN}:8080/phpmyadmin &
 firefox https://${FQDN}:8080/webmail &
 ```
+
 ## Recreate a customized ispconfig
+
  This is needed afer modification in the RUN section in docker-compose.yml.
 
-```
+```bash
 ./do migrate export                                 # export configuration to ./volumes/service/mig/
 find ./volumes/service/mig                          # check
 ./do stop                                           # stop ispconfig
@@ -91,10 +103,12 @@ find ./volumes/service/mig                          # check
 ./do syslog
 ./do maillog
 ```
+
 ## Create a new image
+
  This is needed after changes in the BUILD section in docker-compose.yml. or for updates.
- 
-```
+
+```bash
 ./do migrate export                                 # export configuration to ./volumes/service/mig/
 ./do stop                                           # stop ispconfig
 ./do rm                                             # remove the container
@@ -108,9 +122,9 @@ diff docker-compose.yml-template docker-compose.yml # check for new options dock
 ./do log                                            # show start up console
 ```
 
-## useful commands (examples):
+## useful commands (examples)
 
-```
+```bash
 ./do                                                # help
 ./do start|stop|restart                             # start/stop the container
 ./do console                                        # attach to the console
@@ -122,4 +136,3 @@ diff docker-compose.yml-template docker-compose.yml # check for new options dock
 ./do login /usr/local/ispconfig/server/cron_daily.sh
 ./do login mysql_upgrade
 ```
-

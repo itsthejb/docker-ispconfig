@@ -19,6 +19,6 @@ fi
 if [ "$1" = "git" ] ; then
   cd /
   shift
-  git $*
+  git "$*"
   exit 0
 fi

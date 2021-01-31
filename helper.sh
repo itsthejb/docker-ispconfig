@@ -4,7 +4,7 @@ check()
 {
   list="110 995 143 993 25 465 587 20 21 80 443 8080 2222"
   for i in $list ; do
-    netcat -vz 127.0.0.1 $i >/dev/null 2>&1
+    netcat -vz 127.0.0.1 "$i" >/dev/null 2>&1
     ret=$?
     echo "checking port: <$i> $ret"
   done
@@ -14,7 +14,7 @@ check()
 
 
 if [ "$1" = "" ] ; then
-  echo " usage: `basename $0` check|build|config|rerun|permissions" 
+  echo " usage: $(basename "$0") check|build|config|rerun|permissions" 
   exit 0
 fi
 

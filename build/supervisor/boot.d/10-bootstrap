@@ -3,9 +3,9 @@
 list="vmail www"
 echo "# Bootstrap check for ($list)"
 for i in $list ; do
-  if [ "$(ls -A /var/$i)" = "" ]; then
+  if [ "$(ls -A "/var/$i")" = "" ]; then
     echo " strap: /var/$i ..."
-    tar -C /var/$i -xzf /bootstrap/$i.tgz
+    tar -C "/var/$i" -xzf "/bootstrap/$i.tgz"
   fi
 done 
 

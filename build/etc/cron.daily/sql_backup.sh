@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $SQL_BACKUP = 1 ]
+if [ "$SQL_BACKUP" = 1 ]
 then
 MUSER=root
 MPASS=pass
@@ -14,8 +14,8 @@ mysqldump -u $MUSER --password=$MPASS --all-databases --single-transaction > "$B
 DBS="$(mysql -u $MUSER -p$MPASS -Bse 'show databases')"
 for db in $DBS
 do
-	mysqldump -u $MUSER --password=$MPASS $db --single-transaction > "$BACKUP/sql/$NOW/$db.sql"
+	mysqldump -u $MUSER --password=$MPASS "$db" --single-transaction > "$BACKUP/sql/$NOW/$db.sql"
 done
 # delete old sql
-rm -r $BACKUP/sql/$OLD*
+rm -r $BACKUP/sql/"$OLD"*
 fi
