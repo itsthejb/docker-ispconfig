@@ -1,11 +1,13 @@
 FROM node:11-slim
 
 # See https://crbug.com/795759
-RUN apt-get update && apt-get install -yq --no-install-recommends libgconf-2-4
+RUN apt-get update && apt-get install -yq --no-install-recommends libgconf-2-4 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install latest chrome dev package and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
 # Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
 # installs, work.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -23,13 +25,14 @@ RUN groupadd -r test && useradd -r -g test -G audio,video test \
     && mkdir -p /home/test/Downloads \
     && chown -R test:test /home/test
 
-ADD ./package.json /app/
-ADD ./package-lock.json /app/
-ADD ./jest-puppeteer.config.js /app
+COPY ./package.json /app/
+COPY ./package-lock.json /app/
+COPY ./jest-puppeteer.config.js /app
 RUN chown -R test:test /app
-RUN apt-get update && apt-get -y install nano && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y --no-install-recommends install nano && rm -rf /var/lib/apt/lists/*
 
 USER test
-RUN cd /app && npm install
+WORKDIR /app
+RUN npm install
 
 ENTRYPOINT ["/usr/local/bin/npm", "--prefix", "/app", "test"]

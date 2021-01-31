@@ -8,7 +8,7 @@ function waitForPort() {
 }
 
 function closedPort() {
-  ! nc -vz $CONTAINER $1
+  ! nc -vz $CONTAINER "$1"
 }
 
 function installDependencies() {
