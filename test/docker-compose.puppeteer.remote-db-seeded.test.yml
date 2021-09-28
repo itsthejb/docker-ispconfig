@@ -5,7 +5,7 @@ services:
   sut:
     build:
       context: .
-      dockerfile: Dockerfile.puppeteer
+      dockerfile: Dockerfile
     networks:
       - test_shared
     depends_on:

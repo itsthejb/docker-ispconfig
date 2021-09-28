@@ -1,4 +1,4 @@
-FROM node:11-slim
+FROM node:lts-slim
 
 # See https://crbug.com/795759
 RUN apt-get update && apt-get install -yq --no-install-recommends libgconf-2-4
@@ -7,14 +7,13 @@ RUN apt-get update && apt-get install -yq --no-install-recommends libgconf-2-4
 # Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
 # installs, work.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends wget \
+    && apt-get install -y --no-install-recommends wget gnupg2 ca-certificates \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
-    && apt-get install -y --no-install-recommends google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst ttf-freefont libxtst6 libxss1 \
+    && apt-get install -y --no-install-recommends nano google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxtst6 libxss1 \
        \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get purge --auto-remove -y curl \
     && rm -rf /src/*.deb \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,7 +26,6 @@ ADD ./package.json /app/
 ADD ./package-lock.json /app/
 ADD ./jest-puppeteer.config.js /app
 RUN chown -R test:test /app
-RUN apt-get update && apt-get -y install nano && rm -rf /var/lib/apt/lists/*
 
 USER test
 RUN cd /app && npm install
