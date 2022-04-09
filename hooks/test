@@ -18,8 +18,8 @@ function buildAndTest() {
 
   DOWN="docker-compose -f test/$YML down -v"
   CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit --force-recreate --remove-orphans sut"
-  if $CMD; then
-    $DOWN || true
+  if time $CMD; then
+    time $DOWN || true
   else
     echo "Failed: \"$CMD\""
     exit 1
@@ -48,9 +48,9 @@ function testLiveDB() {
   }
 
   cleanImage
-  databaseUp "$1"
+  time databaseUp "$1"
   buildAndTest "$1" --no-cache
-  databaseDown "$1"
+  time databaseDown "$1"
   cleanImage
 }
 
