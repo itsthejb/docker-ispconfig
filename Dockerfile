@@ -161,7 +161,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server; \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
     fi; \
-    wget -O- https://rspamd.com/apt-stable/gpg.key | apt-key add - 2>&1; \
+    wget -q -O- https://rspamd.com/apt-stable/gpg.key | apt-key add - 2>&1; \
     printf "deb [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" > /etc/apt/sources.list.d/rspamd.list; \
     printf "deb-src [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" >> /etc/apt/sources.list.d/rspamd.list; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd; \

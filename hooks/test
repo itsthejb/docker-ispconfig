@@ -10,7 +10,7 @@ function buildAndTest() {
   YML=$1
   ARG=$2
   CMD="docker-compose -f test/$YML build --progress=plain $ARG"
-  if ! $CMD; then
+  if ! $CMD | sed 's/\x1B\[[0-9;]*[JKmsu]//g' 2>&1; then
     echo "Failed: \"$CMD\""
     exit 1
   fi
