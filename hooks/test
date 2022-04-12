@@ -5,12 +5,11 @@ if [ "$SOURCE_BRANCH" = "master" ]; then exit 0; fi
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
 export CONTAINER="ispconfig-test"
-if command -v gsed; then SED="gsed"; else SED="sed"; fi
 
 function buildAndTest() {
   YML=$1
   ARG=$2
-  CMD="docker-compose -f test/$YML build $ARG"
+  CMD="docker-compose -f test/$YML build --progress=plain $ARG"
   if ! $CMD; then
     echo "Failed: \"$CMD\""
     exit 1
