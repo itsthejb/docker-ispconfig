@@ -26,7 +26,7 @@ LABEL description="ISPConfig 3.2 on Debian Buster, with Roundcube mail, phpMyAdm
 # All arguments
 ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
-ARG BUILD_ISPCONFIG_VERSION="3.2.7p1"
+ARG BUILD_ISPCONFIG_VERSION="3.2.8p1"
 ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
@@ -42,7 +42,7 @@ ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PHPMYADMIN_VERSION="5.0.4"
 ARG BUILD_PRINTING="no"
 ARG BUILD_REDIS="yes"
-ARG BUILD_ROUNDCUBE_VERSION="1.5.0"
+ARG BUILD_ROUNDCUBE_VERSION="1.5.2"
 ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
 ARG BUILD_ROUNDCUBE_PW="secretpassword"
@@ -161,7 +161,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server; \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
     fi; \
-    wget -O- https://rspamd.com/apt-stable/gpg.key | apt-key add - 2>&1; \
+    wget -q -O- https://rspamd.com/apt-stable/gpg.key | apt-key add - 2>&1; \
     printf "deb [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" > /etc/apt/sources.list.d/rspamd.list; \
     printf "deb-src [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" >> /etc/apt/sources.list.d/rspamd.list; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd; \

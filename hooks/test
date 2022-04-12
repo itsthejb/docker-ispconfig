@@ -5,21 +5,20 @@ if [ "$SOURCE_BRANCH" = "master" ]; then exit 0; fi
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
 export CONTAINER="ispconfig-test"
-if command -v gsed; then SED="gsed"; else SED="sed"; fi
 
 function buildAndTest() {
   YML=$1
   ARG=$2
-  CMD="docker-compose -f test/$YML build $ARG"
-  if ! $CMD; then
+  CMD="docker-compose -f test/$YML build --progress=plain $ARG"
+  if ! $CMD | sed 's/\x1B\[[0-9;]*[JKmsu]//g' 2>&1; then
     echo "Failed: \"$CMD\""
     exit 1
   fi
 
   DOWN="docker-compose -f test/$YML down -v"
   CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit --force-recreate --remove-orphans sut"
-  if $CMD; then
-    $DOWN || true
+  if time $CMD; then
+    time $DOWN || true
   else
     echo "Failed: \"$CMD\""
     exit 1
@@ -48,9 +47,9 @@ function testLiveDB() {
   }
 
   cleanImage
-  databaseUp "$1"
+  time databaseUp "$1"
   buildAndTest "$1" --no-cache
-  databaseDown "$1"
+  time databaseDown "$1"
   cleanImage
 }
 
