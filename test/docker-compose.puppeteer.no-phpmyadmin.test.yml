@@ -13,6 +13,7 @@ services:
       - test_shared
     cap_add:
       - SYS_ADMIN
+      - SYSLOG
     volumes:
       - './no-phpmyadmin:/app/test:ro'
 

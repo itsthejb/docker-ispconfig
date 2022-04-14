@@ -12,6 +12,7 @@ services:
       - test_shared
     cap_add:
       - SYS_ADMIN
+      - SYSLOG
     environment:
       - PORT=443
     volumes:
