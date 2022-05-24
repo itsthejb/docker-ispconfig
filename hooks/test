@@ -46,7 +46,7 @@ function testLiveDB() {
 
   cleanImage
   time databaseUp "$1"
-  buildAndTest "$1" --no-cache
+  buildAndTest "$1"
   time databaseDown "$1"
   cleanImage
 }
