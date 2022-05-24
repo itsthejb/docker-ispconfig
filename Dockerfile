@@ -84,7 +84,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install ntp ntpdate; \
 # --- 8a Install MySQL (optional)
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-client; \
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         printf "mariadb-server mariadb-server/root_password password %s\n" "${BUILD_MYSQL_PW}"       | debconf-set-selections; \
         printf "mariadb-server mariadb-server/root_password_again password %s\n" "${BUILD_MYSQL_PW}" | debconf-set-selections; \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-server; \
@@ -109,7 +109,7 @@ RUN if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN service postfix restart; \
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mariadb restart; fi; \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mariadb restart; fi; \
 # --- 9 Install SpamAssassin, and ClamAV
     (crontab -l; printf "\n") | sort - | uniq - | crontab -; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
