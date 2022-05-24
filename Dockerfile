@@ -17,21 +17,27 @@
 #
 # Originally based on:
 # https://www.howtoforge.com/perfect-server-debian-10-buster-apache-bind-dovecot-ispconfig-3-1/
+# https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 LABEL maintainer="mail@jcrooke.net"
-LABEL description="ISPConfig 3.2 on Debian Buster, with Roundcube mail, phpMyAdmin and more"
+LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyAdmin and more"
 
-# All arguments
+# Frequent: versioning
+ARG BUILD_ISPCONFIG_VERSION="3.2.8p1"
+ARG BUILD_ROUNDCUBE_VERSION="1.5.2"
+ARG BUILD_PHPMYADMIN_VERSION="5.2.0"
+ENV BUILD_PHP_VERS="7.4"
+ARG BUILD_JAILKIT_VERSION="2.23"
+
+# Other arguments
 ARG BUILD_CERTBOT="yes"
 ARG BUILD_HOSTNAME="myhost.test.com"
-ARG BUILD_ISPCONFIG_VERSION="3.2.8p1"
 ARG BUILD_ISPCONFIG_DROP_EXISTING="no"
 ARG BUILD_ISPCONFIG_MYSQL_DATABASE="dbispconfig"
 ARG BUILD_ISPCONFIG_PORT="8080"
 ARG BUILD_ISPCONFIG_USE_SSL="yes"
-ARG BUILD_JAILKIT_VERSION="2.21"
 ARG BUILD_LOCALE="en_US"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
@@ -39,15 +45,13 @@ ARG BUILD_MYSQL_REMOTE_ACCESS_HOST="172.%.%.%"
 ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
-ARG BUILD_PHPMYADMIN_VERSION="5.0.4"
 ARG BUILD_PRINTING="no"
 ARG BUILD_REDIS="yes"
-ARG BUILD_ROUNDCUBE_VERSION="1.5.2"
 ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
 ARG BUILD_ROUNDCUBE_PW="secretpassword"
 ARG BUILD_ROUNDCUBE_USER="roundcube"
-ARG BUILD_TZ="Europe/Berlin"
+ARG BUILD_TZ="Europe/London"
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
@@ -66,7 +70,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail rsnapshot wget sudo; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail wget sudo; \
     ln -s /usr/bin/true /usr/bin/systemctl; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
@@ -83,7 +87,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install ntp ntpdate; \
 # --- 8a Install MySQL (optional)
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-client; \
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         printf "mariadb-server mariadb-server/root_password password %s\n" "${BUILD_MYSQL_PW}"       | debconf-set-selections; \
         printf "mariadb-server mariadb-server/root_password_again password %s\n" "${BUILD_MYSQL_PW}" | debconf-set-selections; \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-server; \
@@ -91,26 +95,24 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/mysql/debian.cnf /etc/mysql
 COPY ./build/etc/mysql/50-server.cnf /etc/mysql/mariadb.conf.d/
-RUN if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         sed -i "s|password =|password = ${BUILD_MYSQL_PW}|" /etc/mysql/debian.cnf; \
         printf "mysql soft nofile 65535\nmysql hard nofile 65535\n" >> /etc/security/limits.conf; \
         mkdir -p /etc/systemd/system/mysql.service.d/; \
         printf "[Service]\nLimitNOFILE=infinity\n" >> /etc/systemd/system/mysql.service.d/limits.conf; \
-    fi; \
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
-        service mysql restart; \
-        printf "UPDATE mysql.user SET plugin = 'mysql_native_password', Password = PASSWORD('%s') WHERE User = 'root';\n" "${BUILD_MYSQL_PW}" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
+        service mariadb restart; \
+        printf "SET PASSWORD = PASSWORD('%s');\n" "${BUILD_MYSQL_PW}" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
     elif ! mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; then \
-        printf "\e[31mConnection to mysql host \"%s\" failed!\e[0m\n" "${BUILD_MYSQL_HOST}"; \
+        printf "\e[31mConnection to mysql host \"%s\" with password \"%s\" failed!\e[0m\n" "${BUILD_MYSQL_HOST}" "${BUILD_MYSQL_PW}"; \
         exit 1; \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN service postfix restart; \
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
+    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mariadb restart; fi; \
 # --- 9 Install SpamAssassin, and ClamAV
     (crontab -l; printf "\n") | sort - | uniq - | crontab -; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
@@ -122,8 +124,9 @@ RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | cr
     sa-update 2>&1; \
     sa-compile --quiet 2>&1; \
 # --- 10 Install Apache Web Server and PHP
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php7.3 php7.3-common php7.3-gd php7.3-mysql php7.3-imap php7.3-cli php7.3-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python php7.3-curl php7.3-intl php7.3-pspell php7.3-recode php7.3-sqlite3 php7.3-tidy php7.3-xmlrpc php7.3-xsl memcached php-memcache php-imagick php-gettext php7.3-zip php7.3-mbstring memcached libapache2-mod-passenger php7.3-soap php7.3-fpm php7.3-opcache php-apcu; \
+    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mariadb restart; fi; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install php${BUILD_PHP_VERS} php${BUILD_PHP_VERS}-common php${BUILD_PHP_VERS}-gd php${BUILD_PHP_VERS}-mysql php${BUILD_PHP_VERS}-imap php${BUILD_PHP_VERS}-cli php${BUILD_PHP_VERS}-cgi php${BUILD_PHP_VERS}-curl php${BUILD_PHP_VERS}-intl php${BUILD_PHP_VERS}-pspell php${BUILD_PHP_VERS}-sqlite3 php${BUILD_PHP_VERS}-tidy php${BUILD_PHP_VERS}-xmlrpc php${BUILD_PHP_VERS}-xsl php${BUILD_PHP_VERS}-zip php${BUILD_PHP_VERS}-mbstring php${BUILD_PHP_VERS}-soap php${BUILD_PHP_VERS}-fpm php${BUILD_PHP_VERS}-opcache php${BUILD_PHP_VERS}-json php${BUILD_PHP_VERS}-readline php${BUILD_PHP_VERS}-xml curl; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
@@ -135,17 +138,12 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
     if [ ${BUILD_CERTBOT} = "yes" ]; then apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install certbot; fi; \
 # --- PHP-FPM
     /usr/sbin/a2enmod actions proxy_fcgi alias setenvif; \
-    /usr/sbin/a2enconf php7.3-fpm; \
+    /usr/sbin/a2enconf php${BUILD_PHP_VERS}-fpm; \
     service apache2 restart; \
-# --- 12 Install Mailman (Doesn't really work (yet))
-    printf 'mailman mailman/default_server_language select en\n' | debconf-set-selections; \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mailman; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-# RUN ["/usr/lib/mailman/bin/newlist", "-q", "mailman", "mail@mail.com", "pass"]
 COPY ./build/etc/aliases /etc/aliases
 RUN newaliases; \
     service postfix restart; \
-    ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf; \
 # --- 13 Install PureFTPd
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install pure-ftpd-common pure-ftpd-mysql; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
@@ -177,7 +175,7 @@ COPY ./build/etc/cron.d/awstats /etc/cron.d/
 
 # --- 16 Install Jailkit
 # install package building helpers
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils; \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils python; \
     wget "http://olivier.sessink.nl/jailkit/jailkit-$BUILD_JAILKIT_VERSION.tar.gz" -q -P /tmp; \
     tar xfz "/tmp/jailkit-${BUILD_JAILKIT_VERSION}.tar.gz" -C /tmp; \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -205,10 +203,9 @@ RUN service fail2ban restart; \
             unzip -q "/tmp/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages.zip" -d /usr/share/; \
             mv "/usr/share/phpMyAdmin-${BUILD_PHPMYADMIN_VERSION}-all-languages" /usr/share/phpmyadmin; \
             chown -R www-data:www-data /usr/share/phpmyadmin; \
-            service mysql restart; \
+            service mariadb restart; \
             mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "CREATE DATABASE phpmyadmin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; \
             mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} -e "GRANT ALL ON phpmyadmin.* TO '${BUILD_PHPMYADMIN_USER}'@'localhost' IDENTIFIED BY '${BUILD_PHPMYADMIN_PW}';"; \
-            apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install php-imagick php-phpseclib php-php-gettext php7.3-common php7.3-mysql php7.3-gd php7.3-imap php7.3-json php7.3-curl php7.3-zip php7.3-xml php7.3-mbstring php7.3-bz2 php7.3-intl php7.3-gmp ;\
             /usr/sbin/a2enconf phpmyadmin.conf; \
             mv /tmp/phpmyadmin.config.inc.php /usr/share/phpmyadmin/config.inc.php; \
             sed -i "s|\['controlhost'\] = '';|\['controlhost'\] = '${BUILD_MYSQL_HOST}';|" /usr/share/phpmyadmin/config.inc.php; \
@@ -230,7 +227,7 @@ RUN service fail2ban restart; \
     tar xfz "/tmp/roundcubemail-${BUILD_ROUNDCUBE_VERSION}-complete.tar.gz" --strip-components=1 -C "$BUILD_ROUNDCUBE_DIR"; \
     chown -R www-data:www-data "$BUILD_ROUNDCUBE_DIR"; \
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
-        service mysql restart; \
+        service mariadb restart; \
         BUILD_MYSQL_REMOTE_ACCESS_HOST="localhost"; \
     fi; \
     if ! printf "USE %s;" "${BUILD_ROUNDCUBE_DB}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
@@ -271,7 +268,7 @@ RUN touch "/etc/mailname"; \
     sed -i "s/^hostname=server1.example.com$/hostname=${BUILD_HOSTNAME}/g" "/tmp/ispconfig3_install/install/autoinstall.ini"; \
     sed -i "s/^ssl_cert_common_name=server1.example.com$/ssl_cert_common_name=${BUILD_HOSTNAME}/g" "/tmp/ispconfig3_install/install/autoinstall.ini"; \
     sed -i "s/^ispconfig_use_ssl=y$/ispconfig_use_ssl=$(printf "%s" ${BUILD_ISPCONFIG_USE_SSL} | cut -c1)/g" "/tmp/ispconfig3_install/install/autoinstall.ini"; \
-    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mysql restart; fi; \
+    if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mariadb restart; fi; \
     if printf "USE %s;" "${BUILD_ISPCONFIG_MYSQL_DATABASE}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}" 2> /dev/null; then \
         if [ ${BUILD_ISPCONFIG_DROP_EXISTING} = "yes" ]; then \
             printf "DROP DATABASE %s;" "${BUILD_ISPCONFIG_MYSQL_DATABASE}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
@@ -280,10 +277,10 @@ RUN touch "/etc/mailname"; \
 	exit 1; \
         fi; \
     fi; \
-    USER_EXISTS=$(mysql --skip-column-names -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} --execute "SELECT EXISTS(SELECT * FROM mysql.user WHERE User = '${BUILD_ISPCONFIG_MYSQL_USER}')" || true); \
+    USER_EXISTS=$(mysql --skip-column-names -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} --execute "SELECT EXISTS(SELECT * FROM user WHERE User = '${BUILD_ISPCONFIG_MYSQL_USER}')" || true); \
     if [ $USER_EXISTS = 1 ]; then \
         if [ ${BUILD_ISPCONFIG_DROP_EXISTING} = "yes" ]; then \
-            printf "DELETE FROM mysql.user WHERE User = \"%s\"; FLUSH PRIVILEGES;" "${BUILD_ISPCONFIG_MYSQL_USER}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
+            printf "DELETE FROM user WHERE User = \"%s\"; FLUSH PRIVILEGES;" "${BUILD_ISPCONFIG_MYSQL_USER}" | mysql -h "${BUILD_MYSQL_HOST}" -uroot -p"${BUILD_MYSQL_PW}"; \
         else \
             printf "\e[31mERROR: ISPConfig user '%s' already exists and build argument 'BUILD_ISPCONFIG_DROP_EXISTING' = 'no'. Move the existing user aside before continuing\e[0m" "${BUILD_ISPCONFIG_MYSQL_USER}"; \
 	exit 1; \
@@ -325,8 +322,7 @@ COPY ./build/supervisor /etc/supervisor
 COPY ./build/etc/init.d /etc/init.d
 
 # link old /etc/init.d/ startup scripts to supervisor
-RUN find "/etc/supervisor/services.d" -type f -maxdepth 1 -printf '%f\n' | while read -r i; do mv "/etc/init.d/$i" "/etc/init.d/$i-orig" 2> /dev/null; ln -sf "/etc/supervisor/super-init.sh" "/etc/init.d/$i"; done; \
-    ln -sf /etc/supervisor/systemctl /bin/systemctl; \
+RUN ln -sf /etc/supervisor/systemctl /bin/systemctl; \
     chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
 COPY ./build/supervisor/invoke-rc.d /usr/sbin/invoke-rc.d
 #
@@ -350,8 +346,11 @@ ENV TERM xterm
 RUN printf "export TERM=xterm\n" >> /root/.bashrc; \
 #
 # Tidy up
+    apt-get update; \
+    apt-get upgrade -y; \
     apt-get autoremove; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
     rm -rf /tmp/*
 
 EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 3306

@@ -3,9 +3,7 @@ version: '2.1'
 services:
 
   sut:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: buildkite/puppeteer:10.0.0
     depends_on:
       ispconfig-test:
         condition: service_healthy

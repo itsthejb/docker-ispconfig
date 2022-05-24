@@ -1,3 +1,5 @@
 #!/bin/bash
 
-/etc/init.d/${1} ${2}
+while [[ $1 = -* ]]; do shift; done
+
+"/etc/init.d/${1}" "${2}"

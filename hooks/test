@@ -16,7 +16,7 @@ function buildAndTest() {
   fi
 
   DOWN="docker-compose -f test/$YML down -v"
-  CMD="docker-compose -f test/$YML up --no-build --abort-on-container-exit --force-recreate --remove-orphans sut"
+  CMD="docker-compose -f test/$YML up --build --abort-on-container-exit --force-recreate --remove-orphans sut"
   if time $CMD; then
     time $DOWN || true
   else
@@ -30,11 +30,9 @@ function cleanImage() {
 }
 
 function testNormal() {
-  buildAndTest docker-compose.puppeteer.test.yml
-  buildAndTest docker-compose.puppeteer.no-phpmyadmin.test.yml
-  buildAndTest docker-compose.bats.test.yml
-  buildAndTest docker-compose.bats.custom-ssl.test.yml
-  buildAndTest docker-compose.bats.reconfigure.test.yml
+  for F in puppeteer puppeteer.no-phpmyadmin bats bats.custom-ssl bats.reconfigure; do
+    buildAndTest "docker-compose.$F.test.yml"
+  done
 }
 
 function testLiveDB() {
@@ -48,13 +46,11 @@ function testLiveDB() {
 
   cleanImage
   time databaseUp "$1"
-  buildAndTest "$1" --no-cache
+  buildAndTest "$1"
   time databaseDown "$1"
   cleanImage
 }
 
-testLiveDB "docker-compose.puppeteer.remote-db.test.yml"
-testLiveDB "docker-compose.puppeteer.remote-db-seeded.test.yml"
 testNormal
 
 echo "$(tput bold)=> Tests succeeded! $(tput sgr0)"
