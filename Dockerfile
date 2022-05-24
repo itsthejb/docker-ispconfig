@@ -92,7 +92,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/mysql/debian.cnf /etc/mysql
 COPY ./build/etc/mysql/50-server.cnf /etc/mysql/mariadb.conf.d/
-RUN if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         sed -i "s|password =|password = ${BUILD_MYSQL_PW}|" /etc/mysql/debian.cnf; \
         printf "mysql soft nofile 65535\nmysql hard nofile 65535\n" >> /etc/security/limits.conf; \
         mkdir -p /etc/systemd/system/mysql.service.d/; \
@@ -100,7 +100,7 @@ RUN if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then \
         service mariadb restart; \
         printf "SET PASSWORD = PASSWORD('%s');\n" "${BUILD_MYSQL_PW}" | mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; \
     elif ! mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW}; then \
-        printf "\e[31mConnection to mysql host \"%s\" failed!\e[0m\n" "${BUILD_MYSQL_HOST}"; \
+        printf "\e[31mConnection to mysql host \"%s\" with password \"%s\" failed!\e[0m\n" "${BUILD_MYSQL_HOST}" "${BUILD_MYSQL_PW}"; \
         exit 1; \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
