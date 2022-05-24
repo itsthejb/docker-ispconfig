@@ -13,7 +13,7 @@ This is a fork of [Unimock](https://github.com/unimock)'s excellent work on impl
 
 ## Changes from the base project
 
-* Updated to Debian 10 (Buster)
+* Updated to Debian 11 (Bullseye)
 * Support for a non-local MYSQL server
 * Out-of-the-box support for a custom SSL certificate
 * Integration tests running on [Docker Cloud](https://cloud.docker.com/repository/docker/itsthejb/ispconfig-docker)
@@ -96,7 +96,7 @@ volumes:
 | `BUILD_PHPMYADMIN`               | `yes`             | Include PHPMyAdmin
 | `BUILD_CERTBOT`                  | `yes`             | Include/exclude [Let's Encrypt](https://letsencrypt.org/)
 | `BUILD_REDIS` | `yes` | Install Redis? Required for Rspamd, but can be configured to another host with `REDIS_HOST` environmental variable
-| `BUILD_TZ`                       | `Europe/Berlin`   | Timezone for the container
+| `BUILD_TZ`                       | `Europe/London`   | Timezone for the container
 | `BUILD_LOCALE` | `en_GB` | POSIX (ISO 15897) locale code for the container. UTF-8 is required and will automatically be appended
 
 ### Less-essential options

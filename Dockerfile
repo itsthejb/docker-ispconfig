@@ -49,7 +49,7 @@ ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
 ARG BUILD_ROUNDCUBE_PW="secretpassword"
 ARG BUILD_ROUNDCUBE_USER="roundcube"
-ARG BUILD_TZ="Europe/Berlin"
+ARG BUILD_TZ="Europe/London"
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive

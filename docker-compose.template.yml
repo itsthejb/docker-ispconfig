@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BUILD_TZ: Europe/Berlin
+        BUILD_TZ: Europe/London
         BUILD_HOSTNAME: myhost.test.com
         BUILD_MYSQL_PW: pass
         BUILD_PRINTING: "no"
