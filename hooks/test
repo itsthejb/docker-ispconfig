@@ -16,7 +16,7 @@ function buildAndTest() {
   fi
 
   DOWN="docker-compose -f test/$YML down -v"
-  CMD="docker-compose -f test/$YML up --abort-on-container-exit --force-recreate --remove-orphans sut"
+  CMD="docker-compose -f test/$YML up --build --abort-on-container-exit --force-recreate --remove-orphans sut"
   if time $CMD; then
     time $DOWN || true
   else
