@@ -71,7 +71,7 @@ services:
 
   mariadb:
     container_name: mariadb
-    image: mariadb
+    image: mariadb:${MARIADB_VERS}
     restart: always
     networks:
       - test_shared
