@@ -20,6 +20,7 @@ services:
     container_name: ispconfig-test
     environment:
       - MYSQL_HOST=0.0.0.0
+      - DISABLED_SERVICES=rspamd
     extends:
       file: ../docker-compose.template.yml
       service: ispconfig
