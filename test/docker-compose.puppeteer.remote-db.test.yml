@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3.4'
 
 services:
 
@@ -21,12 +21,11 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
+      network: host
       args:
-        BUILD_MYSQL_HOST: database
+        BUILD_MYSQL_HOST: mariadb
         BUILD_MYSQL_PW: mariadb
         BUILD_PHPMYADMIN: "no"
-      extra_hosts:
-        database: 172.99.0.1
     hostname: ispconfig-test
     domainname: test.com
     networks:
@@ -34,7 +33,7 @@ services:
     depends_on:
       - mariadb
     links:
-      - mariadb:database
+      - mariadb
     cap_add:
       - DAC_READ_SEARCH
       - SYS_NICE
