@@ -53,8 +53,6 @@ function testLiveDB() {
   cleanImage
 }
 
-testLiveDB "docker-compose.puppeteer.remote-db.test.yml"
-testLiveDB "docker-compose.puppeteer.remote-db-seeded.test.yml"
 testNormal
 
 echo "$(tput bold)=> Tests succeeded! $(tput sgr0)"
