@@ -30,11 +30,9 @@ function cleanImage() {
 }
 
 function testNormal() {
-  buildAndTest docker-compose.puppeteer.test.yml
-  buildAndTest docker-compose.puppeteer.no-phpmyadmin.test.yml
-  buildAndTest docker-compose.bats.test.yml
-  buildAndTest docker-compose.bats.custom-ssl.test.yml
-  buildAndTest docker-compose.bats.reconfigure.test.yml
+  for F in puppeteer puppeteer.no-phpmyadmin bats bats.custom-ssl bats.reconfigure; do
+    buildAndTest "docker-compose.$F.test.yml"
+  done
 }
 
 function testLiveDB() {

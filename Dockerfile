@@ -345,8 +345,11 @@ ENV TERM xterm
 RUN printf "export TERM=xterm\n" >> /root/.bashrc; \
 #
 # Tidy up
+    apt-get update; \
+    apt-get upgrade -y; \
     apt-get autoremove; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
     rm -rf /tmp/*
 
 EXPOSE 20 21 22 53/udp 53/tcp 80 443 953 8080 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 3306
