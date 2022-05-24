@@ -21,7 +21,7 @@ setup() {
 
 @test "expected supervisor services are disabled" {
   run docker exec $CONTAINER supervisorctl status
-  for SERVICE in mailman unbound; do
+  for SERVICE in unbound; do
     echo "$output" | grep "STOPPED" | grep "$SERVICE"
   done
 }

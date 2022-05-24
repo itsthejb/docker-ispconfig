@@ -144,7 +144,6 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
 COPY ./build/etc/aliases /etc/aliases
 RUN newaliases; \
     service postfix restart; \
-    ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf; \
 # --- 13 Install PureFTPd
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install pure-ftpd-common pure-ftpd-mysql; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \

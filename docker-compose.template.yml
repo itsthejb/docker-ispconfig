@@ -42,8 +42,8 @@ services:
       - LC_ALL=en_US.UTF-8
       - HOSTNAME=myhost.test.com            # see ./build/autoinstall.ini
       - HOSTNAME_EMAIL=mail.myhost.test.com # Hostname for email
-      # disable services (apache2 clamav-daemon cron dovecot fail2ban mailman mariadb postfix postfix pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound)
-      - DISABLED_SERVICES=mailman unbound
+      # disable services (apache2 clamav-daemon cron dovecot fail2ban mariadb postfix postfix pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound)
+      - DISABLED_SERVICES=unbound
       - POSTGREY_DELAY=300
       - POSTGREY_MAX_AGE=35
       - POSTGREY_TEXT="Delayed by postgrey"
@@ -61,10 +61,6 @@ services:
       # - MYSQL_HOST=host
       # reconfigure stored password for roundcube database at start
       # - ROUNDCUBE_DB_PASSWORD=password
-      # mailman config (not working?)
-      # - MAILMAN_EMAIL_HOST=test.com
-      # - MAILMAN_EMAIL=email@test.com
-      # - MAILMAN_PASS=pass
       # cron mail config
       # - CRON_MAILTO=
       # - CRON_MAILFROM=
