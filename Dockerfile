@@ -319,8 +319,7 @@ COPY ./build/supervisor /etc/supervisor
 COPY ./build/etc/init.d /etc/init.d
 
 # link old /etc/init.d/ startup scripts to supervisor
-RUN find "/etc/supervisor/services.d" -type f -maxdepth 1 -printf '%f\n' | while read -r i; do mv "/etc/init.d/$i" "/etc/init.d/$i-orig" 2> /dev/null; ln -sf "/etc/supervisor/super-init.sh" "/etc/init.d/$i"; done; \
-    ln -sf /etc/supervisor/systemctl /bin/systemctl; \
+RUN ln -sf /etc/supervisor/systemctl /bin/systemctl; \
     chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
 COPY ./build/supervisor/invoke-rc.d /usr/sbin/invoke-rc.d
 #

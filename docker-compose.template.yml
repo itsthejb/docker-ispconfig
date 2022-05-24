@@ -30,7 +30,7 @@ services:
       # Mount (default) volumes - copy the templates to desired location (/volumes)
       # - ./volumes/www:/var/www
       # - ./volumes/vmail:/var/vmail
-      # - ./volumes/mysql:/var/lib/mysql
+      # - ./volumes/mariadb:/var/lib/mariadb
       # Mount host timezone (linux)
       # - /etc/localtime:/etc/localtime:ro
       # service volume for overwrites (ovm) and migration (mig)
@@ -42,7 +42,7 @@ services:
       - LC_ALL=en_US.UTF-8
       - HOSTNAME=myhost.test.com            # see ./build/autoinstall.ini
       - HOSTNAME_EMAIL=mail.myhost.test.com # Hostname for email
-      # disable services (apache2 clamav-daemon cron dovecot fail2ban mailman mysql postfix postfix pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound)
+      # disable services (apache2 clamav-daemon cron dovecot fail2ban mailman mariadb postfix postfix pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound)
       - DISABLED_SERVICES=mailman unbound
       - POSTGREY_DELAY=300
       - POSTGREY_MAX_AGE=35
@@ -57,7 +57,7 @@ services:
       # - SSL_CERT=
       # - SSL_CHAIN=
       # - SSL_KEY=
-      # reconfigure the mysql host at boot
+      # reconfigure the mariadb host at boot
       # - MYSQL_HOST=host
       # reconfigure stored password for roundcube database at start
       # - ROUNDCUBE_DB_PASSWORD=password
