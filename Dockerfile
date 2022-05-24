@@ -37,6 +37,7 @@ ARG BUILD_LOCALE="en_US"
 ARG BUILD_MYSQL_HOST="localhost"
 ARG BUILD_MYSQL_PW="pass"
 ARG BUILD_MYSQL_REMOTE_ACCESS_HOST="172.%.%.%"
+ENV BUILD_PHP_VERS="7.4"
 ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
@@ -67,7 +68,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
-    apt-get -y install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail wget sudo; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail wget sudo; \
     ln -s /usr/bin/true /usr/bin/systemctl; \
 # Create the log file to be able to run tail
     touch /var/log/cron.log; \
@@ -123,7 +124,7 @@ RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | cr
 # --- 10 Install Apache Web Server and PHP
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mariadb restart; fi; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install php7.4 php7.4-common php7.4-gd php7.4-mysql php7.4-imap php7.4-cli php7.4-cgi php7.4-curl php7.4-intl php7.4-pspell php7.4-sqlite3 php7.4-tidy php7.4-xmlrpc php7.4-xsl php7.4-zip php7.4-mbstring php7.4-soap php7.4-fpm php7.4-opcache php7.4-json php7.4-readline php7.4-xml curl; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install php${BUILD_PHP_VERS} php${BUILD_PHP_VERS}-common php${BUILD_PHP_VERS}-gd php${BUILD_PHP_VERS}-mysql php${BUILD_PHP_VERS}-imap php${BUILD_PHP_VERS}-cli php${BUILD_PHP_VERS}-cgi php${BUILD_PHP_VERS}-curl php${BUILD_PHP_VERS}-intl php${BUILD_PHP_VERS}-pspell php${BUILD_PHP_VERS}-sqlite3 php${BUILD_PHP_VERS}-tidy php${BUILD_PHP_VERS}-xmlrpc php${BUILD_PHP_VERS}-xsl php${BUILD_PHP_VERS}-zip php${BUILD_PHP_VERS}-mbstring php${BUILD_PHP_VERS}-soap php${BUILD_PHP_VERS}-fpm php${BUILD_PHP_VERS}-opcache php${BUILD_PHP_VERS}-json php${BUILD_PHP_VERS}-readline php${BUILD_PHP_VERS}-xml curl; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
@@ -135,8 +136,9 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
     if [ ${BUILD_CERTBOT} = "yes" ]; then apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install certbot; fi; \
 # --- PHP-FPM
     /usr/sbin/a2enmod actions proxy_fcgi alias setenvif; \
-    /usr/sbin/a2enconf php7.4-fpm; \
-    service apache2 restart;
+    /usr/sbin/a2enconf php${BUILD_PHP_VERS}-fpm; \
+    service apache2 restart; \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/aliases /etc/aliases
 RUN newaliases; \
     service postfix restart; \
