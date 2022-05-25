@@ -33,10 +33,10 @@ services:
       - SSL_CHAIN=/etc/ssl/local/test.com.pem
       - SSL_KEY=/etc/ssl/local/test.com.key
       - HOSTNAME_EMAIL=email.myhost.test.com
+      - DISABLED_SERVICES=unbound rspamd
     volumes:
       - ./ssl:/etc/ssl/local:ro
 
 networks:
   test_shared:
     external: true
-

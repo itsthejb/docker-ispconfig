@@ -30,7 +30,7 @@ services:
     environment:
       - APACHE_SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary
       - APACHE_ENABLE_MODS=macro,proxy_balancer,proxy_http
-      - DISABLED_SERVICES=rspamd
+      - DISABLED_SERVICES=unbound rspamd
       - ROUNDCUBE_DB_PASSWORD=reconfigured
       - APACHE_DISABLE_DEFAULT_SITE=yes
       - CRON_MAILTO=to@mail.com
