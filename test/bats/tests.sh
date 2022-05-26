@@ -9,18 +9,18 @@ setup() {
 }
 
 @test "no errors on container startup" {
-  ! docker logs $CONTAINER | egrep '(FATAL)|(exited)'
+  ! docker logs "$CONTAINER" | grep -E '(FATAL)|(exited)'
 }
 
 @test "expected supervisor services running" {
-  run docker exec $CONTAINER supervisorctl status
-  for SERVICE in apache2 clamav-daemon cron dovecot fail2ban mysql php-fpm postfix postgrey pure-ftpd-mysql redis rsyslog spamassassin ssh; do
+  run docker exec "$CONTAINER" supervisorctl status
+  for SERVICE in apache2 clamav-daemon cron dovecot fail2ban mysql php7.4-fpm postfix postgrey pure-ftpd-mysql redis rsyslog spamassassin ssh; do
     echo "$output" | grep "RUNNING" | grep "$SERVICE"
   done
 }
 
 @test "expected supervisor services are disabled" {
-  run docker exec $CONTAINER supervisorctl status
+  run docker exec "$CONTAINER" supervisorctl status
   for SERVICE in unbound; do
     echo "$output" | grep "STOPPED" | grep "$SERVICE"
   done
@@ -35,21 +35,21 @@ setup() {
 }
 
 @test "ispconfig uses build hostname" {
-  docker exec $CONTAINER mysql -uroot -p$MYSQL_PW -e "SELECT * from dbispconfig.server" | grep "hostname=myhost.test.com"
+  docker exec "$CONTAINER" mysql -uroot -p$MYSQL_PW -e "SELECT * from dbispconfig.server" | grep "hostname=myhost.test.com"
 }
 
 @test "supplementary vhost is enabled" {
-  run docker exec $CONTAINER apache2ctl -S
+  run docker exec "$CONTAINER" apache2ctl -S
   [ $(echo "$output" | grep "webmail.test.com") ]
 }
 
 @test "default config should be disabled" {
-  run docker exec $CONTAINER apache2ctl -S
+  run docker exec "$CONTAINER" apache2ctl -S
   [ ! $(echo "$output" | grep "\/etc\/apache2\/sites-enabled\/000-default.conf") ]
 }
 
 @test "all selected apache mods should be loaded" {
-  run docker exec $CONTAINER apache2ctl -M 2> /dev/null || true
+  run docker exec "$CONTAINER" apache2ctl -M 2> /dev/null || true
   [ $(echo "$output" | grep -E "macro|proxy_balancer|proxy_http" | wc -l) -eq 3 ]
 }
 
@@ -58,7 +58,7 @@ setup() {
 }
 
 @test "database can be accessed using expected password" {
-  docker exec $CONTAINER mysql -uroot -p$MYSQL_PW
+  docker exec "$CONTAINER" mysql -uroot -p$MYSQL_PW
 }
 
 @test "ssh server port is responding" {
@@ -71,26 +71,26 @@ setup() {
 
 @test "default rspamd web interface is accessible" {
   skip
-  docker exec "$CONTAINER" apt-get -y install curl
-  docker exec "$CONTAINER" curl -s "http://localhost:11334"
+  docker exec ""$CONTAINER"" apt-get -y install curl
+  docker exec ""$CONTAINER"" curl -s "http://localhost:11334"
 }
 
 @test "stored roundcube password is correctly changed" {
-  run docker exec "$CONTAINER" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
+  run docker exec ""$CONTAINER"" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
 }
 
 @test "cron jobs are running" {
-  run docker exec $CONTAINER grep "(*system*) NUMBER OF HARD LINKS > 1" /var/log/syslog
+  run docker exec "$CONTAINER" grep "(*system*) NUMBER OF HARD LINKS > 1" /var/log/syslog
   [ "$status" -eq 1 ]
 }
 
 @test "cron log should contain no errors, only timestamped info" {
-  run docker exec $CONTAINER cat /var/log/ispconfig/cron.log
+  run docker exec "$CONTAINER" cat /var/log/ispconfig/cron.log
   [ ! $(echo "$output" | grep -Ev "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}") ]
 }
 
 @test "root crontab is as expected" {
-  run docker exec $CONTAINER cat /var/spool/cron/crontabs/root
+  run docker exec "$CONTAINER" cat /var/spool/cron/crontabs/root
   echo "$output"
   [ $(echo "$output" | grep -E "@daily.*/usr/bin/freshclam") ]
   [ $(echo "$output" | grep "* * * * * /usr/local/ispconfig/server/server.sh") ]
