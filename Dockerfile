@@ -125,7 +125,7 @@ RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | cr
     sa-compile --quiet 2>&1; \
 # --- 10 Install Apache Web Server and PHP
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mariadb restart; fi; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php-common php-gd php-mysql php-imap php-cli php-cgi php-curl php-intl php-pspell php-sqlite3 php-tidy php-imagick php-xmlrpc php-xsl php-zip php-mbstring php-soap php-fpm php-opcache php-json php-readline php-xml curl; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-doc apache2-utils libapache2-mod-php php-yaml php-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php-common php-gd php-mysql php-imap php-cli php-cgi php-curl php-intl php-pspell php-sqlite3 php-tidy php-imagick php-xmlrpc php-xsl php-zip php-mbstring php-soap php-fpm php-opcache php-json php-readline php-xml curl; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
@@ -172,19 +172,8 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/cron.d/awstats /etc/cron.d/
 
-# --- 16 Install Jailkit
-# install package building helpers
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils python-minimal; \
-    wget "http://olivier.sessink.nl/jailkit/jailkit-$BUILD_JAILKIT_VERSION.tar.gz" -q -P /tmp; \
-    tar xfz "/tmp/jailkit-${BUILD_JAILKIT_VERSION}.tar.gz" -C /tmp; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-WORKDIR /tmp/jailkit-${BUILD_JAILKIT_VERSION}
-RUN printf "5\n" > debian/compat; \
-    make -s -f debian/rules binary 2>&1; \
-    dpkg -i /tmp/jailkit_${BUILD_JAILKIT_VERSION}-1_*.deb; \
-    rm -rf /tmp/jailkit-${BUILD_JAILKIT_VERSION}*; \
 # --- 17 Install fail2ban and UFW Firewall
-    touch /var/log/auth.log; \
+RUN touch /var/log/auth.log; \
     touch /var/log/mail.log; \
     touch /var/log/syslog; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install fail2ban ufw; \
