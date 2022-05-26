@@ -1,6 +1,4 @@
 #!/bin/bash
-
+while [[ $1 = -* ]]; do shift; done
 SVC=${2%.service}
-
-/etc/init.d/${SVC} ${1}
-
+"/etc/init.d/${SVC}" "${1}"
