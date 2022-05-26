@@ -172,19 +172,8 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/cron.d/awstats /etc/cron.d/
 
-# --- 16 Install Jailkit
-# install package building helpers
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential autoconf automake libtool flex bison debhelper binutils python-minimal; \
-    wget "http://olivier.sessink.nl/jailkit/jailkit-$BUILD_JAILKIT_VERSION.tar.gz" -q -P /tmp; \
-    tar xfz "/tmp/jailkit-${BUILD_JAILKIT_VERSION}.tar.gz" -C /tmp; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-WORKDIR /tmp/jailkit-${BUILD_JAILKIT_VERSION}
-RUN printf "5\n" > debian/compat; \
-    make -s -f debian/rules binary 2>&1; \
-    dpkg -i /tmp/jailkit_${BUILD_JAILKIT_VERSION}-1_*.deb; \
-    rm -rf /tmp/jailkit-${BUILD_JAILKIT_VERSION}*; \
 # --- 17 Install fail2ban and UFW Firewall
-    touch /var/log/auth.log; \
+RUN touch /var/log/auth.log; \
     touch /var/log/mail.log; \
     touch /var/log/syslog; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install fail2ban ufw; \
