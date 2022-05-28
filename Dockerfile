@@ -19,7 +19,7 @@
 # https://www.howtoforge.com/perfect-server-debian-10-buster-apache-bind-dovecot-ispconfig-3-1/
 # https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
-FROM debian:bullseye-slim
+FROM debian:11.3-slim
 
 LABEL maintainer="mail@jcrooke.net"
 LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyAdmin and more"
