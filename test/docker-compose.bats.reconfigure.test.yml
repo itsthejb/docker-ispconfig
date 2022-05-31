@@ -23,7 +23,7 @@ services:
       service: ispconfig
     environment:
       - MYSQL_HOST=0.0.0.0
-      - DISABLED_SERVICES=unbound rspamd
+      - DISABLED_SERVICES=unbound
     networks:
       - test_shared
 

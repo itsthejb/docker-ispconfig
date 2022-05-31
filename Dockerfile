@@ -161,11 +161,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server; \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
     fi; \
-    wget -q -nc -O- https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /tmp/rpsamd.gpg; \
-    install -o root -g root -m 644 /tmp/rpsamd.gpg /etc/apt/trusted.gpg.d/; \
-    printf "deb [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" > /etc/apt/sources.list.d/rspamd.list; \
-    printf "deb-src [arch=amd64] http://rspamd.com/apt-stable/ %s main\n" "$(lsb_release -c -s)" >> /etc/apt/sources.list.d/rspamd.list; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd/bullseye-backports; \
     printf "servers = \"localhost\";\n" > /etc/rspamd/local.d/redis.conf; \
     printf "nrows = 2500;\n" > /etc/rspamd/local.d/history_redis.conf; \
     printf "compress = true;\n" >> /etc/rspamd/local.d/history_redis.conf; \
