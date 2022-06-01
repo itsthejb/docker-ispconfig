@@ -103,7 +103,7 @@ setup() {
 @test "locale is correctly configured" {
   run docker exec "$CONTAINER" locale
   echo "$output"
-  [ "$(echo "$output" | grep -c "en")" -eq 15 ]
-  [ "$(echo "$output" | grep -c "en_US.UTF-8")" -eq 14 ]
-  [ "$(echo "$output" | grep -cv "en")" -eq 0 ]
+  [ "$(echo "$output" | grep -c "C")" -eq 15 ]
+  [ "$(echo "$output" | grep -c "C.UTF-8")" -eq 14 ]
+  [ "$(echo "$output" | grep -cv "C")" -eq 0 ]
 }

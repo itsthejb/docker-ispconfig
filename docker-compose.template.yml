@@ -37,13 +37,13 @@ services:
       # - ./service:/service
       # - ./ispc/rsnapshot:/rsnapshot
     environment:
-      - LANG=en_US.UTF-8
-      - LANGUAGE=en_US:en
-      - LC_ALL=en_US.UTF-8
+      - LANGUAGE=C
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
       - HOSTNAME=myhost.test.com            # see ./build/autoinstall.ini
       - HOSTNAME_EMAIL=mail.myhost.test.com # Hostname for email
       # disable services (apache2 clamav-daemon cron dovecot fail2ban mariadb postfix postfix pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound)
-      - DISABLED_SERVICES=unbound
+      - DISABLED_SERVICES=rspamd unbound
       - POSTGREY_DELAY=300
       - POSTGREY_MAX_AGE=35
       - POSTGREY_TEXT="Delayed by postgrey"
