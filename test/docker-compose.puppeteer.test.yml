@@ -25,7 +25,7 @@ services:
       file: ../docker-compose.template.yml
       service: ispconfig
     environment:
-      - DISABLED_SERVICES=unbound rspamd
+      - DISABLED_SERVICES=unbound
     networks:
       - test_shared
 
