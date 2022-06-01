@@ -1,1 +1,3 @@
-.github/linters/.hadolint.yml
+ignored:
+    - DL3001
+    - DL3008
