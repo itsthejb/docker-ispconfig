@@ -29,9 +29,9 @@ echo "#"
 
 for task in $DISABLED_SERVICES ; do
   echo "disable : $task"
-  sed -i "s/autostart=true/autostart=false/" /etc/supervisor/services.d/$task
-  if [ -e /etc/logrotate.d/$task ] ; then
-    rm -v /etc/logrotate.d/$task
+  sed -i "s/autostart=true/autostart=false/" "/etc/supervisor/services.d/$task"
+  if [ -e "/etc/logrotate.d/$task" ] ; then
+    rm -v "/etc/logrotate.d/$task"
   fi
 done
 
@@ -41,9 +41,9 @@ echo "#"
 
 list=$(ls -1 /etc/supervisor/init.d/*)
 for i in $list ; do
-  if [ -e $i ] ; then
-    task=`basename $i`
-     if [ "$(grep 'autostart=false' /etc/supervisor/services.d/${task})" = "" ] ; then
+  if [ -e "$i" ] ; then
+    task=$(basename "$i")
+     if [ "$(grep 'autostart=false' "/etc/supervisor/services.d/${task}")" = "" ] ; then
        echo "execute: <$task>"
        $i
      fi
@@ -67,4 +67,3 @@ for i in $list ; do
   echo "execute: <$i>"
   $i
 done
-

@@ -21,7 +21,8 @@ setup() {
 
 @test "expected supervisor services are disabled" {
   run docker exec "$CONTAINER" supervisorctl status
-  for SERVICE in unbound; do
+  SERVICES=(unbound)
+  for SERVICE in "${SERVICES[@]}"; do
     echo "$output" | grep "STOPPED" | grep "$SERVICE"
   done
 }
@@ -35,22 +36,22 @@ setup() {
 }
 
 @test "ispconfig uses build hostname" {
-  docker exec "$CONTAINER" mysql -uroot -p$MYSQL_PW -e "SELECT * from dbispconfig.server" | grep "hostname=myhost.test.com"
+  docker exec "$CONTAINER" mysql -uroot -p"$MYSQL_PW" -e "SELECT * from dbispconfig.server" | grep "hostname=myhost.test.com"
 }
 
 @test "supplementary vhost is enabled" {
   run docker exec "$CONTAINER" apache2ctl -S
-  [ $(echo "$output" | grep "webmail.test.com") ]
+  echo "$output" | grep "webmail.test.com"
 }
 
 @test "default config should be disabled" {
   run docker exec "$CONTAINER" apache2ctl -S
-  [ ! $(echo "$output" | grep "\/etc\/apache2\/sites-enabled\/000-default.conf") ]
+  ! echo "$output" | grep "\/etc\/apache2\/sites-enabled\/000-default.conf"
 }
 
 @test "all selected apache mods should be loaded" {
   run docker exec "$CONTAINER" apache2ctl -M 2> /dev/null || true
-  [ $(echo "$output" | grep -E "macro|proxy_balancer|proxy_http" | wc -l) -eq 3 ]
+  [ "$(echo "$output" | grep -cE "macro|proxy_balancer|proxy_http")" -eq 3 ]
 }
 
 @test "mail server ports are responding" {
@@ -58,7 +59,7 @@ setup() {
 }
 
 @test "database can be accessed using expected password" {
-  docker exec "$CONTAINER" mysql -uroot -p$MYSQL_PW
+  docker exec "$CONTAINER" mysql -uroot -p"$MYSQL_PW"
 }
 
 @test "ssh server port is responding" {
@@ -71,12 +72,12 @@ setup() {
 
 @test "default rspamd web interface is accessible" {
   skip
-  docker exec ""$CONTAINER"" apt-get -y install curl
-  docker exec ""$CONTAINER"" curl -s "http://localhost:11334"
+  docker exec "$CONTAINER" apt-get -y install curl
+  docker exec "$CONTAINER" curl -s "http://localhost:11334"
 }
 
 @test "stored roundcube password is correctly changed" {
-  run docker exec ""$CONTAINER"" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
+  run docker exec "$CONTAINER" grep "\$config\['db_dsnw'\] = 'mysql://roundcube:reconfigured@localhost/roundcube';" /opt/roundcube/config/config.inc.php
 }
 
 @test "cron jobs are running" {
@@ -85,24 +86,24 @@ setup() {
 }
 
 @test "cron log should contain no errors, only timestamped info" {
-  run docker exec "$CONTAINER" cat /var/log/ispconfig/cron.log
-  [ ! $(echo "$output" | grep -Ev "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}") ]
+  run docker exec "$CONTAINER" grep -qEv "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}" /var/log/ispconfig/cron.log
 }
 
 @test "root crontab is as expected" {
   run docker exec "$CONTAINER" cat /var/spool/cron/crontabs/root
-  echo "$output"
-  [ $(echo "$output" | grep -E "@daily.*/usr/bin/freshclam") ]
-  [ $(echo "$output" | grep "* * * * * /usr/local/ispconfig/server/server.sh") ]
-  [ $(echo "$output" | grep "* * * * * /usr/local/ispconfig/server/cron.sh") ]
-  [ $(echo "$output" | grep "MAILTO=to@mail.com") ]
-  [ $(echo "$output" | grep "MAILFROM=from@mail.com") ]
+  echo "$output" | grep -qE "@daily.*/usr/bin/freshclam"
+  # shellcheck disable=SC2063
+  echo "$output" | grep -q "* * * * * /usr/local/ispconfig/server/server.sh"
+  # shellcheck disable=SC2063
+  echo "$output" | grep -q "* * * * * /usr/local/ispconfig/server/cron.sh"
+  echo "$output" | grep -q "MAILTO=to@mail.com"
+  echo "$output" | grep -q "MAILFROM=from@mail.com"
 }
 
 @test "locale is correctly configured" {
   run docker exec "$CONTAINER" locale
   echo "$output"
-  [ "$(echo "$output" | grep "en" | wc -l)" -eq 15 ]
-  [ "$(echo "$output" | grep "en_US.UTF-8" | wc -l)" -eq 14 ]
-  [ "$(echo "$output" | grep -v "en" | wc -l)" -eq 0 ]
+  [ "$(echo "$output" | grep -c "en")" -eq 15 ]
+  [ "$(echo "$output" | grep -c "en_US.UTF-8")" -eq 14 ]
+  [ "$(echo "$output" | grep -cv "en")" -eq 0 ]
 }

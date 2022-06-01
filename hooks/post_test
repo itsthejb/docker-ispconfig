@@ -1,10 +1,11 @@
 #!/bin/bash
+# shellcheck disable=SC2001
 
 if [ "$SOURCE_BRANCH" = "master" ]; then
   DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
   IMAGE=$(grep "image:" "$DIR/../docker-compose.template.yml" | sed "s/\(.*image: \)\(.*\)/\2/")
-  REPO=$(echo "$IMAGE" | sed "s/\(.*\):\(.*\)/\1/")
-  TAG=$(echo "$IMAGE" | sed "s/\(.*\):\(.*\)/\2/")
+  REPO=$(sed "s/\(.*\):\(.*\)/\1/" <<< "$IMAGE")
+  TAG=$(sed "s/\(.*\):\(.*\)/\2/" <<< "$IMAGE")
 
   docker tag "$REPO:$TAG" "$REPO:latest"
   docker push "$REPO:$TAG"

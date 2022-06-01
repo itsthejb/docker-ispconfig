@@ -11,7 +11,7 @@ if [ -n "$REDIS_HOST" ]; then
   sed -i "s|servers = \".*\";|servers = \"$REDIS_HOST\";|" /etc/rspamd/local.d/redis.conf
 
   grep -lR ":6379" /etc/rspamd | while read -r F; do
-    sed -i'' "s|servers = \".*:6379\";|servers = \"$REDIS_HOST:6379\";|" $F
-    sed -i'' "s|servers = [^\"].*:6379;|servers = $REDIS_HOST:6379;|" $F
+    sed -i'' "s|servers = \".*:6379\";|servers = \"$REDIS_HOST:6379\";|" "$F"
+    sed -i'' "s|servers = [^\"].*:6379;|servers = $REDIS_HOST:6379;|" "$F"
   done
 fi

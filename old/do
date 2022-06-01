@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1000-SC9999
 
 CFG=./.do.cfg
 DMC=./.do-machine.cfg
@@ -156,13 +157,13 @@ if [ "$1" = "service" ] ; then
     DRY=""
   fi
   if [ "$2" = "push" ] ; then
-     ssh root@$(docker-machine ip $DO_MNAME) mkdir -p /Docker/$DO_CNAME 
-     sudo rsync  ${DRY} -arvzS --numeric-ids --delete -e ssh ${SERVICEVOL}/ root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service 
+     ssh root@$(docker-machine ip $DO_MNAME) mkdir -p /Docker/$DO_CNAME
+     sudo rsync  ${DRY} -arvzS --numeric-ids --delete -e ssh ${SERVICEVOL}/ root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service
      echo "push $DRY folder from <${SERVICEVOL}> to <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME>"
   fi
   if [ "$2" = "pull" ] ; then
-    sudo rsync   ${DRY} -arvzS --numeric-ids --delete -e ssh root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service/ ${SERVICEVOL} 
-    echo "pull $DRY folder from <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME> to <${SERVICEVOL}> done." 
+    sudo rsync   ${DRY} -arvzS --numeric-ids --delete -e ssh root@$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME/service/ ${SERVICEVOL}
+    echo "pull $DRY folder from <$(docker-machine ip $DO_MNAME):/Docker/$DO_CNAME> to <${SERVICEVOL}> done."
   fi
 
   if [ "$2" = "backup" ] ; then
@@ -192,4 +193,3 @@ if [ "$1" = "decrypt" ] ; then
     openssl aes-256-cbc -d -salt -in ./utils/.private.enc | tar xjv
     exit 0
 fi
-

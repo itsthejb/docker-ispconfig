@@ -1,3 +1,4 @@
+# hadolint ignore=DL3001,DL3008
 #
 #                    ##        .
 #              ## ## ##       ==

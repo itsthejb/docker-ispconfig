@@ -42,22 +42,22 @@ if [ "$1" = "roundcube_password" ] ; then
 fi
 
 if [ "$1" = "server_name" ] ; then
-  echo "update server set server_name=\"$2\" ;"                               | mysql -uroot -p${MYSQL_ROOT_PW} dbispconfig
+  echo "update server set server_name=\"$2\" ;"                               | mysql -uroot -p"${MYSQL_ROOT_PW}" dbispconfig
   exit 0
 fi
 
 if [ "$1" = "mysql_root_pw" ] ; then
-  mysqladmin -uroot -p${MYSQL_ROOT_PW} password ${2}
-  sed -i -e "/clientdb_password/ s/'"${MYSQL_ROOT_PW}"'/'"${2}"'/" $FI
+  mysqladmin -uroot -p"${MYSQL_ROOT_PW}" password "${2}"
+  sed -i -e "/clientdb_password/ s/'${MYSQL_ROOT_PW}'/'${2}'/" $FI
   exit 0
 fi
 
-if [ "$1" = "roundcube" -a "$2" != "" -a "$3" != "" -a "$4" != "" ] ; then
-  mysql -h localhost -uroot -p${MYSQL_ROOT_PW} -e "GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY '"${2}"' ; flush privileges;"
+if [ "$1" = "roundcube" ] && [ "$2" != "" ] && [ "$3" != "" ] && [ "$4" != "" ] ; then
+  mysql -h localhost -uroot -p"${MYSQL_ROOT_PW}" -e "GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost IDENTIFIED BY '${2}' ; flush privileges;"
   echo " * setting roundcube password <${2}> in mysql database"
   FI=/opt/roundcube/config/config.inc.php
   if [ -e $FI ] ; then
-    sed -i -e "s#^\$config\['db_dsnw'\].*#\$config['db_dsnw'] = 'mysql://roundcube:"${2}"@localhost/roundcubemail';#" $FI
+    sed -i -e "s#^\$config\['db_dsnw'\].*#\$config['db_dsnw'] = 'mysql://roundcube:${2}@localhost/roundcubemail';#" $FI
     echo " * setting roundcube password <$2> in $FI"
   fi
   FI=/opt/roundcube/config/defaults.inc.php
@@ -67,14 +67,12 @@ if [ "$1" = "roundcube" -a "$2" != "" -a "$3" != "" -a "$4" != "" ] ; then
   fi
   FI=/opt/roundcube/plugins/ispconfig3_account/config/config.inc.php
   if [ -e $FI ] ; then
-     sed -i -e "s#^\$rcmail_config\['soap_url'\].*#\$rcmail_config['soap_url'] = 'https://"${3}":8080/remote/';#" $FI
+     sed -i -e "s#^\$rcmail_config\['soap_url'\].*#\$rcmail_config['soap_url'] = 'https://${3}:8080/remote/';#" $FI
      echo " * setting remote url to <${3}> in $FI"
-     sed -i -e "s#^\$rcmail_config\['remote_soap_user'\].*#\$rcmail_config['remote_soap_user'] = '"${4}"';#" $FI
+     sed -i -e "s#^\$rcmail_config\['remote_soap_user'\].*#\$rcmail_config['remote_soap_user'] = '${4}';#" $FI
      echo " * setting remote user to <${4}> in $FI"
-     sed -i -e "s#^\$rcmail_config\['remote_soap_pass'\].*#\$rcmail_config['remote_soap_pass'] = '"${2}"';#" $FI
+     sed -i -e "s#^\$rcmail_config\['remote_soap_pass'\].*#\$rcmail_config['remote_soap_pass'] = '${2}';#" $FI
      echo " * setting remote password to <${2}> in $FI"
   fi
   exit 0
 fi
-
-
