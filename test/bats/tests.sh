@@ -86,13 +86,11 @@ setup() {
 }
 
 @test "cron log should contain no errors, only timestamped info" {
-  run docker exec "$CONTAINER" cat /var/log/ispconfig/cron.log
-  echo "$output" | grep -qEv "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}"
+  run docker exec "$CONTAINER" grep -qEv "^\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d{4}" /var/log/ispconfig/cron.log
 }
 
 @test "root crontab is as expected" {
   run docker exec "$CONTAINER" cat /var/spool/cron/crontabs/root
-  echo "$output"
   echo "$output" | grep -qE "@daily.*/usr/bin/freshclam"
   # shellcheck disable=SC2063
   echo "$output" | grep -q "* * * * * /usr/local/ispconfig/server/server.sh"

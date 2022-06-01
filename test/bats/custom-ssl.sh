@@ -51,13 +51,13 @@ function testSSL() {
 }
 
 @test "roundcube uses secure connection" {
-  run docker exec"$CONTAINER"cat /opt/roundcube/config/config.inc.php
+  run docker exec "$CONTAINER" cat /opt/roundcube/config/config.inc.php
   echo "$output" | grep "\$config\['default_host'\] = 'ssl://$HOSTNAME_EMAIL:993';"
   echo "$output" | grep "\$config\['smtp_server'\] = 'tls://$HOSTNAME_EMAIL';"
   echo "$output" | grep "\$config\['smtp_port'\] = 587;"
-  docker exec"$CONTAINER"grep -E -R "^disable_plaintext_auth = yes" "/etc/dovecot"
-  docker exec"$CONTAINER"grep -E -R "^disable_plaintext_auth = yes" "/etc/dovecot/conf.d/10-auth.conf"
-  run docker exec"$CONTAINER"tail -n 3 "/etc/dovecot/dovecot.conf"
+  docker exec "$CONTAINER" grep -E -R "^disable_plaintext_auth = yes" "/etc/dovecot"
+  docker exec "$CONTAINER" grep -E -R "^disable_plaintext_auth = yes" "/etc/dovecot/conf.d/10-auth.conf"
+  run docker exec "$CONTAINER" tail -n 3 "/etc/dovecot/dovecot.conf"
   echo "$output" | grep "local 172.0.0.0/8"
   echo "$output" | grep -E "^  disable_plaintext_auth = no"
 }
