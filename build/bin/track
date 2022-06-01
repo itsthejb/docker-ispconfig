@@ -6,7 +6,7 @@ echo "dfasf"
   rm -rf .git
   git init
   git add --all
-  git commit -m "docker-compose track : initial checkin" >/dev/null 
+  git commit -m "docker-compose track : initial checkin" >/dev/null
   exit 0
 fi
 
@@ -19,6 +19,6 @@ fi
 if [ "$1" = "git" ] ; then
   cd /
   shift
-  git $*
+  git "$@"
   exit 0
 fi

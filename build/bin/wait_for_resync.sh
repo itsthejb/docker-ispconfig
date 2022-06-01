@@ -13,8 +13,8 @@ echo -n "Waiting for resync .."
 while true ; do
   sleep 5
   echo -n "."
-  xxx=`mysql -s -uroot -p${MYSQL_ROOT_PW} -e "select updated from dbispconfig.server ; "`
-  anz=`mysql -s -uroot -p${MYSQL_ROOT_PW} -e "select count(status) from dbispconfig.sys_datalog where  datalog_id > $xxx ; "`
+  xxx=$(mysql -s -uroot -p"${MYSQL_ROOT_PW}" -e "select updated from dbispconfig.server ; ")
+  anz=$(mysql -s -uroot -p"${MYSQL_ROOT_PW}" -e "select count(status) from dbispconfig.sys_datalog where  datalog_id > $xxx ; ")
   if [ "$anz" != 0 ] ; then
      echo ""
      echo "Changes detected. Wait 10s before starting server.sh."
