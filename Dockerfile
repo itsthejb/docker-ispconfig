@@ -1,4 +1,3 @@
-# hadolint ignore=DL3001,DL3008
 #
 #                    ##        .
 #              ## ## ##       ==
@@ -48,6 +47,8 @@ ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PRINTING="no"
+ARG BUILD_PUREFTPD_VERSION_BASE="1.0.49"
+ARG BUILD_PUREFTPD_VERSION_FULL="1.0.49-4.1"
 ARG BUILD_REDIS="yes"
 ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
@@ -63,15 +64,15 @@ COPY ./build/etc/apt/sources.list /etc/apt/sources.list
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # --- set timezone and locale
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apt-utils locales && \
-    sed -i -e "s/# ${BUILD_LOCALE}.UTF-8 UTF-8/${BUILD_LOCALE}.UTF-8 UTF-8/" /etc/locale.gen && \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apt-utils locales; \
+    sed -i -e "s/# ${BUILD_LOCALE}.UTF-8 UTF-8/${BUILD_LOCALE}.UTF-8 UTF-8/" /etc/locale.gen; \
     locale-gen; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/**
 ENV LANG "${BUILD_LOCALE}.UTF-8"
 ENV LANGUAGE "${BUILD_LOCALE}:en"
 ENV LC_ALL "${BUILD_LOCALE}.UTF-8"
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
     ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime; \
     dpkg-reconfigure -f noninteractive tzdata; \
 # --- 1 Preliminary
@@ -97,7 +98,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
         printf "mariadb-server mariadb-server/root_password_again password %s\n" "${BUILD_MYSQL_PW}" | debconf-set-selections; \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install mariadb-server; \
     fi; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/**
 COPY ./build/etc/mysql/debian.cnf /etc/mysql
 COPY ./build/etc/mysql/50-server.cnf /etc/mysql/mariadb.conf.d/
 RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
@@ -113,15 +114,14 @@ RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
-RUN service postfix restart; \
-    if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mariadb restart; fi; \
+RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then service mariadb restart; fi; \
 # --- 9 Install SpamAssassin, and ClamAV
     (crontab -l; printf "\n") | sort - | uniq - | crontab -; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey; \
+    rm -rf /var/lib/apt/lists/**
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | crontab -; \
@@ -130,10 +130,11 @@ RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | cr
     sa-compile --quiet 2>&1; \
 # --- 10 Install Apache Web Server and PHP
     if [ ${BUILD_MYSQL_HOST} = "localhost" ]; then service mariadb restart; fi; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils libapache2-mod-php php-yaml php-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php-common php-gd php-mysql php-imap php-cli php-cgi php-curl php-intl php-pspell php-sqlite3 php-tidy php-imagick php-xmlrpc php-xsl php-zip php-mbstring php-soap php-fpm php-opcache php-json php-readline php-xml curl; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*; \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils curl libapache2-mod-php php-yaml php-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php-common php-gd php-mysql php-imap php-cli php-cgi php-curl php-intl php-pspell php-sqlite3 php-tidy php-imagick php-xmlrpc php-xsl php-zip php-mbstring php-soap php-fpm php-opcache php-json php-readline php-xml python; \
+    rm -rf /var/lib/apt/lists/**; \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
+COPY ./build/etc/aliases /etc/aliases
 RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
     printf "ServerName %s\n" "${BUILD_HOSTNAME}" > /etc/apache2/conf-available/fqdn.conf; \
 	/usr/sbin/a2enconf fqdn; \
@@ -144,15 +145,23 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update; \
     /usr/sbin/a2enmod actions proxy_fcgi alias setenvif; \
     /usr/sbin/a2enconf php${BUILD_PHP_VERS}-fpm; \
     service apache2 restart; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-COPY ./build/etc/aliases /etc/aliases
-RUN newaliases; \
-    service postfix restart; \
-# --- 13 Install PureFTPd
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install pure-ftpd-common pure-ftpd-mysql; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*; \
-    openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048 2>&1;
+    rm -rf /var/lib/apt/lists/**; \
+    newaliases
+# --- 13 Install PureFTPd [https://github.com/stilliard/docker-pure-ftpd/blob/master/Dockerfile]
+WORKDIR /tmp
 COPY ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential debhelper default-libmysqlclient-dev dpkg-dev dpkg-dev libcap-dev libldap-dev libpam-dev libpq-dev libsodium-dev libssl-dev pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL}; \
+	apt-get -y source pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL}; \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /tmp/pure-ftpd-${BUILD_PUREFTPD_VERSION_BASE}
+RUN ./configure --with-tls --with-nonroot --quiet; \
+    sed -i '/CAP_SYS_NICE,/d; /CAP_DAC_READ_SEARCH/d; s/CAP_SYS_CHROOT,/CAP_SYS_CHROOT/;' src/caps_p.h; \
+    DEB_BUILD_OPTIONS=terse dpkg-buildpackage -b -uc; \
+    dpkg -i /tmp/pure-ftpd-common*.deb; \
+    dpkg -i /tmp/pure-ftpd-mysql_*.deb; \
+    apt-mark hold pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} pure-ftpd-common pure-ftpd-mysql; \
+    openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048 2>&1; \
+    rm -rf /tmp/*
 
 # --- 14 Install BIND DNS Server
 RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install lsb-release unbound dnsutils haveged gnupg2 wget ca-certificates lsb-release software-properties-common; \
@@ -169,7 +178,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no
     sed -i 's|-f /bin/systemctl|-d /run/systemd/system|' /etc/logrotate.d/rspamd; \
 # --- 15 Install awffull, AWStats, goaccess
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install awffull awstats goaccess geoip-database libclass-dbi-mysql-perl libtimedate-perl; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/**
 COPY ./build/etc/cron.d/awstats /etc/cron.d/
 
 # --- 17 Install fail2ban and UFW Firewall
@@ -177,7 +186,7 @@ RUN touch /var/log/auth.log; \
     touch /var/log/mail.log; \
     touch /var/log/syslog; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install fail2ban ufw; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*;
+    rm -rf /var/lib/apt/lists/**;
 COPY ./build/etc/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY ./build/etc/phpmyadmin/config.inc.php /tmp/phpmyadmin.config.inc.php
 COPY ./build/etc/apache2/phpmyadmin.conf /etc/apache2/conf-available/phpmyadmin.conf
@@ -229,8 +238,8 @@ RUN service fail2ban restart; \
     sed -i "s|mysql://roundcube:pass@localhost/roundcubemail|mysql://${BUILD_ROUNDCUBE_USER}:${BUILD_ROUNDCUBE_PW}@${BUILD_MYSQL_HOST}/${BUILD_ROUNDCUBE_DB}|" $BUILD_ROUNDCUBE_DIR/config/config.inc.php; \
     sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" $BUILD_ROUNDCUBE_DIR/config/config.inc.php; \
     sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" $BUILD_ROUNDCUBE_DIR/config/config.inc.php; \
-    apt-get clean && rm -rf /var/lib/apt/lists/*; \
-    find "${BUILD_ROUNDCUBE_DIR}" -name ".htaccess" -exec sed -i "s|mod_php5|mod_php7|" {} \; && \
+    rm -rf /var/lib/apt/lists/**; \
+    find "${BUILD_ROUNDCUBE_DIR}" -name ".htaccess" -exec sed -i "s|mod_php5|mod_php7|" {} \;; \
     find "${BUILD_ROUNDCUBE_DIR}" -name ".htaccess" -exec sed -i "s|# php_value    error_log|php_value   date.timezone ${BUILD_TZ}\nphp_value   error_log|" {} \;
 COPY ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 
@@ -284,17 +293,16 @@ RUN touch "/etc/mailname"; \
     sed -i "s|NameVirtualHost|#NameVirtualHost|" "/etc/apache2/sites-enabled/000-ispconfig.vhost"; \
 ################################################################################################
 # the key and cert for pure-ftpd should be available :
-    if [ -f "/usr/local/ispconfig/interface/ssl/ispserver.key" ] && [ -f "/usr/local/ispconfig/interface/ssl/ispserver.crt" ]; then \
-        mkdir -p "/etc/ssl/private/"; \
-        cat "/usr/local/ispconfig/interface/ssl/ispserver.key" "/usr/local/ispconfig/interface/ssl/ispserver.crt" > "/usr/local/ispconfig/interface/ssl/ispserver.chain" || exit; \
-        ln -sf "/usr/local/ispconfig/interface/ssl/ispserver.chain" "/etc/ssl/private/pure-ftpd.pem"; \
-        printf "1\n" > "/etc/pure-ftpd/conf/TLS"; \
-    fi; \
+# https://www.howtoforge.com/how-to-configure-pureftpd-to-accept-tls-sessions-on-debian-lenny
+    rm -f /etc/ssl/private/pure-ftpd.pem ;\
+    yes "" | openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem || true; \
+    chmod 600 /etc/ssl/private/pure-ftpd.pem; \
+    printf "1\n" > "/etc/pure-ftpd/conf/TLS"; \
 # --- 23 Install printing stuff
     if [ $BUILD_PRINTING = "yes" ]; then \
         apt-get -qq -o Dpkg::Use-Pty=0 update; \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install --fix-missing -y libdmtx-utils dblatex latex-make cups-client lpr; \
-        apt-get clean && rm -rf /var/lib/apt/lists/*; \
+        rm -rf /var/lib/apt/lists/**; \
     fi; \
 #
 # docker-extensions

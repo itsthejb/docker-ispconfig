@@ -32,7 +32,7 @@ services:
     environment:
       - SSL_CERT=/etc/ssl/local/test.com.crt
       - SSL_KEY=/etc/ssl/local/test.com.key
-      - DISABLED_SERVICES=unbound
+      - DISABLED_SERVICES=unbound rspamd
     volumes:
       - ./ssl:/etc/ssl/local:ro
 
