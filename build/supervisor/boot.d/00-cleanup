@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # global
-find /var/run/   -name "*.pid" -o -name "*.sock" -exec rm -f {} \;
-find /var/cache/ -name "*.pid" -o -name "*.sock" -exec rm -f {} \;
+find /var/run/   \( -name "*.pid" -o -name "*.sock" \) -exec rm -f {} \;
+find /var/cache/ \( -name "*.pid" -o -name "*.sock" \) -exec rm -f {} \;
