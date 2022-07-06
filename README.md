@@ -31,7 +31,7 @@ This is a fork of [Unimock](https://github.com/unimock)'s excellent work on impl
   * One strategy for doing this could be to use the compose file `extends` directive to customize just the options you require, eg. `docker-compose.build.yml`. You then have a separate file for just the customized build options, and your runtime configuration:
 
 ```yaml
-version: '2'
+version: '3.8'
 
 services:
 
