@@ -230,9 +230,11 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
         mysql -h ${BUILD_MYSQL_HOST} -uroot -p${BUILD_MYSQL_PW} && \
     mv "$BUILD_ROUNDCUBE_DIR/config/config.inc.php.sample" "$BUILD_ROUNDCUBE_DIR/config/config.inc.php" && \
     sed -i "s|mysql://roundcube:pass@localhost/roundcubemail|mysql://${BUILD_ROUNDCUBE_USER}:${BUILD_ROUNDCUBE_PW}@${BUILD_MYSQL_HOST}/${BUILD_ROUNDCUBE_DB}|" $BUILD_ROUNDCUBE_DIR/config/config.inc.php && \
-    sed -i "s|\$config\['default_host'\] = '';|\$config\['default_host'\] = 'localhost';|" $BUILD_ROUNDCUBE_DIR/config/config.inc.php && \
-    sed -i "s|\$config\['smtp_server'\] = '';|\$config\['smtp_server'\] = 'localhost';|" $BUILD_ROUNDCUBE_DIR/config/config.inc.php && \
+    echo "\$config['default_host'] = 'localhost';" >> $BUILD_ROUNDCUBE_DIR/config/config.inc.php && \
+    echo "\$config['smtp_server'] = 'localhost';" >> $BUILD_ROUNDCUBE_DIR/config/config.inc.php && \
+    echo "\$config['smtp_port'] = 25;" >> $BUILD_ROUNDCUBE_DIR/config/config.inc.php && \
     rm -rf /var/lib/apt/lists/*
+
 COPY ./build/etc/apache2/roundcube.conf /etc/apache2/conf-enabled/roundcube.conf
 
 # --- 19 Install ispconfig plugins for roundcube
