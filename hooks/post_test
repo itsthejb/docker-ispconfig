@@ -10,4 +10,5 @@ if [ "$(git branch --show-current)" = "master" ]; then
   docker login -u itsthejb
   docker tag "$REPO:$TAG" "$REPO:latest"
   docker push "$REPO:$TAG"
+  docker push "$REPO:latest"
 fi
