@@ -5,6 +5,9 @@ if [ "$SOURCE_BRANCH" = "master" ]; then exit 0; fi
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
 export CONTAINER="ispconfig-test"
+export COMPOSE_DOCKER_CLI_BUILD=1
+export DOCKER_BUILDKIT=1
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 function buildAndTest() {
   YML=$1
