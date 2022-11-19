@@ -1,4 +1,5 @@
-name: Build Docker image
+---
+name: Pull request
 on:
   push: {}
 concurrency:
@@ -6,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-with-docker:
-    name: Build with Docker
+    name: Build & test
     runs-on: ubuntu-latest
     permissions:
       contents: read
