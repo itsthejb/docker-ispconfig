@@ -12,7 +12,7 @@ export DOCKER_DEFAULT_PLATFORM=linux/amd64
 function buildAndTest() {
   YML=$1
   ARG=$2
-  CMD="docker-compose -f test/$YML build --progress=plain $ARG"
+  CMD="docker-compose -f test/$YML build $ARG"
   if ! $CMD | sed 's/\x1B\[[0-9;]*[JKmsu]//g' 2>&1; then
     echo "Failed: \"$CMD\""
     exit 1
