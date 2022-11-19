@@ -50,6 +50,3 @@ jobs:
         run: hooks/pre_test
       - name: Run tests
         run: hooks/test
-        # with:
-        #   cache-from: type=gha
-        #   cache-to: type=gha,mode=max
