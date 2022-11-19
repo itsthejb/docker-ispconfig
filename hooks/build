@@ -1,7 +1,6 @@
 #!/bin/bash
 
-export COMPOSE_DOCKER_CLI_BUILD=1
-export DOCKER_BUILDKIT=1
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
-
-docker-compose -f docker-compose.template.yml build --progress plain "$@"
+COMPOSE_DOCKER_CLI_BUILD=1 \
+DOCKER_BUILDKIT=1 \
+DOCKER_DEFAULT_PLATFORM=linux/amd64 \
+docker-compose -f docker-compose.template.yml build --progress tty "$@"
