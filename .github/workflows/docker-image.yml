@@ -21,6 +21,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          push: false
           build-args: |
             BUILD_TZ: Europe/London
             BUILD_HOSTNAME: myhost.test.com
