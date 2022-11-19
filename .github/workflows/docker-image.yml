@@ -32,7 +32,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: true
           build-args: |
             BUILD_TZ: Europe/London
             BUILD_HOSTNAME: myhost.test.com
@@ -44,6 +43,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - run: hooks/pre_test
-      - run: hooks/test
-      - run: hooks/post_test
