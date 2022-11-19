@@ -39,7 +39,7 @@ jobs:
             BUILD_PRINTING: "no"
             BUILD_REDIS: "yes"
             BUILD_ISPCONFIG_USE_SSL: "yes"
-          tags: github #${{ steps.meta.outputs.tags }}
+          tags: itsthejb/ispconfig:github #${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
