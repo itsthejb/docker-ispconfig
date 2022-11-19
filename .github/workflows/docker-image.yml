@@ -4,9 +4,6 @@ on:
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ispconfig
 jobs:
   build-with-docker:
     name: Build with Docker
@@ -22,7 +19,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
@@ -42,7 +39,7 @@ jobs:
             BUILD_PRINTING: "no"
             BUILD_REDIS: "yes"
             BUILD_ISPCONFIG_USE_SSL: "yes"
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: github #${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
