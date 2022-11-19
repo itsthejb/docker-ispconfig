@@ -14,5 +14,17 @@ jobs:
       - uses: docker/build-push-action@v3
         with:
           context: .
+          push: true
+          build-args: |
+            BUILD_TZ: Europe/London
+            BUILD_HOSTNAME: myhost.test.com
+            BUILD_MYSQL_PW: pass
+            BUILD_PRINTING: "no"
+            BUILD_REDIS: "yes"
+            BUILD_ISPCONFIG_USE_SSL: "yes"
+          tags: itsthejb/ispconfig:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - run: hooks/pre_test
+      - run: hooks/test
+      - run: hooks/post_test
