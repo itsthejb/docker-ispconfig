@@ -2,7 +2,7 @@
 name: Pull request
 on: [push, pull_request]
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}.pr
   cancel-in-progress: true
 jobs:
   build-with-docker:

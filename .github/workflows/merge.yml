@@ -5,7 +5,7 @@ on:
     types:
       - closed
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}.merge
   cancel-in-progress: true
 jobs:
   if_merged:
