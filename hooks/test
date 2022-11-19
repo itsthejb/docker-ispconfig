@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 if [ "$SOURCE_BRANCH" = "master" ]; then exit 0; fi
 

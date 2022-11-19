@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 if [ "$GITHUB_REF_NAME" = "master" ]; then exit 0; fi
 
