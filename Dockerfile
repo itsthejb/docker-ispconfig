@@ -20,7 +20,7 @@
 # https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
 
-FROM debian:11.4-slim
+FROM debian:bullseye-20221004-slim
 
 LABEL maintainer="mail@jcrooke.net"
 LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyAdmin and more"
