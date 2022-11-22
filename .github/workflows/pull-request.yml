@@ -1,6 +1,10 @@
 ---
 name: Pull request
-on: [push, pull_request]
+on:
+  pull_request:
+    branches-ignore: [master, main]
+  push:
+    branches-ignore: [master, main]
 concurrency:
   group: ${{ github.ref }}.pr
   cancel-in-progress: true
