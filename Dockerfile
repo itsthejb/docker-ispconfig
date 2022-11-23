@@ -165,7 +165,7 @@ RUN ./configure --with-tls --with-nonroot --quiet && \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server && \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
     fi; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd/bullseye-backports && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd && \
     printf "servers = \"localhost\";\n" > /etc/rspamd/local.d/redis.conf && \
     printf "nrows = 2500;\n" > /etc/rspamd/local.d/history_redis.conf && \
     printf "compress = true;\n" >> /etc/rspamd/local.d/history_redis.conf && \
