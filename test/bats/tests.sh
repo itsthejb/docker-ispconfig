@@ -14,7 +14,7 @@ setup() {
 
 @test "expected supervisor services running" {
   run docker exec "$CONTAINER" supervisorctl status
-  for SERVICE in apache2 clamav-daemon cron dovecot fail2ban mysql php7.4-fpm postfix postgrey pure-ftpd-mysql redis rsyslog spamassassin ssh; do
+  for SERVICE in apache2 clamav-daemon cron dovecot fail2ban mysql php${BUILD_PHP_VERS}-fpm postfix postgrey pure-ftpd-mysql redis rsyslog spamassassin ssh; do
     echo "$output" | grep "RUNNING" | grep "$SERVICE"
   done
 }
