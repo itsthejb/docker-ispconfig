@@ -116,13 +116,13 @@ COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 RUN [ "${BUILD_MYSQL_HOST}" = "localhost" ] && service mariadb restart; \
 # --- 9 Install SpamAssassin, and ClamAV
-    (crontab -l; printf "\n") | sort - | uniq - | crontab - && \
+    (crontab -l; printf "\n") | sort | uniq | crontab - && \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
-RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort - | uniq - | crontab - && \
-    freshclam && \
+RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort | uniq | crontab - && \
+    freshclam --quiet && \
     sa-update 2>&1 && \
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
