@@ -147,7 +147,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
 # --- 13 Install PureFTPd [https://github.com/stilliard/docker-pure-ftpd/blob/master/Dockerfile]
 WORKDIR /tmp
 COPY ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential debhelper default-libmysqlclient-dev dpkg-dev dpkg-dev libcap-dev libldap-dev libpam-dev libpq-dev libsodium-dev libssl-dev pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} && \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential debhelper default-libmysqlclient-dev dpkg-dev dpkg-dev libcap-dev libldap-dev libpam-dev libpq-dev libsodium-dev libssl-dev && \
     apt-get -y source pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /tmp/pure-ftpd-${BUILD_PUREFTPD_VERSION_BASE}
