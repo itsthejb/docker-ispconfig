@@ -4,24 +4,25 @@ if [ "$SOURCE_BRANCH" = "master" ]; then exit 0; fi
 
 trap "echo Exited!; exit;" SIGINT SIGTERM
 
+# shellcheck disable=SC1091
+source "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/pre_build"
 export CONTAINER="ispconfig-test"
-export COMPOSE_DOCKER_CLI_BUILD=1
-export DOCKER_BUILDKIT=1
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 function buildAndTest() {
   YML=$1
   ARG=$2
-  CMD="docker-compose -f test/$YML build $ARG"
-  if ! $CMD | sed 's/\x1B\[[0-9;]*[JKmsu]//g' 2>&1; then
+  CMD="docker-compose -f test/$YML build --progress tty $ARG"
+  if ! $CMD; then
     echo "Failed: \"$CMD\""
     exit 1
   fi
 
   DOWN="docker-compose -f test/$YML down -v"
-  CMD="docker-compose -f test/$YML up --build --abort-on-container-exit --force-recreate --remove-orphans sut"
-  if time $CMD; then
-    time $DOWN || true
+  BUILD="docker-compose -f test/$YML build --progress tty"
+  UP="docker-compose -f test/$YML up --abort-on-container-exit --force-recreate --remove-orphans sut"
+
+  if $BUILD && $UP; then
+    $DOWN || true
   else
     echo "Failed: \"$CMD\""
     exit 1
@@ -48,9 +49,9 @@ function testLiveDB() {
   }
 
   cleanImage
-  time databaseUp "$1"
+  databaseUp "$1"
   buildAndTest "$1"
-  time databaseDown "$1"
+  databaseDown "$1"
   cleanImage
 }
 

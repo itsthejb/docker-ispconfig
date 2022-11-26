@@ -7,6 +7,10 @@ on:
 concurrency:
   group: ${{ github.ref }}.merge
   cancel-in-progress: true
+env:
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  DOCKER_BUILDKIT: 1
+  DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
   if_merged:
     if: github.event.pull_request.merged == true

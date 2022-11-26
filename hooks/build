@@ -1,6 +1,4 @@
 #!/bin/bash
-
-COMPOSE_DOCKER_CLI_BUILD=1 \
-DOCKER_BUILDKIT=1 \
-DOCKER_DEFAULT_PLATFORM=linux/amd64 \
+# shellcheck disable=SC1091
+source "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/pre_build"
 docker-compose -f docker-compose.template.yml build --progress tty "$@"
