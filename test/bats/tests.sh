@@ -107,3 +107,14 @@ setup() {
   [ "$(echo "$output" | grep -c "C.UTF-8")" -eq 14 ]
   [ "$(echo "$output" | grep -cv "C")" -eq 0 ]
 }
+
+@test "expected php versions" {
+  FPM_INIT="/etc/supervisor/init.d/php$BUILD_PHP_VERS-fpm"
+  FPM_SERVICE="/etc/supervisor/services.d/php$BUILD_PHP_VERS-fpm"
+  docker exec "$CONTAINER" test -f "$FPM_INIT"
+  docker exec "$CONTAINER" test -f "$FPM_SERVICE"
+  docker exec "$CONTAINER" grep "php$BUILD_PHP_VERS-fpm" "$FPM_SERVICE"
+  docker exec "$CONTAINER" grep "php-fpm$BUILD_PHP_VERS" "$FPM_SERVICE"
+  docker exec "$CONTAINER" test -d "/var/lib/php$BUILD_PHP_VERS-fpm"
+}
+
