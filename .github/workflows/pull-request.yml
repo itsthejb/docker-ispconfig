@@ -26,6 +26,10 @@ jobs:
           target_branch: ${{ github.ref }}
           commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-build-{hash}
+          restore-keys: |
+            image-build-
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - name: Build image
@@ -42,6 +46,11 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
+      - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-test-{hash}
+          restore-keys: |
+            image-test-
       - name: Prepare test
         run: hooks/pre_test
       - name: Run tests

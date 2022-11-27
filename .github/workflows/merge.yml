@@ -23,6 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-build-{hash}
+          restore-keys: |
+            image-build-
       - name: Log in to Container registry
         uses: docker/login-action@v2
         with:
