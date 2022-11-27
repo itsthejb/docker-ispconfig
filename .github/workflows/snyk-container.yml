@@ -2,9 +2,9 @@ name: Snyk Container
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [master]
   pull_request:
-    branches: [ "master" ]
+    branches: [master]
   schedule:
     - cron: '32 1 * * 2'
 
@@ -14,14 +14,14 @@ permissions:
 jobs:
   snyk:
     permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      contents: read
+      security-events: write
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: jpribyl/action-docker-layer-caching@v0.1.0
     - name: Build a Docker image
-      run: docker build -t your/image-to-test .
+      run: docker build -t itsthejb/ispconfig .
     - name: Run Snyk to check Docker image for vulnerabilities
       continue-on-error: true
       uses: snyk/actions/docker@14818c4695ecc4045f33c9cee9e795a788711ca4
