@@ -12,12 +12,13 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
-  if_merged:
+  merged:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -46,3 +47,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Run Snyk check
+        continue-on-error: true
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: itsthejb/ispconfig
+          args: --file=Dockerfile
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
