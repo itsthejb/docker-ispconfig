@@ -10,21 +10,12 @@ export CONTAINER="ispconfig-test"
 
 function buildAndTest() {
   YML=$1
-  ARG=$2
-  CMD="docker-compose -f test/$YML build --progress tty $ARG"
-  if ! $CMD; then
-    echo "Failed: \"$CMD\""
-    exit 1
-  fi
-
+  UP="docker-compose -f test/$YML up --build --abort-on-container-exit --force-recreate --remove-orphans sut"
   DOWN="docker-compose -f test/$YML down -v"
-  BUILD="docker-compose -f test/$YML build --progress tty"
-  UP="docker-compose -f test/$YML up --abort-on-container-exit --force-recreate --remove-orphans sut"
 
-  if $BUILD && $UP; then
+  if ! $UP; then
+    echo "Failed: \"$UP\""
     $DOWN || true
-  else
-    echo "Failed: \"$CMD\""
     exit 1
   fi
 }
