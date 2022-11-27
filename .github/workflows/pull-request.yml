@@ -29,21 +29,7 @@ jobs:
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - name: Build image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: false
-          build-args: |
-            BUILD_TZ: Europe/London
-            BUILD_HOSTNAME: myhost.test.com
-            BUILD_MYSQL_PW: pass
-            BUILD_PRINTING: "no"
-            BUILD_REDIS: "yes"
-            BUILD_ISPCONFIG_USE_SSL: "yes"
-          tags: itsthejb/ispconfig:github
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: ./hooks/build
       - name: Run Snyk check
         continue-on-error: true
         uses: snyk/actions/docker@master
