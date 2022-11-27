@@ -26,7 +26,7 @@ LABEL maintainer="mail@jcrooke.net"
 LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyAdmin and more"
 
 # Frequent: versioning
-ARG BUILD_ISPCONFIG_VERSION="3.2.8p2"
+ARG BUILD_ISPCONFIG_VERSION="3.2.9"
 ARG BUILD_ROUNDCUBE_VERSION="1.6.0"
 ARG BUILD_PHPMYADMIN_VERSION="5.2.0"
 ENV BUILD_PHP_VERS="7.4"
