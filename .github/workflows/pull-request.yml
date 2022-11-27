@@ -42,8 +42,6 @@ jobs:
             BUILD_ISPCONFIG_USE_SSL: "yes"
           tags: itsthejb/ispconfig:github
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Prepare test
         run: hooks/pre_test
       - name: Run tests

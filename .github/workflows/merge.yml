@@ -44,5 +44,3 @@ jobs:
             BUILD_ISPCONFIG_USE_SSL=yes
           tags: itsthejb/ispconfig:latest
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
