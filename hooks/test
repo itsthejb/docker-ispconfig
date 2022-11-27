@@ -24,28 +24,32 @@ function cleanImage() {
     docker image rmi "$CONTAINER" 2> /dev/null || true
 }
 
-function testNormal() {
-  for F in puppeteer puppeteer.no-phpmyadmin bats bats.custom-ssl bats.reconfigure; do
+function testBats() {
+  for F in bats bats.custom-ssl bats.reconfigure; do
     buildAndTest "docker-compose.$F.test.yml"
   done
 }
 
-function testLiveDB() {
-  function databaseUp() {
-    docker-compose -f "test/$1" up -d -V --force-recreate --remove-orphans mariadb
-  }
-  function databaseDown() {
-    docker stop mariadb || true
-    docker rm mariadb || true
-  }
-
-  cleanImage
-  databaseUp "$1"
-  buildAndTest "$1"
-  databaseDown "$1"
-  cleanImage
+function testPuppeteer1() {
+  for F in {"puppeteer",}; do
+    buildAndTest "docker-compose.$F.test.yml"
+  done
 }
 
-testNormal
+function testPuppeteer2() {
+  for F in {"puppeteer.no-phpmyadmin",}; do
+    buildAndTest "docker-compose.$F.test.yml"
+  done
+}
+
+if [ "$#" -eq 0 ]; then
+  testBats
+  testPuppeteer1
+  testPuppeteer2
+else
+  for ARG in "${@:1}"; do
+    "test${ARG}"
+  done
+fi
 
 echo "$(tput bold)=> Tests succeeded! $(tput sgr0)"
