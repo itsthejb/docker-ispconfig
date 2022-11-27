@@ -17,14 +17,12 @@ function buildAndTest() {
     exit 1
   fi
 
-  DOWN="docker-compose -f test/$YML down -v"
-  BUILD="docker-compose -f test/$YML build --progress tty"
   UP="docker-compose -f test/$YML up --abort-on-container-exit --force-recreate --remove-orphans sut"
+  DOWN="docker-compose -f test/$YML down -v"
 
-  if $BUILD && $UP; then
+  if ! $UP; then
+    echo "Failed: \"$UP\""
     $DOWN || true
-  else
-    echo "Failed: \"$CMD\""
     exit 1
   fi
 }
