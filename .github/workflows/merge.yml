@@ -32,30 +32,6 @@ jobs:
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - name: Build image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          build-args: |
-            BUILD_TZ=Europe/London
-            BUILD_HOSTNAME=myhost.test.com
-            BUILD_MYSQL_PW=pass
-            BUILD_PRINTING=no
-            BUILD_REDIS=yes
-            BUILD_ISPCONFIG_USE_SSL=yes
-          tags: itsthejb/ispconfig:latest
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Run Snyk check
-        continue-on-error: true
-        uses: snyk/actions/docker@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: itsthejb/ispconfig
-          args: --file=Dockerfile
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
+        run: ./hooks/build
+      - name: Push image
+        run: docker push itsthejb/ispconfig:latest

@@ -13,7 +13,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
-  build-with-docker:
+  build:
     name: Build & test
     runs-on: ubuntu-latest
     steps:
@@ -29,21 +29,19 @@ jobs:
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - name: Build image
-        uses: docker/build-push-action@v3
+        run: ./hooks/build
+      - name: Run Snyk check
+        continue-on-error: true
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          context: .
-          push: false
-          build-args: |
-            BUILD_TZ: Europe/London
-            BUILD_HOSTNAME: myhost.test.com
-            BUILD_MYSQL_PW: pass
-            BUILD_PRINTING: "no"
-            BUILD_REDIS: "yes"
-            BUILD_ISPCONFIG_USE_SSL: "yes"
-          tags: itsthejb/ispconfig:github
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          image: itsthejb/ispconfig
+          args: --file=Dockerfile
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
       - name: Prepare test
         run: hooks/pre_test
       - name: Run tests
