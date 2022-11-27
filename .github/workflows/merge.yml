@@ -12,7 +12,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
-  merged:
+  post-merge:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
@@ -23,6 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-build-{hash}
+          restore-keys: |
+            image-build-
       - name: Log in to Container registry
         uses: docker/login-action@v2
         with:

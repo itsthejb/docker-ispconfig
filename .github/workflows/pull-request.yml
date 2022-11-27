@@ -13,8 +13,9 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
+
   build:
-    name: Build & test
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,9 +26,14 @@ jobs:
           source_ref: 'master'
           target_branch: ${{ github.ref }}
           commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
-      - uses: jpribyl/action-docker-layer-caching@v0.1.0
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
+      - name: Setup build cache
+        uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-build-{hash}
+          restore-keys: |
+            image-build-
       - name: Build image
         run: ./hooks/build
       - name: Run Snyk check
@@ -38,11 +44,79 @@ jobs:
         with:
           image: itsthejb/ispconfig
           args: --file=Dockerfile
-      - name: Upload result to GitHub Code Scanning
+      - name: Upload Synk results
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
+
+  testBats:
+    name: Tests [Bats]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: everlytic/branch-merge@1.1.2
+        with:
+          github_token: ${{ github.token }}
+          source_ref: 'master'
+          target_branch: ${{ github.ref }}
+          commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v2
+      - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-test-bats-{hash}
+          restore-keys: |
+            image-test-bats-
       - name: Prepare test
         run: hooks/pre_test
       - name: Run tests
-        run: hooks/test
+        run: hooks/test Bats
+
+  testPuppeteer1:
+    name: Tests [Puppeteer1]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: everlytic/branch-merge@1.1.2
+        with:
+          github_token: ${{ github.token }}
+          source_ref: 'master'
+          target_branch: ${{ github.ref }}
+          commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v2
+      - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-test-puppeteer1-{hash}
+          restore-keys: |
+            image-test-puppeteer1-
+      - name: Prepare test
+        run: hooks/pre_test
+      - name: Run tests
+        run: hooks/test Puppeteer1
+
+  testPuppeteer2:
+    name: Tests [Puppeteer2]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: everlytic/branch-merge@1.1.2
+        with:
+          github_token: ${{ github.token }}
+          source_ref: 'master'
+          target_branch: ${{ github.ref }}
+          commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v2
+      - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        with:
+          key: image-test-puppeteer2-{hash}
+          restore-keys: |
+            image-test-puppeteer2-
+      - name: Prepare test
+        run: hooks/pre_test
+      - name: Run tests
+        run: hooks/test Puppeteer2
