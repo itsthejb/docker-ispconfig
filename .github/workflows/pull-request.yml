@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: jpribyl/action-docker-layer-caching@v0.1.0
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - name: Build image
@@ -33,7 +34,7 @@ jobs:
             BUILD_PRINTING: "no"
             BUILD_REDIS: "yes"
             BUILD_ISPCONFIG_USE_SSL: "yes"
-          tags: itsthejb/ispconfig:github #${{ steps.meta.outputs.tags }}
+          tags: itsthejb/ispconfig:github
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
