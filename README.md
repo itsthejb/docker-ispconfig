@@ -155,7 +155,7 @@ It is possible to connect to a remote SQL server during the build. This would re
 | `APACHE_ENABLE_MODS` | `macro,proxy_balancer,proxy_http` | Apache standard modules to enable. Note this won't _install_ any non-standard mods
 | `MYSQL_HOST` | `host` | Reconfigure services to point to this SQL server
 | `HOSTNAME` | `myhost.test.com` | Runtime hostname
-| `HOSTNAME_EMAIL` | `email.myhost.test.com` | Runtime hostname for email
+| `HOSTNAME_EMAIL` | `mail.myhost.test.com` | Runtime hostname for email
 | `DISABLED_SERVICES` | `unbound` | Space-separated list of installed services to disable at runtime. Complete list in the [Dockerfile](./Dockerfile)
 | `POSTGREY_DELAY` | `300` | [Postgrey delay time](https://wiki.centos.org/HowTos/postgrey)
 | `POSTGREY_MAX_AGE` | `35` | [Postgrey maximum age](https://wiki.centos.org/HowTos/postgrey)

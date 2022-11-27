@@ -4,4 +4,3 @@ echo " - ensure dirs"
 mkdir -p /var/lib/postgrey
 chown -R postgrey:postgrey /var/lib/postgrey
 rm -f /var/lib/postgrey/postgrey.lock
-
