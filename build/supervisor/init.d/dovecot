@@ -25,6 +25,6 @@ if [ -f "$SSL_CHAIN" ] && [ -f "$SSL_KEY" ]; then
   cp -f "$ROUNDCUBE_TMP" "$ROUNDCUBE_CONF"
   rm "$ROUNDCUBE_TMP"
   if ! grep "local 172.0.0.0/8 {" > /dev/null "$DOVECOT_CONF"; then
-    printf "local 172.0.0.0/8 {\n  disable_plaintext_auth = no\n}\n" >> "$DOVECOT_CONF"
+    printf "\n\nlocal 172.0.0.0/8 {\n  disable_plaintext_auth = no\n}\n" >> "$DOVECOT_CONF"
   fi
 fi
