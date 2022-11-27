@@ -12,7 +12,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
-  merged:
+  post-merge:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
