@@ -21,6 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: everlytic/branch-merge@1.1.2
+        if: contains(github.ref, 'dependabot') == false
         with:
           github_token: ${{ github.token }}
           source_ref: 'master'
@@ -56,6 +57,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: everlytic/branch-merge@1.1.2
+        if: contains(github.ref, 'dependabot') == false
         with:
           github_token: ${{ github.token }}
           source_ref: 'master'
@@ -80,6 +82,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: everlytic/branch-merge@1.1.2
+        if: contains(github.ref, 'dependabot') == false
         with:
           github_token: ${{ github.token }}
           source_ref: 'master'
@@ -104,6 +107,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: everlytic/branch-merge@1.1.2
+        if: contains(github.ref, 'dependabot') == false
         with:
           github_token: ${{ github.token }}
           source_ref: 'master'
