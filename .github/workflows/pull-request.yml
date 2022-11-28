@@ -38,6 +38,7 @@ jobs:
       - name: Build image
         run: ./hooks/build
       - name: Run Snyk check
+        if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
         uses: snyk/actions/docker@master
         env:
@@ -46,6 +47,7 @@ jobs:
           image: itsthejb/ispconfig
           args: --file=Dockerfile
       - name: Upload Synk results
+        if: ${{ github.event_name == 'pull_request' }}
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
