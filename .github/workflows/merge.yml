@@ -2,8 +2,7 @@
 name: Merge master
 on:
   pull_request:
-    types:
-      - closed
+    types: [closed]
 concurrency:
   group: ${{ github.ref }}.merge
   cancel-in-progress: true
@@ -39,3 +38,10 @@ jobs:
         run: ./hooks/build
       - name: Push image
         run: docker push itsthejb/ispconfig:latest
+  delete-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged branch
+        uses: SvanBoxel/delete-merged-branch@main:1.4.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
