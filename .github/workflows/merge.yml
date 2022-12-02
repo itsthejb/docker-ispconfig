@@ -11,7 +11,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 jobs:
-  post-merge:
+  pr-merged:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
@@ -42,6 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete merged branch
-        uses: SvanBoxel/delete-merged-branch@main:1.4.2
+        uses: SvanBoxel/delete-merged-branch@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
