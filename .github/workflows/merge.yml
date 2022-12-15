@@ -40,6 +40,8 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Build image
         run: ./hooks/build
+      - name: Tag image
+        run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ ENV.TAG }}
       - name: Push image
         run: docker push itsthejb/ispconfig:${{ ENV.TAG }}
   delete-branch:
