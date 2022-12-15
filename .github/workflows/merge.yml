@@ -19,6 +19,10 @@ jobs:
       packages: write
       security-events: write
     steps:
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          varFilePath: ./.github/variables/myvars.env
       - name: Checkout
         uses: actions/checkout@v3
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
@@ -37,7 +41,7 @@ jobs:
       - name: Build image
         run: ./hooks/build
       - name: Push image
-        run: docker push itsthejb/ispconfig:latest
+        run: docker push itsthejb/ispconfig:${{ ENV.TAG }}
   delete-branch:
     runs-on: ubuntu-latest
     steps:

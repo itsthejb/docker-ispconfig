@@ -1,0 +1,14 @@
+---
+name: Set shared environment
+description: Set vars from path
+inputs:
+  varFilePath:
+    description: Set vars from path
+    required: true
+    default: ./.github/variables/*
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        sed "" ${{ inputs.varFilePath }} >> $GITHUB_ENV
+      shell: bash
