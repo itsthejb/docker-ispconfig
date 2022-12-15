@@ -41,19 +41,19 @@ jobs:
             image-build-
       - name: Build image
         run: ./hooks/build
-      - name: ENV.TAG? Log in to Container registry
-        if: ENV.PUSH_ON_PR == true
+      - name: env.TAG? Log in to Container registry
+        if: ${{ fromJSON(env.PUSH_ON_PR) }}
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: itsthejb
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      - name: ENV.TAG? Tag image
-        if: ENV.PUSH_ON_PR == true
-        run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ ENV.TAG }}
-      - name: ENV.TAG? Push image
-        if: ENV.PUSH_ON_PR == true
-        run: docker push itsthejb/ispconfig:${{ ENV.TAG }}
+      - name: env.TAG? Tag image
+        if: ${{ fromJSON(env.PUSH_ON_PR) }}
+        run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ env.TAG }}
+      - name: env.TAG? Push image
+        if: ${{ fromJSON(env.PUSH_ON_PR) }}
+        run: docker push itsthejb/ispconfig:${{ env.TAG }}
       - name: Run Snyk check
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true

@@ -41,9 +41,9 @@ jobs:
           username: itsthejb
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: Tag image
-        run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ ENV.TAG }}
+        run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ env.TAG }}
       - name: Push image
-        run: docker push itsthejb/ispconfig:${{ ENV.TAG }}
+        run: docker push itsthejb/ispconfig:${{ env.TAG }}
   delete-branch:
     runs-on: ubuntu-latest
     steps:
