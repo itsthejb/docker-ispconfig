@@ -123,3 +123,7 @@ setup() {
   docker exec "$CONTAINER" test -d "/var/lib/php$BUILD_PHP_VERS-fpm"
   docker exec "$CONTAINER" grep "PHPRC=/etc/php/$BUILD_PHP_VERS/cgi/" /var/www/php-fcgi-scripts/apps/.php-fcgi-starter
 }
+
+@test "apache compiled with BIG_SECURITY_HOLE" {
+  docker exec "$CONTAINER" apache2ctl -V | grep "\-D BIG_SECURITY_HOLE"
+}
