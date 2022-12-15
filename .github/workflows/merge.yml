@@ -24,7 +24,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          varFilePath: ./.github/variables/myvars.env
+          varFilePath: ./.github/variables/vars.env
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
         with:
           key: image-build-{hash}

@@ -30,7 +30,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          varFilePath: ./.github/variables/myvars.env
+          varFilePath: ./.github/variables/vars.env
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - name: Setup build cache
