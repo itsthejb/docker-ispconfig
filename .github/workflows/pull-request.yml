@@ -41,11 +41,11 @@ jobs:
             image-build-
       - name: Build image
         run: ./hooks/build
-      - name: Tag image
-        if: ${{ ENV.PUSH_ON_PR }}
+      - name: Tag image (if ENV.TAG)
+        if: ENV.PUSH_ON_PR == true
         run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ ENV.TAG }}
-      - name: Push image
-        if: ${{ ENV.PUSH_ON_PR }}
+      - name: Push image (if ENV.TAG)
+        if: ENV.PUSH_ON_PR == true
         run: docker push itsthejb/ispconfig:${{ ENV.TAG }}
       - name: Run Snyk check
         if: ${{ github.event_name == 'pull_request' }}
