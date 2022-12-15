@@ -41,17 +41,17 @@ jobs:
             image-build-
       - name: Build image
         run: ./hooks/build
-      - name: Log in to Container registry
+      - name: ENV.TAG? Log in to Container registry
         if: ENV.PUSH_ON_PR == true
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: itsthejb
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      - name: Tag image (if ENV.TAG)
+      - name: ENV.TAG? Tag image
         if: ENV.PUSH_ON_PR == true
         run: docker tag itsthejb/ispconfig:latest itsthejb/ispconfig:${{ ENV.TAG }}
-      - name: Push image (if ENV.TAG)
+      - name: ENV.TAG? Push image
         if: ENV.PUSH_ON_PR == true
         run: docker push itsthejb/ispconfig:${{ ENV.TAG }}
       - name: Run Snyk check
