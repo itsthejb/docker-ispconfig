@@ -114,19 +114,17 @@ RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
     rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
-RUN [ "${BUILD_MYSQL_HOST}" = "localhost" ] && service mariadb restart; \
 # --- 9 Install SpamAssassin, and ClamAV
-    (crontab -l; printf "\n") | sort | uniq | crontab - && \
+RUN (crontab -l; printf "\n") | sort | uniq | crontab - && \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
-RUN (crontab -l; printf "@daily    /usr/bin/freshclam\n") | sort | uniq | crontab - && \
+RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/bin/freshclam\n") | sort | uniq | crontab - && \
     freshclam --quiet && \
     sa-update 2>&1 && \
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
-    [ "${BUILD_MYSQL_HOST}" = "localhost" ] && service mariadb restart; \
     apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils curl libapache2-mod-php php-yaml php-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php-common php-gd php-mysql php-imap php-cli php-cgi php-curl php-intl php-pspell php-sqlite3 php-tidy php-imagick php-xmlrpc php-xsl php-zip php-mbstring php-soap php-fpm php-opcache php-json php-readline php-xml python && \
     rm -rf /var/lib/apt/lists/* && \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
