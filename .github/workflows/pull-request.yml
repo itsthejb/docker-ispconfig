@@ -36,9 +36,9 @@ jobs:
       - name: Setup build cache
         uses: jpribyl/action-docker-layer-caching@v0.1.0
         with:
-          key: image-build-{hash}
+          key: image-build-${{ env.TAG }}-{hash}
           restore-keys: |
-            image-build-
+            image-build-${{ env.TAG }}-
       - name: Build image
         run: ./hooks/build
       - name: env.TAG? Log in to Container registry
