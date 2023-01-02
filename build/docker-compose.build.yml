@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  ispconfig:
+    extends:
+      file: ../.docker-compose.yml
+      service: ispconfig
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        BUILD_TZ: Europe/London
+        BUILD_HOSTNAME: myhost.test.com
+        BUILD_MYSQL_PW: pass
+        BUILD_PRINTING: "no"
+        BUILD_REDIS: "yes"
+        BUILD_ISPCONFIG_USE_SSL: "yes"

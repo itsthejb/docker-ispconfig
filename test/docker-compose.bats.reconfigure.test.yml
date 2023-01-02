@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
 
@@ -19,7 +19,7 @@ services:
   ispconfig-test:
     container_name: ispconfig-test
     extends:
-      file: ../docker-compose.template.yml
+      file: ../build/docker-compose.build.yml
       service: ispconfig
     environment:
       - MYSQL_HOST=0.0.0.0
