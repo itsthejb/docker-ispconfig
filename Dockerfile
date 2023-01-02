@@ -29,7 +29,7 @@ LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyA
 ARG BUILD_ISPCONFIG_VERSION="3.2.9"
 ARG BUILD_ROUNDCUBE_VERSION="1.6.0"
 ARG BUILD_PHPMYADMIN_VERSION="5.2.0"
-ENV BUILD_PHP_VERS="7.4"
+ENV BUILD_PHP_VERS="8.2"
 ARG BUILD_JAILKIT_VERSION="2.23"
 
 # Other arguments
@@ -61,7 +61,9 @@ ARG BUILD_TZ="Europe/London"
 ENV DEBIAN_FRONTEND noninteractive
 
 # --- prep
+COPY ./build/usr/share/keyrings/deb.sury.org-php.gpg /usr/share/keyrings/deb.sury.org-php.gpg
 COPY ./build/etc/apt/sources.list /etc/apt/sources.list
+COPY ./build/etc/apt/sources.list.d/php.list /etc/apt/sources.list.d/php.list
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # --- set timezone and locale
@@ -128,7 +130,7 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils curl libapache2-mod-php php${BUILD_PHP_VERS}-yaml php${BUILD_PHP_VERS}-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php${BUILD_PHP_VERS}-common php${BUILD_PHP_VERS}-gd php${BUILD_PHP_VERS}-mysql php${BUILD_PHP_VERS}-imap php${BUILD_PHP_VERS}-cli php${BUILD_PHP_VERS}-cgi php${BUILD_PHP_VERS}-curl php${BUILD_PHP_VERS}-intl php${BUILD_PHP_VERS}-pspell php${BUILD_PHP_VERS}-sqlite3 php${BUILD_PHP_VERS}-tidy php${BUILD_PHP_VERS}-imagick php${BUILD_PHP_VERS}-xmlrpc php${BUILD_PHP_VERS}-xsl php${BUILD_PHP_VERS}-zip php${BUILD_PHP_VERS}-mbstring php${BUILD_PHP_VERS}-soap php${BUILD_PHP_VERS}-fpm php${BUILD_PHP_VERS}-opcache php${BUILD_PHP_VERS}-json php${BUILD_PHP_VERS}-readline php${BUILD_PHP_VERS}-xml python && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php libapache2-mod-python libruby lsb-release mcrypt memcached php php-json php-pear php${BUILD_PHP_VERS}-cgi php${BUILD_PHP_VERS}-cli php${BUILD_PHP_VERS}-common php${BUILD_PHP_VERS}-curl php${BUILD_PHP_VERS}-fpm php${BUILD_PHP_VERS}-gd php${BUILD_PHP_VERS}-imagick php${BUILD_PHP_VERS}-imap php${BUILD_PHP_VERS}-intl php${BUILD_PHP_VERS}-mbstring php${BUILD_PHP_VERS}-mysql php${BUILD_PHP_VERS}-opcache php${BUILD_PHP_VERS}-pspell php${BUILD_PHP_VERS}-readline php${BUILD_PHP_VERS}-soap php${BUILD_PHP_VERS}-sqlite3 php${BUILD_PHP_VERS}-tidy php${BUILD_PHP_VERS}-xml php${BUILD_PHP_VERS}-xmlrpc php${BUILD_PHP_VERS}-xsl php${BUILD_PHP_VERS}-yaml php${BUILD_PHP_VERS}-zip python software-properties-common unbound wget && \
     rm -rf /var/lib/apt/lists/* && \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
@@ -162,7 +164,6 @@ RUN ./configure --with-tls --with-nonroot --quiet && \
     openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048 2>&1 && \
 # --- 14 Install BIND DNS Server
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install lsb-release unbound dnsutils haveged gnupg2 wget ca-certificates lsb-release software-properties-common && \
     printf "do-ip6: no\n" > /etc/unbound/unbound.conf.d/no-ip6v.conf && \
     if [ $BUILD_REDIS = "yes" ]; then \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server && \
