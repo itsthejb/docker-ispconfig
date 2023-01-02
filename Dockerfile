@@ -110,13 +110,15 @@ RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
         exit 1; \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules && \
     rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 # --- 9 Install SpamAssassin, and ClamAV
 RUN (crontab -l; printf "\n") | sort | uniq | crontab - && \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
@@ -125,7 +127,8 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
     sa-update 2>&1 && \
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils curl libapache2-mod-php php-yaml php-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php-common php-gd php-mysql php-imap php-cli php-cgi php-curl php-intl php-pspell php-sqlite3 php-tidy php-imagick php-xmlrpc php-xsl php-zip php-mbstring php-soap php-fpm php-opcache php-json php-readline php-xml python && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils curl libapache2-mod-php php${BUILD_PHP_VERS}-yaml php${BUILD_PHP_VERS}-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php${BUILD_PHP_VERS}-common php${BUILD_PHP_VERS}-gd php${BUILD_PHP_VERS}-mysql php${BUILD_PHP_VERS}-imap php${BUILD_PHP_VERS}-cli php${BUILD_PHP_VERS}-cgi php${BUILD_PHP_VERS}-curl php${BUILD_PHP_VERS}-intl php${BUILD_PHP_VERS}-pspell php${BUILD_PHP_VERS}-sqlite3 php${BUILD_PHP_VERS}-tidy php${BUILD_PHP_VERS}-imagick php${BUILD_PHP_VERS}-xmlrpc php${BUILD_PHP_VERS}-xsl php${BUILD_PHP_VERS}-zip php${BUILD_PHP_VERS}-mbstring php${BUILD_PHP_VERS}-soap php${BUILD_PHP_VERS}-fpm php${BUILD_PHP_VERS}-opcache php${BUILD_PHP_VERS}-json php${BUILD_PHP_VERS}-readline php${BUILD_PHP_VERS}-xml python && \
     rm -rf /var/lib/apt/lists/* && \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
@@ -145,7 +148,8 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
 # --- 13 Install PureFTPd [https://github.com/stilliard/docker-pure-ftpd/blob/master/Dockerfile]
 WORKDIR /tmp
 COPY ./build/etc/default/pure-ftpd-common /etc/default/pure-ftpd-common
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential debhelper default-libmysqlclient-dev dpkg-dev dpkg-dev libcap-dev libldap-dev libpam-dev libpq-dev libsodium-dev libssl-dev pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} && \
+RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install build-essential debhelper default-libmysqlclient-dev dpkg-dev dpkg-dev libcap-dev libldap-dev libpam-dev libpq-dev libsodium-dev libssl-dev pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} && \
     apt-get -y source pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /tmp/pure-ftpd-${BUILD_PUREFTPD_VERSION_BASE}
@@ -157,13 +161,15 @@ RUN ./configure --with-tls --with-nonroot --quiet && \
     apt-mark hold pure-ftpd=${BUILD_PUREFTPD_VERSION_FULL} pure-ftpd-common pure-ftpd-mysql && \
     openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048 2>&1 && \
 # --- 14 Install BIND DNS Server
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install lsb-release unbound dnsutils haveged gnupg2 wget ca-certificates lsb-release software-properties-common && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install lsb-release unbound dnsutils haveged gnupg2 wget ca-certificates lsb-release software-properties-common && \
     printf "do-ip6: no\n" > /etc/unbound/unbound.conf.d/no-ip6v.conf && \
     if [ $BUILD_REDIS = "yes" ]; then \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server && \
         sed -i "s|daemonize yes|daemonize no|" /etc/redis/redis.conf; \
     fi; \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install rspamd && \
     printf "servers = \"localhost\";\n" > /etc/rspamd/local.d/redis.conf && \
     printf "nrows = 2500;\n" > /etc/rspamd/local.d/history_redis.conf && \
     printf "compress = true;\n" >> /etc/rspamd/local.d/history_redis.conf && \
@@ -178,7 +184,8 @@ COPY ./build/etc/cron.d/awstats /etc/cron.d/
 RUN touch /var/log/auth.log && \
     touch /var/log/mail.log && \
     touch /var/log/syslog && \
-    apt-get -qq -o Dpkg::Use-Pty=0 update && apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install fail2ban ufw && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install fail2ban ufw && \
     rm -rf /var/lib/apt/lists/*;
 COPY ./build/etc/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY ./build/etc/phpmyadmin/config.inc.php /tmp/phpmyadmin.config.inc.php
