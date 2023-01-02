@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   sut:
@@ -22,7 +22,7 @@ services:
       args:
         BUILD_ISPCONFIG_PORT: "443"
     extends:
-      file: ../docker-compose.template.yml
+      file: ../build/docker-compose.build.yml
       service: ispconfig
     environment:
       - DISABLED_SERVICES=unbound rspamd
