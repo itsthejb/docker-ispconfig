@@ -29,9 +29,13 @@ echo "#"
 
 for task in $DISABLED_SERVICES ; do
   echo "disable : $task"
-  sed -i "s/autostart=true/autostart=false/" "/etc/supervisor/services.d/$task"
-  if [ -e "/etc/logrotate.d/$task" ] ; then
-    rm -v "/etc/logrotate.d/$task"
+  if [ -f "/etc/supervisor/services.d/$task" ]; then
+    sed -i "s/autostart=true/autostart=false/"
+    if [ -e "/etc/logrotate.d/$task" ] ; then
+      rm -v "/etc/logrotate.d/$task"
+    fi
+  else
+    echo "Warning: DISABLED_SERVICES contains $task, but services doesn't exist" >&2
   fi
 done
 
