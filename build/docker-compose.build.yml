@@ -3,7 +3,7 @@ version: '3.9'
 services:
   ispconfig:
     extends:
-      file: ../.docker-compose.yml
+      file: ../docker-compose.yml
       service: ispconfig
     build:
       context: ..
