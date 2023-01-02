@@ -1,4 +1,2 @@
 .DS_Store
-test/docker-compose.puppeteer.remote-db.test.yml
-test/docker-compose.puppeteer.remote-db-seeded.test.yml
 super-linter.log
