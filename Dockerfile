@@ -76,7 +76,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     dpkg-reconfigure -f noninteractive tzdata && \
 # --- 1 Preliminary
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail wget sudo && \
-    ln -s /usr/bin/true /usr/bin/systemctl && \
+    ln -fs /usr/bin/true /usr/bin/systemctl && \
 # Create the log file to be able to run tail
     touch /var/log/cron.log && \
     touch /var/spool/cron/root && \
