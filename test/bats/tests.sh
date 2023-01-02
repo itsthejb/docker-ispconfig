@@ -1,15 +1,20 @@
 #!/usr/bin/env bats
+# shellcheck disable=SC2317
 
 load helpers
 
 setup() {
-  installDependencies &> /dev/null
+  setupDependencies &> /dev/null
   apk add mariadb-client
   waitForUp
 }
 
 @test "no errors on container startup" {
-  ! docker logs "$CONTAINER" | grep -E '(FATAL)|(exited)'
+  docker logs "$CONTAINER" | grepInvert -Ei '(error)|(fatal)'
+}
+
+@test "no service errors" {
+  docker exec "$CONTAINER" supervisorctl status | grepInvert -vE "(RUNNING)|(STOPPED)"
 }
 
 @test "expected supervisor services running" {
@@ -45,8 +50,7 @@ setup() {
 }
 
 @test "default config should be disabled" {
-  run docker exec "$CONTAINER" apache2ctl -S
-  ! echo "$output" | grep "\/etc\/apache2\/sites-enabled\/000-default.conf"
+  docker exec "$CONTAINER" apache2ctl -S | grepInvert "\/etc\/apache2\/sites-enabled\/000-default.conf"
 }
 
 @test "all selected apache mods should be loaded" {
@@ -111,10 +115,11 @@ setup() {
 @test "expected php versions" {
   FPM_INIT="/etc/supervisor/init.d/php$BUILD_PHP_VERS-fpm"
   FPM_SERVICE="/etc/supervisor/services.d/php$BUILD_PHP_VERS-fpm"
+  docker exec "$CONTAINER" php -v | grep "PHP $BUILD_PHP_VERS"
   docker exec "$CONTAINER" test -f "$FPM_INIT"
   docker exec "$CONTAINER" test -f "$FPM_SERVICE"
   docker exec "$CONTAINER" grep "php$BUILD_PHP_VERS-fpm" "$FPM_SERVICE"
   docker exec "$CONTAINER" grep "php-fpm$BUILD_PHP_VERS" "$FPM_SERVICE"
   docker exec "$CONTAINER" test -d "/var/lib/php$BUILD_PHP_VERS-fpm"
+  docker exec "$CONTAINER" grep "PHPRC=/etc/php/$BUILD_PHP_VERS/cgi/" /var/www/php-fcgi-scripts/apps/.php-fcgi-starter
 }
-

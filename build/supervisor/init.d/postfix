@@ -9,6 +9,7 @@ echo " - calling newaliases"
 newaliases
 
 echo " - sync certs"
+mkdir -p /var/spool/postfix/etc/ssl/certs
 cp /etc/ssl/certs/ca-certificates.crt /var/spool/postfix/etc/ssl/certs/ca-certificates.crt
 
 echo " - applying hosts, localtime, resolv.conf from /etc to /var/spool/postfix/etc"

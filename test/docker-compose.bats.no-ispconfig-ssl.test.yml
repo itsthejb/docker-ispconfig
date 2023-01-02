@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   sut:
-    image: graze/bats
+    image: bats/bats:latest
     command: /app/bats/no-ispconfig-ssl.sh
     depends_on:
       ispconfig-test:

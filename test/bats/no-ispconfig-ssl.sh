@@ -3,7 +3,7 @@
 load helpers
 
 setup() {
-  installDependencies
+  setupDependencies
   waitForUp
 }
 
