@@ -3,16 +3,22 @@
 export CONTAINER="ispconfig-test"
 export TIMEOUT=10
 
+function grepInvert() {
+  ! grep "$@"
+}
+
 function waitForPort() {
-  timeout -t $TIMEOUT sh -c "until nc -vz $CONTAINER $1; do sleep 0.1; done"
+  timeout $TIMEOUT sh -c "until nc -vz $CONTAINER $1; do sleep 0.1; done"
 }
 
 function closedPort() {
   ! nc -vz "$CONTAINER" "$1"
 }
 
-function installDependencies() {
-  apk update && apk add openssl netcat-openbsd &> /dev/null
+function setupDependencies() {
+  bats_require_minimum_version 1.5.0
+  apk update
+  apk add docker openssl netcat-openbsd &> /dev/null
 }
 
 function waitForUp() {

@@ -3,7 +3,7 @@
 load helpers
 
 setup() {
-  installDependencies &> /dev/null
+  setupDependencies &> /dev/null
   apk add mariadb-client curl
   waitForUp
 }

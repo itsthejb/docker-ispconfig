@@ -3,7 +3,7 @@
 load helpers
 
 setup() {
-  installDependencies
+  setupDependencies
   waitForUp
 }
 
@@ -40,14 +40,14 @@ function testSSL() {
 
 @test "dovecot requires secure login" {
   run nc -q1"$CONTAINER"25 <<< "EHLO $HOSTNAME"
-  ! echo "$output" | grep "250-AUTH PLAIN LOGIN"
-  ! echo "$output" | grep "250-AUTH=PLAIN LOGIN"
+  echo "$output" | grepInvert "250-AUTH PLAIN LOGIN"
+  echo "$output" | grepInvert "250-AUTH=PLAIN LOGIN"
   run openSSL -connect "$CONTAINER:143" -starttls imap
-  ! echo "$output" | grep "AUTH=login"
-  ! echo "$output" | grep "AUTH=plain"
+  echo "$output" | grepInvert "AUTH=login"
+  echo "$output" | grepInvert "AUTH=plain"
   run openSSL -connect "$CONTAINER:993"
-  ! echo "$output" | grep "AUTH=login"
-  ! echo "$output" | grep "AUTH=plain"
+  echo "$output" | grepInvert "AUTH=login"
+  echo "$output" | grepInvert "AUTH=plain"
 }
 
 @test "roundcube uses secure connection" {
