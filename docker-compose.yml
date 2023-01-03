@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   ispconfig:
-    image: itsthejb/ispconfig:latest
+    image: index.docker.io/itsthejb/ispconfig:latest
     container_name: ispconfig
     hostname: ispconfig
     domainname: test.com
