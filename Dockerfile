@@ -360,3 +360,4 @@ HEALTHCHECK --start-period=2m --timeout=3s --retries=1 \
 COPY ./build/start.sh /start.sh
 RUN chmod 755 /start.sh
 CMD ["/start.sh"]
+WORKDIR /
