@@ -1,3 +1,9 @@
-./.git
-./volumes
-/test
+.env
+.git
+.github
+.gitignore
+.hadolint.yaml
+docker-compose.yml
+hooks
+ispconfig-docker.code-workspace
+test
