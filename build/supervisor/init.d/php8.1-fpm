@@ -10,7 +10,6 @@ sed -Ei \
   /var/www/php-fcgi-scripts/apps/.php-fcgi-starter
 ln -sf "/usr/bin/php-cgi$BUILD_PHP_VERS" "/etc/alternatives/php-cgi"
 
-
 echo " - creating directories for php-fpm"
 mkdir -p "/var/lib/php${BUILD_PHP_VERS}-fpm"
 mkdir -p /var/log/php-fpm
