@@ -4,10 +4,6 @@ echo " - checking php config"
 PHP_CONFIG="/etc/php/$BUILD_PHP_VERS"
 [ -d "$PHP_CONFIG" ] || (echo "PHP config not found at $PHP_CONFIG"; exit 1)
 
-sed -Ei \
-  "s|PHPRC=/etc/php/(.*)/cgi/|PHPRC=/etc/php/$BUILD_PHP_VERS/cgi/|" \
-  /var/www/php-fcgi-scripts/apps/.php-fcgi-starter
-
 echo " - creating directories for php-fpm"
 mkdir -p "/var/lib/php${BUILD_PHP_VERS}-fpm"
 mkdir -p /var/log/php-fpm

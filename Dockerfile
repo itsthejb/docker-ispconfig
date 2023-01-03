@@ -29,7 +29,7 @@ LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyA
 ARG BUILD_ISPCONFIG_VERSION="3.2.9"
 ARG BUILD_ROUNDCUBE_VERSION="1.6.0"
 ARG BUILD_PHPMYADMIN_VERSION="5.2.0"
-ENV BUILD_PHP_VERS="8.1"
+ENV BUILD_PHP_VERS="7.4"
 ARG BUILD_JAILKIT_VERSION="2.23"
 
 # Other arguments
@@ -64,9 +64,7 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
-COPY ./build/usr/share/keyrings/deb.sury.org-php.gpg /usr/share/keyrings/deb.sury.org-php.gpg
 COPY ./build/etc/apt/sources.list /etc/apt/sources.list
-COPY ./build/etc/apt/sources.list.d/php.list /etc/apt/sources.list.d/php.list
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # --- set timezone and locale
@@ -133,7 +131,7 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php${BUILD_PHP_VERS} libapache2-mod-python libruby lsb-release mcrypt memcached php${BUILD_PHP_VERS}-{cgi,cli,common,curl,fpm,gd,imagick,imap,intl,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xmlrpc,xsl,yaml,zip} python software-properties-common unbound wget && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils curl libapache2-mod-php imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-python libruby mcrypt memcached php-pear php${BUILD_PHP_VERS} php${BUILD_PHP_VERS}-{cgi,cgi,cli,common,curl,fpm,gd,imagick,imap,intl,json,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xmlrpc,xsl,yaml,zip} python && \
     rm -rf /var/lib/apt/lists/* && \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
@@ -167,6 +165,7 @@ RUN ./configure --with-tls --with-nonroot --quiet && \
     openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048 2>&1 && \
 # --- 14 Install BIND DNS Server
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install lsb-release unbound dnsutils haveged gnupg2 wget ca-certificates lsb-release software-properties-common && \
     printf "do-ip6: no\n" > /etc/unbound/unbound.conf.d/no-ip6v.conf && \
     if [ $BUILD_REDIS = "yes" ]; then \
         apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install redis-server && \
