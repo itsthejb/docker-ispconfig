@@ -18,10 +18,10 @@ services:
       - HOSTNAME=myhost.test.com            # see ./build/autoinstall.ini
       - HOSTNAME_EMAIL=mail.myhost.test.com # Hostname for email
       - DISABLED_SERVICES=rspamd unbound # disable services (apache2 clamav-daemon cron dovecot fail2ban mariadb postfix postfix pure-ftpd-mysql redis rspamd rsyslog spamassassin ssh unbound)
-      - POSTGREY_DELAY=300
-      - POSTGREY_MAX_AGE=35
-      - POSTGREY_TEXT="Delayed by postgrey"
-      - REDIS_HOST=localhost
+      # - REDIS_HOST=localhost
+      # - POSTGREY_DELAY=300
+      # - POSTGREY_MAX_AGE=35
+      # - POSTGREY_TEXT="Delayed by postgrey"
       # Directory of apache vhosts to include
       # - APACHE_SUPPLEMENTARY_VHOSTS=/etc/apache2/supplementary/*.vhost
       # Apache mods to enable at start

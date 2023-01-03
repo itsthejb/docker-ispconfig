@@ -58,7 +58,10 @@ ARG BUILD_ROUNDCUBE_USER="roundcube"
 ARG BUILD_TZ="Europe/London"
 
 # Let the container know that there is no tty
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+ENV POSTGREY_DELAY=300
+ENV POSTGREY_MAX_AGE=35
+ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
 COPY ./build/etc/apt/sources.list /etc/apt/sources.list
@@ -128,7 +131,7 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-utils curl libapache2-mod-php php${BUILD_PHP_VERS}-yaml php${BUILD_PHP_VERS}-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt imagemagick libruby libapache2-mod-python memcached libapache2-mod-passenger php php${BUILD_PHP_VERS}-common php${BUILD_PHP_VERS}-gd php${BUILD_PHP_VERS}-mysql php${BUILD_PHP_VERS}-imap php${BUILD_PHP_VERS}-cli php${BUILD_PHP_VERS}-cgi php${BUILD_PHP_VERS}-curl php${BUILD_PHP_VERS}-intl php${BUILD_PHP_VERS}-pspell php${BUILD_PHP_VERS}-sqlite3 php${BUILD_PHP_VERS}-tidy php${BUILD_PHP_VERS}-imagick php${BUILD_PHP_VERS}-xmlrpc php${BUILD_PHP_VERS}-xsl php${BUILD_PHP_VERS}-zip php${BUILD_PHP_VERS}-mbstring php${BUILD_PHP_VERS}-soap php${BUILD_PHP_VERS}-fpm php${BUILD_PHP_VERS}-opcache php${BUILD_PHP_VERS}-json php${BUILD_PHP_VERS}-readline php${BUILD_PHP_VERS}-xml python && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils curl libapache2-mod-php imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-python libruby mcrypt memcached php-pear php${BUILD_PHP_VERS} php${BUILD_PHP_VERS}-{cgi,cgi,cli,common,curl,fpm,gd,imagick,imap,intl,json,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xmlrpc,xsl,yaml,zip} python && \
     rm -rf /var/lib/apt/lists/* && \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
