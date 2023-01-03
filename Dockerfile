@@ -58,7 +58,10 @@ ARG BUILD_ROUNDCUBE_USER="roundcube"
 ARG BUILD_TZ="Europe/London"
 
 # Let the container know that there is no tty
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+ENV POSTGREY_DELAY=300
+ENV POSTGREY_MAX_AGE=35
+ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
 COPY ./build/etc/apt/sources.list /etc/apt/sources.list
