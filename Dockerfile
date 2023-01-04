@@ -134,6 +134,8 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
 # --- 10 Install Apache Web Server and PHP
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php${BUILD_PHP_VERS} libapache2-mod-python libruby lsb-release mcrypt memcached php${BUILD_PHP_VERS}-{cgi,cli,common,curl,fpm,gd,imagick,imap,intl,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xmlrpc,xsl,yaml,zip} python software-properties-common unbound wget && \
+    ln -sf /etc/php/${BUILD_PHP_VERS} /etc/php/current && \
+    ln -sf /var/lib/php${BUILD_PHP_VERS}-fpm /var/lib/php-fpm && \
     rm -rf /var/lib/apt/lists/* && \
     /usr/sbin/a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers actions proxy_fcgi alias
 COPY ./build/etc/apache2/httpoxy.conf /etc/apache2/conf-available/
