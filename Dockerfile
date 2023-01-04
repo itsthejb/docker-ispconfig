@@ -65,9 +65,7 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
-COPY ./build/usr/share/keyrings/deb.sury.org-php.gpg /usr/share/keyrings/deb.sury.org-php.gpg
 COPY ./build/etc/apt/sources.list /etc/apt/sources.list
-COPY ./build/etc/apt/sources.list.d/php.list /etc/apt/sources.list.d/php.list
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # --- set timezone and locale
