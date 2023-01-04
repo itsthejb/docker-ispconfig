@@ -80,7 +80,7 @@ RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
     ln -fs /usr/share/zoneinfo/${BUILD_TZ} /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata && \
 # --- 1 Preliminary
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail wget sudo && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install borgbackup cron patch rsyslog rsyslog-relp logrotate supervisor git sendemail wget sudo && \
     ln -fs /usr/bin/true /usr/bin/systemctl && \
 # Create the log file to be able to run tail
     touch /var/log/cron.log && \
