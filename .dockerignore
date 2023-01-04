@@ -7,3 +7,4 @@ docker-compose.yml
 hooks
 ispconfig-docker.code-workspace
 test
+volumes
