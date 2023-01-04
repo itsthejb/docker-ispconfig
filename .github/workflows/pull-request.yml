@@ -86,6 +86,7 @@ jobs:
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        continue-on-error: true
         with:
           key: image-test-bats-{hash}
           restore-keys: |
@@ -111,6 +112,7 @@ jobs:
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        continue-on-error: true
         with:
           key: image-test-puppeteer1-{hash}
           restore-keys: |
@@ -136,6 +138,7 @@ jobs:
       - name: Setup buildx
         uses: docker/setup-buildx-action@v2
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        continue-on-error: true
         with:
           key: image-test-puppeteer2-{hash}
           restore-keys: |

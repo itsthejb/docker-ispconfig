@@ -26,6 +26,7 @@ jobs:
         with:
           varFilePath: ./.github/variables/vars.env
       - uses: jpribyl/action-docker-layer-caching@v0.1.0
+        continue-on-error: true
         with:
           key: image-build-${{ env.TAG }}-{hash}
           restore-keys: |
