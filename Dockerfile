@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:latest
 #
 #                    ##        .
 #              ## ## ##       ==
