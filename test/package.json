@@ -4,7 +4,7 @@
   "repository": "https://github.com/itsthejb/ispconfig-docker",
   "license": "MIT",
   "devDependencies": {
-    "jest": "^29.4.1",
+    "jest": "^29.4.2",
     "jest-puppeteer": "^7.0.0",
     "puppeteer": "^19.6.3"
   },
