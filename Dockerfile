@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:latest
 #
 #                    ##        .
 #              ## ## ##       ==
@@ -20,13 +21,13 @@
 # https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
 
-FROM debian:bullseye-slim
+FROM debian:11.6-slim
 
 LABEL maintainer="mail@jcrooke.net"
 LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyAdmin and more"
 
 # Frequent: versioning
-ARG BUILD_ISPCONFIG_VERSION="3.2.9"
+ARG BUILD_ISPCONFIG_VERSION="3.2.9p1"
 ARG BUILD_ROUNDCUBE_VERSION="1.6.0"
 ARG BUILD_PHPMYADMIN_VERSION="5.2.0"
 ENV BUILD_PHP_VERS="8.2"
