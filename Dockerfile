@@ -124,9 +124,7 @@ COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 RUN (crontab -l; printf "\n") | sort | uniq | crontab - && \
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get -y --no-install-recommends install spamd clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
-    rm -rf /var/lib/apt/lists/* && \
-    groupadd postgrey && \
-    useradd -M -g postgrey postgrey
+    rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
 RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/bin/freshclam\n") | sort | uniq | crontab - && \
