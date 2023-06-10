@@ -21,16 +21,16 @@
 # https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
 
-FROM debian:11.7-slim
+FROM debian:bookworm-slim
 
 LABEL maintainer="mail@jcrooke.net"
-LABEL description="ISPConfig 3.2 on Debian Bullseye, with Roundcube mail, phpMyAdmin and more"
+LABEL description="ISPConfig 3.2 on Debian Bookworm, with Roundcube mail, phpMyAdmin and more"
 
 # Frequent: versioning
 ARG BUILD_ISPCONFIG_VERSION="3.2.10"
 ARG BUILD_ROUNDCUBE_VERSION="1.6.1"
 ARG BUILD_PHPMYADMIN_VERSION="5.2.1"
-ENV BUILD_PHP_VERS="8.1"
+ENV BUILD_PHP_VERS="8.2"
 ARG BUILD_JAILKIT_VERSION="2.23"
 
 # Other arguments
@@ -49,8 +49,9 @@ ARG BUILD_PHPMYADMIN="yes"
 ARG BUILD_PHPMYADMIN_PW="phpmyadmin"
 ARG BUILD_PHPMYADMIN_USER="phpmyadmin"
 ARG BUILD_PRINTING="no"
-ARG BUILD_PUREFTPD_VERSION_BASE="1.0.49"
-ARG BUILD_PUREFTPD_VERSION_FULL="1.0.49-4.1"
+# https://packages.debian.org/bookworm/pure-ftpd-common
+ARG BUILD_PUREFTPD_VERSION_BASE="1.0.50"
+ARG BUILD_PUREFTPD_VERSION_FULL="${BUILD_PUREFTPD_VERSION_BASE}-2.1+b2"
 ARG BUILD_REDIS="yes"
 ARG BUILD_ROUNDCUBE_DB="roundcube"
 ARG BUILD_ROUNDCUBE_DIR="/opt/roundcube"
@@ -65,9 +66,7 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
-COPY ./build/usr/share/keyrings/deb.sury.org-php.gpg /usr/share/keyrings/deb.sury.org-php.gpg
 COPY ./build/etc/apt/sources.list /etc/apt/sources.list
-COPY ./build/etc/apt/sources.list.d/php.list /etc/apt/sources.list.d/php.list
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # --- set timezone and locale
@@ -117,14 +116,14 @@ RUN if [ "${BUILD_MYSQL_HOST}" = "localhost" ]; then \
     fi; \
 # --- 8b Install Postfix, Dovecot, and Binutils
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc getmail rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install postfix postfix-mysql postfix-doc fetchmail rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql dovecot-sieve dovecot-lmtpd libsasl2-modules && \
     rm -rf /var/lib/apt/lists/*
 COPY ./build/etc/postfix/master.cf /etc/postfix/master.cf
 
 # --- 9 Install SpamAssassin, and ClamAV
 RUN (crontab -l; printf "\n") | sort | uniq | crontab - && \
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -y --no-install-recommends install spamassassin clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
+    apt-get -y --no-install-recommends install spamd clamav sa-compile clamav-daemon unzip bzip2 arj nomarch lzop gnupg2 cabextract p7zip p7zip-full unrar-free lrzip apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl libdbd-mysql-perl postgrey && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./build/etc/clamav/clamd.conf /etc/clamav/clamd.conf
@@ -134,7 +133,7 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php${BUILD_PHP_VERS} libapache2-mod-python libruby lsb-release mcrypt memcached php${BUILD_PHP_VERS}-{cgi,cli,common,curl,fpm,gd,imagick,imap,intl,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xmlrpc,xsl,yaml,zip} python software-properties-common unbound wget && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php${BUILD_PHP_VERS} libapache2-mod-python libruby lsb-release mcrypt memcached php${BUILD_PHP_VERS}-{cgi,cli,common,curl,fpm,gd,imagick,imap,intl,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xsl,yaml,zip} python3 software-properties-common unbound wget && \
     ln -sf /etc/php/${BUILD_PHP_VERS} /etc/php/current && \
     ln -sf /var/lib/php${BUILD_PHP_VERS}-fpm /var/lib/php-fpm && \
     rm -rf /var/lib/apt/lists/* && \
