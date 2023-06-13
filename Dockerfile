@@ -133,7 +133,7 @@ RUN (crontab -l; printf "@daily /usr/bin/ionice -c 3 /usr/bin/nice -n +19 /usr/b
     sa-compile --quiet 2>&1 && \
 # --- 10 Install Apache Web Server and PHP
     apt-get -qq -o Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php${BUILD_PHP_VERS} libapache2-mod-python libruby lsb-release mcrypt memcached php${BUILD_PHP_VERS}-{cgi,cli,common,curl,fpm,gd,imagick,imap,intl,mbstring,mysql,opcache,pspell,readline,soap,sqlite3,tidy,xml,xsl,yaml,zip} python3 software-properties-common unbound wget && \
+    apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apache2 apache2-suexec-pristine apache2-utils ca-certificates dirmngr dnsutils gnupg gnupg2 haveged imagemagick libapache2-mod-fcgid libapache2-mod-passenger libapache2-mod-php${BUILD_PHP_VERS} libapache2-mod-python libruby lsb-release mcrypt memcached php${BUILD_PHP_VERS}-{cgi,cli,common,curl,fpm,gd,imagick,imap,intl,mbstring,mysql,opcache,pspell,readline,redis,soap,sqlite3,tidy,xml,xsl,yaml,zip} python3 software-properties-common unbound wget && \
     ln -sf /etc/php/${BUILD_PHP_VERS} /etc/php/current && \
     ln -sf /var/lib/php${BUILD_PHP_VERS}-fpm /var/lib/php-fpm && \
     rm -rf /var/lib/apt/lists/* && \
