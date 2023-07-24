@@ -6,7 +6,7 @@
   "devDependencies": {
     "jest": "^29.6.1",
     "jest-puppeteer": "^9.0.0",
-    "puppeteer": "^20.8.2"
+    "puppeteer": "^20.9.0"
   },
   "scripts": {
     "test": "jest --runInBand"
