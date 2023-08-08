@@ -1,5 +1,9 @@
 #!/bin/bash
 DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+OPTIONS=()
+
 # shellcheck disable=SC1091
 source "$DIR/pre_build"
-docker-compose -f "$DIR/../build/docker-compose.build.yml" build --progress tty "$@"
+
+[ -t 1 ] && OPTIONS+=(--progress tty)
+docker-compose -f "$DIR/../build/docker-compose.build.yml" build "${OPTIONS[@]}" "$@"
