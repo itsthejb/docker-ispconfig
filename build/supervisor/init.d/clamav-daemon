@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo " - ensure log"
+mkdir -p /var/log/clamav
+touch /var/log/clamav/freshclam.log
+
 echo " - fix permissions"
 chmod 644 /etc/passwd*
 chmod 644 /etc/group*
