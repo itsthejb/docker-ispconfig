@@ -7,3 +7,6 @@ if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
   cat "$SSL_CERT" "$SSL_KEY" > /etc/ssl/private/pure-ftpd.pem
   echo 1 > /etc/pure-ftpd/conf/TLS
 fi
+
+echo " - create directories"
+mkdir -p /var/log/pure-ftpd
