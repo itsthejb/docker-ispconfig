@@ -5,7 +5,7 @@
   "license": "MIT",
   "devDependencies": {
     "jest": "^29.7.0",
-    "jest-puppeteer": "^9.0.0",
+    "jest-puppeteer": "^9.0.1",
     "puppeteer": "^21.3.4"
   },
   "scripts": {
