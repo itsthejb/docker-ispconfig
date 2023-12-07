@@ -67,6 +67,12 @@ ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
+# hadolint ignore=SC1091
+RUN . /etc/os-release && \
+    touch /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian $VERSION_CODENAME main non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian $VERSION_CODENAME-updates main non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian-security/ $VERSION_CODENAME-security main non-free-firmware" >> /etc/apt/sources.list
 
 # --- set timezone and locale
 ENV LANG "${BUILD_LOCALE}.UTF-8"
