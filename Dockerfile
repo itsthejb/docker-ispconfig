@@ -21,7 +21,7 @@
 # https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
 
-FROM debian:12.2-slim
+FROM debian:12.4-slim
 
 LABEL maintainer="mail@jcrooke.net"
 LABEL description="ISPConfig 3.2 on Debian Bookworm, with Roundcube mail, phpMyAdmin and more"
