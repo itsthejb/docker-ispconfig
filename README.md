@@ -26,9 +26,8 @@ This is a fork of [Unimock](https://github.com/unimock)'s excellent work on impl
 ## How to install (rough guide)
 
 * Fork this repository
-* Copy [the template compose file](https://github.com/itsthejb/ispconfig-docker/blob/master/docker-compose.build.yml) to the standard filename of `docker-compose.yml`
-* Customize the build options in your `docker-compose.yml`
-  * One strategy for doing this could be to use the compose file `extends` directive to customize just the options you require, eg. `docker-compose.build.yml`. You then have a separate file for just the customized build options, and your runtime configuration:
+* Customize the build options in your [`docker-compose.yml`](https://github.com/itsthejb/docker-ispconfig/blob/master/docker-compose.yml)
+* Or, rename the file to something like `docker-compose.build.yml`, and then create a separate `docker-compose.yml`, using the `extends` functionality to create your configuration:
 
 ```yaml
 version: '3.9'
