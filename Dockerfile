@@ -21,13 +21,13 @@
 # https://www.howtoforge.com/update-the-ispconfig-perfect-server-from-debian-10-to-debian-11/
 #
 
-FROM debian:12.1-slim
+FROM debian:12.5-slim
 
 LABEL maintainer="mail@jcrooke.net"
 LABEL description="ISPConfig 3.2 on Debian Bookworm, with Roundcube mail, phpMyAdmin and more"
 
 # Frequent: versioning
-ARG BUILD_ISPCONFIG_VERSION="3.2.11"
+ARG BUILD_ISPCONFIG_VERSION="3.2.11p2"
 ARG BUILD_ROUNDCUBE_VERSION="1.6.1"
 ARG BUILD_PHPMYADMIN_VERSION="5.2.1"
 ENV BUILD_PHP_VERS="8.2"
@@ -66,14 +66,18 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by postgrey"
 
 # --- prep
-COPY ./build/etc/apt/sources.list /etc/apt/sources.list
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
-
 # --- set timezone and locale
 ENV LANG "${BUILD_LOCALE}.UTF-8"
 ENV LANGUAGE "${BUILD_LOCALE}:en"
 ENV LC_ALL "${BUILD_LOCALE}.UTF-8"
-RUN apt-get -qq -o Dpkg::Use-Pty=0 update && \
+# hadolint ignore=SC1091
+RUN . /etc/os-release && \
+    touch /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian $VERSION_CODENAME main non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian $VERSION_CODENAME-updates main non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian-security/ $VERSION_CODENAME-security main non-free-firmware" >> /etc/apt/sources.list && \
+    apt-get -qq -o Dpkg::Use-Pty=0 update && \
     apt-get -qq -o Dpkg::Use-Pty=0 --no-install-recommends install apt-utils locales && \
     sed -i -e "s/# ${BUILD_LOCALE}.UTF-8 UTF-8/${BUILD_LOCALE}.UTF-8 UTF-8/" /etc/locale.gen && \
     locale-gen && \
