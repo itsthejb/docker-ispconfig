@@ -1,0 +1,9 @@
+#!/bin/bash
+
+__APT_INSTALLS="${APT_INSTALL:-}"
+
+if [ -n "$__APT_INSTALLS" ]; then
+  apt-get update
+  # shellcheck disable=SC2086
+  apt-get install -y $__APT_INSTALLS
+fi
