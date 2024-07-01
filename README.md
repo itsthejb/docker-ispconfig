@@ -47,9 +47,9 @@ services:
 ```
 
 * Run the build
-  * `docker-compose build .`
-  * If using `extends`: `docker-compose -f docker-compose.build.yml build`
-* Start the container: `docker-compose up -d`
+  * `docker compose build .`
+  * If using `extends`: `docker compose -f docker-compose.build.yml build`
+* Start the container: `docker compose up -d`
 * Initally test the build by connecting to the ispconfig control panel: `http://<localhost>:8080`
 * Do addition verification!
 * Ideally, push your image to Docker Cloud
