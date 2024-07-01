@@ -68,9 +68,9 @@ ENV POSTGREY_TEXT="Delayed by postgrey"
 # --- prep
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 # --- set timezone and locale
-ENV LANG "${BUILD_LOCALE}.UTF-8"
-ENV LANGUAGE "${BUILD_LOCALE}:en"
-ENV LC_ALL "${BUILD_LOCALE}.UTF-8"
+ENV LANG="${BUILD_LOCALE}.UTF-8"
+ENV LANGUAGE="${BUILD_LOCALE}:en"
+ENV LC_ALL="${BUILD_LOCALE}.UTF-8"
 # hadolint ignore=SC1091
 RUN . /etc/os-release && \
     touch /etc/apt/sources.list && \
@@ -345,7 +345,7 @@ RUN cp -v /etc/passwd /etc/passwd.bootstrap && \
     mkdir -p /var/vmail && \
     tar -C /var/vmail -czf /bootstrap/vmail.tgz . && \
     tar -C /var/www -czf /bootstrap/www.tgz  .
-ENV TERM xterm
+ENV TERM=xterm
 
 RUN printf "export TERM=xterm\n" >> /root/.bashrc && \
 #
