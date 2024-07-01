@@ -2,4 +2,4 @@
 if [ "$GITHUB_REF_NAME" = "master" ]; then exit 0; fi
 # shellcheck disable=SC1091
 source "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/pre_build"
-docker network create --driver=bridge --subnet=172.99.0.0/16 --ip-range=172.99.0.2/16 --gateway=172.99.0.1 -o 'com.docker.network.bridge.name'='test_shared' test_shared &> /dev/null || true
+docker network create --driver=bridge --subnet=172.99.0.0/16 --ip-range=172.99.0.0/16 --gateway=172.99.0.1 -o 'com.docker.network.bridge.name'='test_shared' test_shared

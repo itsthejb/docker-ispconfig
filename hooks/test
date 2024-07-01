@@ -10,8 +10,8 @@ export CONTAINER="ispconfig-test"
 
 function buildAndTest() {
   YML=$1
-  UP="docker-compose -f test/$YML up --build --abort-on-container-exit --force-recreate --remove-orphans sut"
-  DOWN="docker-compose -f test/$YML down -v"
+  UP="docker compose -f test/$YML up --build --abort-on-container-exit --force-recreate --remove-orphans sut"
+  DOWN="docker compose -f test/$YML down -v"
 
   if ! $UP; then
     echo "Failed: \"$UP\""

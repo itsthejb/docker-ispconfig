@@ -6,4 +6,4 @@ OPTIONS=()
 source "$DIR/pre_build"
 
 [ -t 1 ] && OPTIONS+=(--progress tty)
-docker-compose -f "$DIR/../build/docker-compose.build.yml" build "${OPTIONS[@]}" "$@"
+docker compose -f "$DIR/../build/docker-compose.build.yml" build "${OPTIONS[@]}" "$@"
