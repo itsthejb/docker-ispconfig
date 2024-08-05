@@ -1,3 +1,8 @@
+
+**Archived!** I've now moved to [Proxmox](https://www.proxmox.com/en/), meaning I'm using ISPConfig in a VM with a standard install. This now makes this project redundant
+
+---
+
 # ispconfig-docker
 
 This is a fork of [Unimock](https://github.com/unimock)'s excellent work on implementing a containerized version of the [ISPConfig](https://www.ispconfig.org) web-hosting suite.
